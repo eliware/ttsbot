@@ -4,34 +4,12 @@ import { Resampler } from '@eliware/resampler';
 import { loadUserSettings } from './settings.mjs';
 import fs from 'fs/promises';
 import path from 'path';
-import { Transform } from 'stream';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPLACEMENTS_PATH = path.join(__dirname, '..', 'replacements.json');
 let replacementsCache = null;
-
-class PcmFrameAligner extends Transform {
-  constructor(frameBytes) {
-    super();
-    this.frameBytes = frameBytes;
-    this.pending = Buffer.alloc(0);
-  }
-
-  _transform(chunk, encoding, callback) {
-    const input = this.pending.length ? Buffer.concat([this.pending, chunk]) : chunk;
-    const alignedLength = input.length - (input.length % this.frameBytes);
-    if (alignedLength > 0) this.push(input.subarray(0, alignedLength));
-    this.pending = input.subarray(alignedLength);
-    callback();
-  }
-
-  _flush(callback) {
-    this.pending = Buffer.alloc(0);
-    callback();
-  }
-}
 
 async function loadReplacements() {
   if (replacementsCache) return replacementsCache;
@@ -165,21 +143,25 @@ export async function playText(guildId, text, userId, userTag) {
     return;
   }
 
-  const aligner = new PcmFrameAligner(2);
-  const resampler = new Resampler({ inRate: 24000, outRate: 48000, inChannels: 1, outChannels: 2 });
+  const resampler = new Resampler({
+    inRate: 24000,
+    outRate: 48000,
+    inChannels: 1,
+    outChannels: 2,
+    filterWindow: 8,
+    volume: 1,
+  });
   res.body.on('error', (err) => console.error('OpenAI TTS stream error', err));
-  aligner.on('error', (err) => console.error('PCM frame aligner error', err));
   resampler.on('error', (err) => console.error('PCM resampler error', err));
 
-  const pcmStream = res.body.pipe(aligner).pipe(resampler);
+  const pcmStream = res.body.pipe(resampler);
   const resource = createAudioResource(pcmStream, { inputType: StreamType.Raw });
 
   const player = state.player;
-  state.current = { player, resource, source: res.body, aligner, resampler };
+  state.current = { player, resource, source: res.body, resampler };
 
   const cleanup = () => {
     try { res.body.destroy(); } catch (e) {}
-    try { aligner.destroy(); } catch (e) {}
     try { resampler.destroy(); } catch (e) {}
     state.current = null;
   };
@@ -217,7 +199,6 @@ export async function stopAndClear(guildId) {
 function cleanupCurrent(state) {
   if (!state.current) return;
   try { state.current.source?.destroy?.(); } catch (e) {}
-  try { state.current.aligner?.destroy?.(); } catch (e) {}
   try { state.current.resampler?.destroy?.(); } catch (e) {}
   state.current = null;
 }
