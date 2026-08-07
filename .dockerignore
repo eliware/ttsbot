@@ -1,0 +1,11 @@
+.git
+.gitignore
+.env
+.env.*
+coverage
+node_modules
+npm-debug.log*
+RELEASE_NOTES.md
+README.md
+AGENTS.md
+tests
