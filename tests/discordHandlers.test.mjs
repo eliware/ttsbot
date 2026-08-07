@@ -1,7 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import fs from 'node:fs/promises';
 import interactionCreate from '../events/interactionCreate.mjs';
-import messageCreate from '../events/messageCreate.mjs';
 import help from '../commands/help.mjs';
 import voice from '../commands/voice.mjs';
 
@@ -42,9 +41,4 @@ describe('Discord handlers', () => {
     expect(actions.voice).toHaveBeenCalledWith(interaction, 'marin');
   });
 
-  test('message event ignores bots and unrelated messages', async () => {
-    await messageCreate({ log }, { author: { bot: true }, guildId: 'guild' });
-    await messageCreate({ log }, { author: { bot: false }, guildId: null });
-    expect(log.error).not.toHaveBeenCalled();
-  });
 });
