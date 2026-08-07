@@ -12,7 +12,7 @@ Discord text-to-speech bot using OpenAI TTS.
 
 ## Requirements
 
-- Node.js
+- Node.js 26 or newer
 - Discord bot token
 - OpenAI API key
 - A Discord server where the bot has permission to read messages, join/speak in voice, and use slash commands
