@@ -32,14 +32,12 @@ export async function startDiscordClient() {
   async function cleanShutdown() {
     if (shuttingDown) return;
     shuttingDown = true;
-    try {
-      for (const [guildId] of client.guilds.cache) {
+    for (const [guildId] of client.guilds.cache) {
         try { await stopAndClear(guildId); } catch {}
         try { const conn = getVoiceConnection(guildId); if (conn) conn.destroy(); } catch {}
       }
       try { if (client.user) client.user.setPresence({ activities: [], status: 'invisible' }); } catch {}
-      try { await client.destroy(); } catch {}
-    }
+    try { await client.destroy(); } catch {}
   }
   registerSignals({ log, shutdownHook: cleanShutdown });
 
