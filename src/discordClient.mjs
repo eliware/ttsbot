@@ -1,5 +1,5 @@
 import pkg from 'discord.js';
-import { log } from '@eliware/common';
+import { log, registerSignals } from '@eliware/common';
 const { Client, GatewayIntentBits, Events, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = pkg;
 import { joinVoiceChannel, getVoiceConnection, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { ensureSettingsDir, loadUserSettings, saveUserSettings, userHasSettings } from './settings.mjs';
@@ -29,7 +29,7 @@ export async function startDiscordClient() {
 
   // simple clean shutdown handler (registered early)
   let shuttingDown = false;
-  async function cleanShutdown(exitCode = 0) {
+  async function cleanShutdown() {
     if (shuttingDown) return;
     shuttingDown = true;
     try {
@@ -39,21 +39,9 @@ export async function startDiscordClient() {
       }
       try { if (client.user) client.user.setPresence({ activities: [], status: 'invisible' }); } catch {}
       try { await client.destroy(); } catch {}
-    } finally {
-      try { process.exit(exitCode); } catch {}
     }
   }
-  process.once('SIGINT', cleanShutdown);
-  process.once('SIGTERM', cleanShutdown);
-  process.once('SIGHUP', cleanShutdown);
-  process.once('uncaughtException', (err) => {
-    log.error('Uncaught exception', err);
-    cleanShutdown(1);
-  });
-  process.once('unhandledRejection', (reason) => {
-    log.error('Unhandled rejection', reason);
-    cleanShutdown(1);
-  });
+  registerSignals({ log, shutdownHook: cleanShutdown });
 
   client.once(Events.ClientReady, async () => {
     const commands = [
