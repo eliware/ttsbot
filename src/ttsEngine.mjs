@@ -83,10 +83,10 @@ async function processQueue(guildId) {
   if (state.playing) return;
   while (state.queue.length > 0) {
     const job = state.queue.shift();
-    log.debug('TTS queue processing', { guildId, remaining: state.queue.length, userId: job.userId });
+    log.debug('TTS queue processing', { guildId, remaining: state.queue.length, userId: job.userId, queueWaitMs: job.receivedAt == null ? undefined : Math.round(performance.now() - job.receivedAt) });
     state.playing = true;
     try {
-      await playText(guildId, job.text, job.userId, job.userTag);
+      await playText(guildId, job.text, job.userId, job.userTag, job.receivedAt);
     } catch (e) {
       log.error('Error playing TTS:', e);
     }
@@ -95,7 +95,7 @@ async function processQueue(guildId) {
 }
 
 // Play text using streamed OpenAI PCM through a native resampler for minimal latency.
-export async function playText(guildId, text, userId, _userTag) {
+export async function playText(guildId, text, userId, _userTag, receivedAt) {
   if (!text || text.length > 2000) return;
   const state = ensureGuildState(guildId);
   if (!state.connection) {
@@ -125,6 +125,7 @@ export async function playText(guildId, text, userId, _userTag) {
 
   // Request PCM for fastest streaming through the shared OpenAI client.
   let res;
+  const metrics = { receivedAt, requestStartedAt: performance.now() };
   log.debug('OpenAI TTS request', { guildId, userId, voice, inputLength: inputText.length, model: 'gpt-4o-mini-tts', responseFormat: 'pcm' });
   try {
     res = await getOpenAIClient().audio.speech.create({
@@ -140,7 +141,8 @@ export async function playText(guildId, text, userId, _userTag) {
     return;
   }
 
-  log.debug('OpenAI TTS response received', { guildId, userId, hasBody: Boolean(res?.body) });
+  metrics.responseReceivedAt = performance.now();
+  log.debug('OpenAI TTS response received', { guildId, userId, hasBody: Boolean(res?.body), requestMs: Math.round(metrics.responseReceivedAt - metrics.requestStartedAt), discordToOpenAIResponseMs: receivedAt == null ? undefined : Math.round(metrics.responseReceivedAt - receivedAt) });
   if (!res?.body) {
     log.error('OpenAI TTS response did not include an audio body');
     return;
@@ -164,8 +166,27 @@ export async function playText(guildId, text, userId, _userTag) {
   resampler.on('error', (err) => log.error('PCM resampler error', err));
 
   let audioBytes = 0;
-  source.on('data', (chunk) => { audioBytes += chunk.length; });
-  source.on('end', () => log.debug('OpenAI TTS stream ended', { guildId, userId, audioBytes }));
+  source.on('data', (chunk) => {
+    if (metrics.openaiFirstByteAt == null) {
+      metrics.openaiFirstByteAt = performance.now();
+      log.debug('OpenAI TTS first audio byte', { guildId, userId, firstByteMs: Math.round(metrics.openaiFirstByteAt - metrics.requestStartedAt), discordToFirstOpenAIMs: receivedAt == null ? undefined : Math.round(metrics.openaiFirstByteAt - receivedAt) });
+    }
+    audioBytes += chunk.length;
+  });
+  source.on('end', () => {
+    metrics.openaiLastByteAt = performance.now();
+    log.debug('OpenAI TTS stream ended', { guildId, userId, audioBytes, openaiStreamMs: Math.round(metrics.openaiLastByteAt - metrics.openaiFirstByteAt), requestToLastOpenAIMs: Math.round(metrics.openaiLastByteAt - metrics.requestStartedAt) });
+  });
+  resampler.on('data', () => {
+    if (metrics.resamplerFirstByteAt == null) {
+      metrics.resamplerFirstByteAt = performance.now();
+      log.debug('Discord audio first PCM byte ready', { guildId, userId, resamplerMs: Math.round(metrics.resamplerFirstByteAt - metrics.requestStartedAt) });
+    }
+  });
+  resampler.on('end', () => {
+    metrics.resamplerLastByteAt = performance.now();
+    log.debug('Discord audio last PCM byte ready', { guildId, userId, resampledAudioMs: Math.round(metrics.resamplerLastByteAt - metrics.resamplerFirstByteAt) });
+  });
   const pcmStream = source.pipe(resampler);
   const resource = createAudioResource(pcmStream, { inputType: StreamType.Raw });
 
@@ -182,12 +203,15 @@ export async function playText(guildId, text, userId, _userTag) {
     const onIdle = () => {
       player.removeListener(AudioPlayerStatus.Idle, onIdle);
       player.removeListener(AudioPlayerStatus.Playing, onPlaying);
-      log.debug('Discord TTS playback idle', { guildId, userId, audioBytes });
+      metrics.playbackIdleAt = performance.now();
+      log.debug('Discord TTS playback idle', { guildId, userId, audioBytes, playbackTotalMs: Math.round(metrics.playbackIdleAt - metrics.requestStartedAt), openaiToPlaybackIdleMs: metrics.openaiFirstByteAt == null ? undefined : Math.round(metrics.playbackIdleAt - metrics.openaiFirstByteAt) });
       cleanup();
       resolve();
     };
     const onPlaying = () => {
-      // no-op
+      if (metrics.playbackFirstByteAt != null) return;
+      metrics.playbackFirstByteAt = performance.now();
+      log.debug('Discord audio playback started', { guildId, userId, playbackStartMs: Math.round(metrics.playbackFirstByteAt - metrics.requestStartedAt), discordToPlaybackMs: receivedAt == null ? undefined : Math.round(metrics.playbackFirstByteAt - receivedAt) });
     };
     player.on(AudioPlayerStatus.Idle, onIdle);
     player.on(AudioPlayerStatus.Playing, onPlaying);

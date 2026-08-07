@@ -63,6 +63,6 @@ describe('messageCreate event', () => {
     await messageCreate({ log }, message);
 
     expect(saveSettings).toHaveBeenCalledWith('guild', 'user', { voice: 'marin', instructions: '' });
-    expect(enqueueSpeech).toHaveBeenCalledWith('guild', { text: 'hello', userId: 'user', userTag: 'user#1' });
+    expect(enqueueSpeech).toHaveBeenCalledWith('guild', expect.objectContaining({ text: 'hello', userId: 'user', userTag: 'user#1', receivedAt: expect.any(Number) }));
   });
 });

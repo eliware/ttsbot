@@ -28,5 +28,5 @@ export default async function ({ log }, message) {
     log.error('Failed to assign user voice', error);
   }
   log.debug('messageCreate enqueueing TTS', { guildId: message.guildId, channelId: message.channelId, userId, length: content.length });
-  await enqueueSpeech(message.guildId, { text: content, userId, userTag: message.author.tag });
+  await enqueueSpeech(message.guildId, { text: content, userId, userTag: message.author.tag, receivedAt: performance.now() });
 }
