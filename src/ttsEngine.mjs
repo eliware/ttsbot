@@ -21,6 +21,14 @@ function toNodeReadable(body) {
   return body;
 }
 
+export function isRetryableOpenAIError(error) {
+  return error?.status === 429 || error?.status >= 500;
+}
+
+export function openAIRetryDelay(attempt) {
+  return 250 * 2 ** (attempt - 1);
+}
+
 async function loadReplacements() {
   if (replacementsCache) return replacementsCache;
   try {
@@ -142,7 +150,7 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
       });
       break;
     } catch (e) {
-      const retryable = e?.status === 429 || e?.status >= 500;
+      const retryable = isRetryableOpenAIError(e);
       if (controller.signal.aborted) {
         log.debug('OpenAI TTS request aborted', { guildId, userId });
         return;
@@ -151,7 +159,7 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
         log.error('OpenAI TTS request error', e);
         return;
       }
-      const delayMs = 250 * 2 ** (attempt - 1);
+      const delayMs = openAIRetryDelay(attempt);
       log.warn('Retrying OpenAI TTS request', { guildId, userId, attempt, delayMs, status: e.status });
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
