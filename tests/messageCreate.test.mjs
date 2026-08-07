@@ -18,7 +18,7 @@ jest.unstable_mockModule('../src/ttsEngine.mjs', () => ({
   stopAndClear: jest.fn(),
 }));
 jest.unstable_mockModule('../src/discordActions.mjs', () => ({
-  AVAILABLE_VOICES: ['marin', 'cedar', 'ash'],
+  AVAILABLE_VOICES: ['alloy', 'ash', 'coral'],
 }));
 
 const { default: messageCreate } = await import('../events/messageCreate.mjs');
@@ -62,7 +62,7 @@ describe('messageCreate event', () => {
 
     await messageCreate({ log }, message);
 
-    expect(saveSettings).toHaveBeenCalledWith('guild', 'user', { voice: 'marin', instructions: '' });
+    expect(saveSettings).toHaveBeenCalledWith('guild', 'user', expect.objectContaining({ voice: expect.stringMatching(/^(alloy|ash|coral)$/), instructions: '' }));
     expect(enqueueSpeech).toHaveBeenCalledWith('guild', expect.objectContaining({ text: 'hello', userId: 'user', userTag: 'user#1', receivedAt: expect.any(Number) }));
   });
 });

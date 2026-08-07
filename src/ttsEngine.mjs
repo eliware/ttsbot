@@ -1,4 +1,4 @@
-import { Readable } from 'node:stream';
+import { Readable, Transform } from 'node:stream';
 import { createOpenAI } from '@eliware/openai';
 import { createAudioPlayer, createAudioResource, AudioPlayerStatus, NoSubscriberBehavior, StreamType, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { Resampler } from '@eliware/resampler';
@@ -18,6 +18,35 @@ function getOpenAIClient() {
 function toNodeReadable(body) {
   if (body && typeof body.getReader === 'function') return Readable.fromWeb(body);
   return body;
+}
+
+const JITTER_BUFFER_MS = 100;
+const PCM_BYTES_PER_SECOND = 48_000 * 2 * 2;
+
+function createJitterBuffer() {
+  const targetBytes = Math.round(PCM_BYTES_PER_SECOND * JITTER_BUFFER_MS / 1000);
+  let buffered = Buffer.alloc(0);
+  let primed = false;
+  return new Transform({
+    transform(chunk, _encoding, callback) {
+      if (primed) {
+        this.push(chunk);
+        callback();
+        return;
+      }
+      buffered = Buffer.concat([buffered, chunk]);
+      if (buffered.length >= targetBytes) {
+        primed = true;
+        this.push(buffered);
+        buffered = Buffer.alloc(0);
+      }
+      callback();
+    },
+    flush(callback) {
+      if (buffered.length) this.push(buffered);
+      callback();
+    },
+  });
 }
 
 async function loadReplacements() {
@@ -187,7 +216,7 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
     metrics.resamplerLastByteAt = performance.now();
     log.debug('Discord audio last PCM byte ready', { guildId, userId, resampledAudioMs: Math.round(metrics.resamplerLastByteAt - metrics.resamplerFirstByteAt) });
   });
-  const pcmStream = source.pipe(resampler);
+  const pcmStream = source.pipe(resampler).pipe(createJitterBuffer());
   const resource = createAudioResource(pcmStream, { inputType: StreamType.Raw });
 
   const player = state.player;
