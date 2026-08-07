@@ -6,7 +6,6 @@ StartLimitBurst=3
 StartLimitIntervalSec=60
 
 [Service]
-# TODO: provision a dedicated ttsbot system user, then replace root below.
 User=root
 Group=root
 UMask=0077
