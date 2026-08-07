@@ -1,0 +1,378 @@
+[
+  {
+    "search": "lol",
+    "replace": "laugh out loud"
+  },
+  {
+    "search": "imy",
+    "replace": "i miss you"
+  },
+  {
+    "search": "sm",
+    "replace": "so much"
+  },
+  {
+    "search": "ilysm",
+    "replace": "i love you so much"
+  },
+  {
+    "search": "imysm",
+    "replace": "i miss you so much"
+  },
+  {
+    "search": "lmao",
+    "replace": "laughing my ass off"
+  },
+  {
+    "search": "omg",
+    "replace": "oh my god"
+  },
+  {
+    "search": "omfg",
+    "replace": "oh my my fucking god"
+  },
+  {
+    "search": "rofl",
+    "replace": "rolling on the floor laughing"
+  },
+  {
+    "search": "brb",
+    "replace": "be right back"
+  },
+  {
+    "search": "btw",
+    "replace": "by the way"
+  },
+  {
+    "search": "idk",
+    "replace": "I don't know"
+  },
+  {
+    "search": "imo",
+    "replace": "in my opinion"
+  },
+  {
+    "search": "imho",
+    "replace": "in my humble opinion"
+  },
+  {
+    "search": "tbh",
+    "replace": "to be honest"
+  },
+  {
+    "search": "fwiw",
+    "replace": "for what it's worth"
+  },
+  {
+    "search": "smh",
+    "replace": "smack my head"
+  },
+  {
+    "search": "ttyl",
+    "replace": "talk to you later"
+  },
+  {
+    "search": "lmk",
+    "replace": "let me know"
+  },
+  {
+    "search": "np",
+    "replace": "no problem"
+  },
+  {
+    "search": "thx",
+    "replace": "thanks"
+  },
+  {
+    "search": "ty",
+    "replace": "thank you"
+  },
+  {
+    "search": "yw",
+    "replace": "you're welcome"
+  },
+  {
+    "search": "afk",
+    "replace": "away from keyboard"
+  },
+  {
+    "search": "nsfw",
+    "replace": "not safe for work"
+  },
+  {
+    "search": "tl;dr",
+    "replace": "too long; didn't read"
+  },
+  {
+    "search": "jk",
+    "replace": "just kidding"
+  },
+  {
+    "search": "bff",
+    "replace": "best friends forever"
+  },
+  {
+    "search": "wyd",
+    "replace": "what are you doing"
+  },
+  {
+    "search": "omw",
+    "replace": "on my way"
+  },
+  {
+    "search": "pls",
+    "replace": "please"
+  },
+  {
+    "search": "plz",
+    "replace": "please"
+  },
+  {
+    "search": "idc",
+    "replace": "I don't care"
+  },
+  {
+    "search": "smth",
+    "replace": "something"
+  },
+  {
+    "search": "cya",
+    "replace": "see ya"
+  },
+  {
+    "search": "eta",
+    "replace": "estimated time of arrival"
+  },
+  {
+    "search": "gg",
+    "replace": "good game"
+  },
+  {
+    "search": "afaik",
+    "replace": "as far as I know"
+  },
+  {
+    "search": "irl",
+    "replace": "in real life"
+  },
+  {
+    "search": "sybau",
+    "replace": "shut your bitch ass up"
+  },
+  {
+    "search": "kms",
+    "replace": "kill myself"
+  },
+  {
+    "search": "kys",
+    "replace": "kill yourself"
+  },
+  {
+    "search": "gts",
+    "replace": "going to sleep"
+  },
+  {
+    "search": "gtg",
+    "replace": "got to go"
+  },
+  {
+    "search": "otp",
+    "replace": "on the phone"
+  },
+  {
+    "search": "js",
+    "replace": "just"
+  },
+  {
+    "search": "idek",
+    "replace": "i dont even know"
+  },
+  {
+    "search": "atp",
+    "replace": "at this point"
+  },
+  {
+    "search": "ngl",
+    "replace": "not gonna lie"
+  },
+  {
+    "search": "kthx",
+    "replace": "ok thanks"
+  },
+  {
+    "search": "tw",
+    "replace": "trigger warning"
+  },
+  {
+    "search": "sh",
+    "replace": "self harm"
+  },
+  {
+    "search": "ed",
+    "replace": "eating disorder"
+  },
+  {
+    "search": "twt",
+    "replace": "tweet"
+  },
+  {
+    "search": "pmo",
+    "replace": "pissing me off"
+  },
+  {
+    "search": "msg",
+    "replace": "message"
+  },
+  {
+    "search": "im",
+    "replace": "I'm"
+  },
+  {
+    "search": "dont",
+    "replace": "don't"
+  },
+  {
+    "search": "dnt",
+    "replace": "don't"
+  },
+  {
+    "search": "idrk",
+    "replace": "i dont really know"
+  },
+  {
+    "search": "idrc",
+    "replace": "i dont really care"
+  },
+  {
+    "search": "idec",
+    "replace": "i dont even care"
+  },
+  {
+    "search": "ily",
+    "replace": "i love you"
+  },
+  {
+    "search": "ilu",
+    "replace": "i love you"
+  },
+  {
+    "search": "ik",
+    "replace": "i know"
+  },
+  {
+    "search": "fr",
+    "replace": "for real"
+  },
+  {
+    "search": "ong",
+    "replace": "on god"
+  },
+  {
+    "search": "ash",
+    "replace": "as hell"
+  },
+  {
+    "search": "asf",
+    "replace": "as fuck"
+  },
+  {
+    "search": "ts",
+    "replace": "this shit"
+  },
+  {
+    "search": "bfr",
+    "replace": "be for real"
+  },
+  {
+    "search": "slr",
+    "replace": "sorry late reply"
+  },
+  {
+    "search": "n",
+    "replace": "and"
+  },
+  {
+    "search": "fw",
+    "replace": "fuck with"
+  },
+  {
+    "search": "sym",
+    "replace": "shut your mouth"
+  },
+  {
+    "search": "syfm",
+    "replace": "shut your fucking mouth"
+  },
+  {
+    "search": "eyp",
+    "replace": "eat your pussy"
+  },
+  {
+    "search": "smd",
+    "replace": "suck my duck"
+  },
+  {
+    "search": "syd",
+    "replace": "suck your dick"
+  },
+  {
+    "search": "rlly",
+    "replace": "really"
+  },
+  {
+    "search": "b",
+    "replace": "be"
+  },
+  {
+    "search": "c",
+    "replace": "see"
+  },
+  {
+    "search": "icba",
+    "replace": "i cant be assed"
+  },
+  {
+    "search": "cba",
+    "replace": "cant be assed"
+  },
+  {
+    "search": "cbf",
+    "replace": "cant be fucked"
+  },
+  {
+    "search": "icbf",
+    "replace": "i cant be fucked"
+  },
+  {
+    "search": "ggs",
+    "replace": "good game"
+  },
+  {
+    "search": "doubba yus",
+    "replace": "double yous"
+  },
+  {
+    "search": "tty",
+    "replace": "talk to you"
+  },
+  {
+    "search": "ttm",
+    "replace": "talk to me"
+  },
+  {
+    "search": "lowk",
+    "replace": "low key"
+  },
+  {
+    "search": "lwk",
+    "replace": "low key"
+  },
+  {
+    "search": "ur",
+    "replace": "your"
+  },
+  {
+    "search": "wbu",
+    "replace": "what about you"
+  }
+]
