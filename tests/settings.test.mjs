@@ -10,12 +10,12 @@ afterEach(async () => {
 
 describe('settings', () => {
   test('returns defaults for missing settings', async () => {
-    expect(await loadUserSettings(guildId, userId)).toEqual({ voice: 'coral', instructions: '' });
+    expect(await loadUserSettings(guildId, userId)).toEqual({ voice: 'coral' });
     expect(await userHasSettings(guildId, userId)).toBe(false);
   });
 
   test('saves and loads in-memory settings', async () => {
-    const settings = { voice: 'alloy', instructions: 'speak clearly' };
+    const settings = { voice: 'alloy' };
     await saveUserSettings(guildId, userId, settings);
     expect(await userHasSettings(guildId, userId)).toBe(true);
     expect(await loadUserSettings(guildId, userId)).toEqual(settings);

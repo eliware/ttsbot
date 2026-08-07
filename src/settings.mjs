@@ -5,7 +5,7 @@ function key(guildId, userId) {
 }
 
 export async function loadUserSettings(guildId, userId) {
-  return { voice: 'coral', instructions: '', ...settings.get(key(guildId, userId)) };
+  return { voice: 'coral', ...settings.get(key(guildId, userId)) };
 }
 
 export async function saveUserSettings(guildId, userId, value) {

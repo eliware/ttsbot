@@ -8,7 +8,7 @@ const log = { debug: jest.fn(), warn: jest.fn(), error: jest.fn() };
 
 describe('Discord handlers', () => {
   test('command definitions have matching handlers', async () => {
-    const names = ['help', 'join', 'leave', 'voice', 'instructions', 'skip', 'stop'];
+    const names = ['help', 'join', 'leave', 'voice', 'skip', 'stop'];
     for (const name of names) {
       const definition = JSON.parse(await fs.readFile(`commands/${name}.json`, 'utf8'));
       expect(definition.name).toBe(name);
@@ -23,22 +23,15 @@ describe('Discord handlers', () => {
     expect(handler).toHaveBeenCalledWith({ client: {}, log, actions: {} }, interaction);
   });
 
-  test('interaction event dispatches instruction modal submission', async () => {
-    const instructionsSubmit = jest.fn();
-    const interaction = { isModalSubmit: () => true, customId: 'instructions_modal' };
-    await interactionCreate({ client: {}, log, commandHandlers: {}, actions: { instructionsSubmit } }, interaction);
-    expect(instructionsSubmit).toHaveBeenCalledWith(interaction);
-  });
-
   test('help and voice commands use expected interaction APIs', async () => {
     const reply = jest.fn();
     await help({ log }, { reply });
     expect(reply).toHaveBeenCalled();
 
     const actions = { voice: jest.fn() };
-    const interaction = { options: { getString: jest.fn(() => 'marin') } };
+    const interaction = { options: { getString: jest.fn(() => 'coral') } };
     await voice({ actions }, interaction);
-    expect(actions.voice).toHaveBeenCalledWith(interaction, 'marin');
+    expect(actions.voice).toHaveBeenCalledWith(interaction, 'coral');
   });
 
 });

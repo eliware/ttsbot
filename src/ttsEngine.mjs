@@ -1,4 +1,5 @@
-import { Readable, Transform } from 'node:stream';
+import { Readable } from 'node:stream';
+import { createJitterBuffer } from './jitterBuffer.mjs';
 import { createOpenAI } from '@eliware/openai';
 import { createAudioPlayer, createAudioResource, AudioPlayerStatus, NoSubscriberBehavior, StreamType, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { Resampler } from '@eliware/resampler';
@@ -18,35 +19,6 @@ function getOpenAIClient() {
 function toNodeReadable(body) {
   if (body && typeof body.getReader === 'function') return Readable.fromWeb(body);
   return body;
-}
-
-const JITTER_BUFFER_MS = 200;
-const PCM_BYTES_PER_SECOND = 48_000 * 2 * 2;
-
-function createJitterBuffer() {
-  const targetBytes = Math.round(PCM_BYTES_PER_SECOND * JITTER_BUFFER_MS / 1000);
-  let buffered = Buffer.alloc(0);
-  let primed = false;
-  return new Transform({
-    transform(chunk, _encoding, callback) {
-      if (primed) {
-        this.push(chunk);
-        callback();
-        return;
-      }
-      buffered = Buffer.concat([buffered, chunk]);
-      if (buffered.length >= targetBytes) {
-        primed = true;
-        this.push(buffered);
-        buffered = Buffer.alloc(0);
-      }
-      callback();
-    },
-    flush(callback) {
-      if (buffered.length) this.push(buffered);
-      callback();
-    },
-  });
 }
 
 async function loadReplacements() {
@@ -138,7 +110,6 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
     return;
   }
   const settings = await loadUserSettings(guildId, userId);
-  const instructions = settings.instructions || '';
   const voice = settings.voice || 'coral';
 
   // Apply user-defined replacements (loaded from ../replacements.json) before sending to the TTS API
@@ -156,18 +127,26 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
   let res;
   const metrics = { receivedAt, requestStartedAt: performance.now() };
   log.debug('OpenAI TTS request', { guildId, userId, voice, inputLength: inputText.length, model: 'tts-1', responseFormat: 'pcm' });
-  try {
-    res = await getOpenAIClient().audio.speech.create({
-      model: 'tts-1',
-      input: inputText,
-      voice,
-      instructions,
-      response_format: 'pcm',
-      stream_format: 'audio',
-    });
-  } catch (e) {
-    log.error('OpenAI TTS request error', e);
-    return;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      res = await getOpenAIClient().audio.speech.create({
+        model: 'tts-1',
+        input: inputText,
+        voice,
+        response_format: 'pcm',
+        stream_format: 'audio',
+      });
+      break;
+    } catch (e) {
+      const retryable = e?.status === 429 || e?.status >= 500;
+      if (!retryable || attempt === 3) {
+        log.error('OpenAI TTS request error', e);
+        return;
+      }
+      const delayMs = 250 * 2 ** (attempt - 1);
+      log.warn('Retrying OpenAI TTS request', { guildId, userId, attempt, delayMs, status: e.status });
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
   }
 
   metrics.responseReceivedAt = performance.now();
@@ -216,11 +195,12 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
     metrics.resamplerLastByteAt = performance.now();
     log.debug('Discord audio last PCM byte ready', { guildId, userId, resampledAudioMs: Math.round(metrics.resamplerLastByteAt - metrics.resamplerFirstByteAt) });
   });
-  const pcmStream = source.pipe(resampler).pipe(createJitterBuffer());
+  const jitterBuffer = createJitterBuffer();
+  const pcmStream = source.pipe(resampler).pipe(jitterBuffer);
   const resource = createAudioResource(pcmStream, { inputType: StreamType.Raw });
 
   const player = state.player;
-  state.current = { player, resource, source, resampler };
+  state.current = { player, resource, source, resampler, jitterBuffer };
 
   const cleanup = () => {
     try { res.body.destroy(); } catch {}
@@ -232,10 +212,16 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
     const onIdle = () => {
       player.removeListener(AudioPlayerStatus.Idle, onIdle);
       player.removeListener(AudioPlayerStatus.Playing, onPlaying);
+      player.removeListener(AudioPlayerStatus.Buffering, onBuffering);
       metrics.playbackIdleAt = performance.now();
       log.debug('Discord TTS playback idle', { guildId, userId, audioBytes, playbackTotalMs: Math.round(metrics.playbackIdleAt - metrics.requestStartedAt), openaiToPlaybackIdleMs: metrics.openaiFirstByteAt == null ? undefined : Math.round(metrics.playbackIdleAt - metrics.openaiFirstByteAt) });
       cleanup();
       resolve();
+    };
+    const onBuffering = () => {
+      if (metrics.playbackFirstByteAt != null) {
+        log.warn('Discord audio buffer underrun', { guildId, userId });
+      }
     };
     const onPlaying = () => {
       if (metrics.playbackFirstByteAt != null) return;
@@ -244,6 +230,7 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
     };
     player.on(AudioPlayerStatus.Idle, onIdle);
     player.on(AudioPlayerStatus.Playing, onPlaying);
+    player.on(AudioPlayerStatus.Buffering, onBuffering);
     // Subscribe before starting the resource so initial PCM frames are not
     // produced while the voice connection has no subscriber.
     if (state.connection) state.connection.subscribe(player);
@@ -268,5 +255,6 @@ function cleanupCurrent(state) {
   if (!state.current) return;
   try { state.current.source?.destroy?.(); } catch {}
   try { state.current.resampler?.destroy?.(); } catch {}
+  try { state.current.jitterBuffer?.destroy?.(); } catch {}
   state.current = null;
 }

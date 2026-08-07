@@ -1,4 +1,3 @@
-import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 import { joinVoiceChannel, getVoiceConnection, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { loadUserSettings, saveUserSettings } from './settings.mjs';
 import { ensureGuildState, skipCurrent, stopAndClear } from './ttsEngine.mjs';
@@ -49,18 +48,6 @@ export function createDiscordActions({ log }) {
       settings.voice = voice;
       await saveUserSettings(interaction.guildId, interaction.user.id, settings);
       await interaction.reply({ content: `Saved voice: ${voice}`, flags: 64 });
-    },
-    async instructions(interaction) {
-      const settings = await loadUserSettings(interaction.guildId, interaction.user.id);
-      const input = new TextInputBuilder().setCustomId('instructions_input').setLabel('TTS instructions (tone/style)').setStyle(TextInputStyle.Paragraph).setPlaceholder('e.g. Calm, storytelling tone').setRequired(false).setValue(String(settings.instructions || '').slice(0, 4000));
-      const modal = new ModalBuilder().setCustomId('instructions_modal').setTitle('Set custom TTS instructions').addComponents(new ActionRowBuilder().addComponents(input));
-      await interaction.showModal(modal);
-    },
-    async instructionsSubmit(interaction) {
-      const settings = await loadUserSettings(interaction.guildId, interaction.user.id);
-      settings.instructions = interaction.fields.getTextInputValue('instructions_input');
-      await saveUserSettings(interaction.guildId, interaction.user.id, settings);
-      await interaction.reply({ content: 'Saved instructions.', flags: 64 });
     },
     async skip(interaction) {
       await skipCurrent(interaction.guildId);

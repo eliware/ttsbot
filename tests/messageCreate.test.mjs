@@ -52,7 +52,7 @@ describe('messageCreate event', () => {
     const state = { linkedTextChannelId: 'linked', assignedUserOrder: [], assignedVoices: {} };
     ensureGuildState.mockReturnValue(state);
     hasSettings.mockResolvedValue(false);
-    loadSettings.mockResolvedValue({ voice: 'coral', instructions: '' });
+    loadSettings.mockResolvedValue({ voice: 'coral' });
     const message = {
       author: { bot: false, id: 'user', tag: 'user#1' },
       guildId: 'guild',
@@ -62,7 +62,7 @@ describe('messageCreate event', () => {
 
     await messageCreate({ log }, message);
 
-    expect(saveSettings).toHaveBeenCalledWith('guild', 'user', expect.objectContaining({ voice: expect.stringMatching(/^(alloy|ash|coral)$/), instructions: '' }));
+    expect(saveSettings).toHaveBeenCalledWith('guild', 'user', expect.objectContaining({ voice: expect.stringMatching(/^(alloy|ash|coral)$/) }));
     expect(enqueueSpeech).toHaveBeenCalledWith('guild', expect.objectContaining({ text: 'hello', userId: 'user', userTag: 'user#1', receivedAt: expect.any(Number) }));
   });
 });

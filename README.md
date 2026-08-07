@@ -51,7 +51,6 @@ The root entrypoint is `ttsbot.mjs`; it loads `src/main.mjs`, validates required
 - `/join` — join your current voice channel and link the current text channel
 - `/leave` — leave voice and clear guild state
 - `/voice <voice>` — save your TTS voice
-- `/instructions` — set custom speaking instructions using a modal
 - `/skip` — skip the current message
 - `/stop` — stop playback and clear the queue
 
@@ -65,6 +64,7 @@ Available voices are defined in `src/discordClient.mjs` and exposed as `/voice` 
 - Messages are queued FIFO per guild.
 - Users without settings receive an automatically assigned voice on first use.
 - Settings are kept in memory and reset when the process restarts.
+- `TTS_JITTER_BUFFER_MS` controls the PCM prebuffer (default: 200 ms).
 - Word replacements are loaded from `replacements.json` and applied before TTS requests.
 - `/leave`, `/skip`, `/stop`, and process shutdown clean active playback and queues.
 
