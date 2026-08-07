@@ -1,5 +1,12 @@
 # Release notes
 
+## 1.0.2
+
+- Added production Docker image and GHCR publishing workflow.
+- Added Docker health smoke validation.
+- Added Kubernetes deployment support and health/readiness probes.
+
+
 ## 1.0.1
 
 Initial tracked release of ttsbot, including:
