@@ -171,6 +171,11 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
 
   metrics.responseReceivedAt = performance.now();
   log.debug('OpenAI TTS response received', { guildId, userId, hasBody: Boolean(res?.body), requestMs: Math.round(metrics.responseReceivedAt - metrics.requestStartedAt), discordToOpenAIResponseMs: receivedAt == null ? undefined : Math.round(metrics.responseReceivedAt - receivedAt) });
+  if (controller.signal.aborted) {
+    log.debug('Discarding canceled OpenAI TTS response', { guildId, userId });
+    try { res.body?.cancel?.(); } catch {}
+    return;
+  }
   if (!res?.body) {
     log.error('OpenAI TTS response did not include an audio body');
     return;
