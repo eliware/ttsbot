@@ -12,11 +12,6 @@ process.on('warning', (warning) => {
 
 registerHandlers({ events: ['uncaughtException', 'unhandledRejection'], log });
 
-// Load env quietly. dotenv supports `debug` which prints diagnostics when true; keep it false.
-// Some wrappers print additional info; setting DEBUG env vars for dotenv-related libs can help,
-// but here we ensure dotenv itself doesn't output debug logs.
-dotenv.config({ quiet: true });
-
 import { startDiscordClient } from './discordClient.mjs';
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
