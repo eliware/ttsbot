@@ -1,14 +1,12 @@
 import { createDiscord } from '@eliware/discord';
 import { log, path } from '@eliware/common';
 import { createDiscordActions } from './discordActions.mjs';
-import { ensureSettingsDir } from './settings.mjs';
 import { getVoiceConnection } from '@discordjs/voice';
 import { ensureGuildState, stopAndClear } from './ttsEngine.mjs';
 
 export async function startDiscordClient() {
   if (!process.env.DISCORD_TOKEN) throw new Error('Missing DISCORD_TOKEN');
   if (!process.env.DISCORD_CLIENT_ID) throw new Error('Missing DISCORD_CLIENT_ID');
-  await ensureSettingsDir();
   const actions = createDiscordActions({ log });
   const cleanupAudio = async () => {
     const client = cleanupAudio.client;
