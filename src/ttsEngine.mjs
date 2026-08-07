@@ -1,4 +1,5 @@
-import fetch from 'node-fetch';
+import { Readable } from 'node:stream';
+import { createOpenAI } from '@eliware/openai';
 import { createAudioPlayer, createAudioResource, AudioPlayerStatus, NoSubscriberBehavior, StreamType, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { Resampler } from '@eliware/resampler';
 import { loadUserSettings } from './settings.mjs';
@@ -7,6 +8,17 @@ import { log, path } from '@eliware/common';
 
 const REPLACEMENTS_PATH = path(import.meta, '..', 'replacements.json');
 let replacementsCache = null;
+let openaiClient = null;
+
+function getOpenAIClient() {
+  if (!openaiClient) openaiClient = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return openaiClient;
+}
+
+function toNodeReadable(body) {
+  if (body && typeof body.getReader === 'function') return Readable.fromWeb(body);
+  return body;
+}
 
 async function loadReplacements() {
   if (replacementsCache) return replacementsCache;
@@ -109,34 +121,30 @@ export async function playText(guildId, text, userId, _userTag) {
     log.error('Replacements error', e);
   }
 
-  // Request PCM for fastest streaming
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  // Request PCM for fastest streaming through the shared OpenAI client.
   let res;
   try {
-    res = await fetch('https://api.openai.com/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini-tts',
-        input: inputText,
-        voice,
-        instructions,
-        response_format: 'pcm',
-        stream_format: 'audio'
-      }),
+    res = await getOpenAIClient().audio.speech.create({
+      model: 'gpt-4o-mini-tts',
+      input: inputText,
+      voice,
+      instructions,
+      response_format: 'pcm',
+      stream_format: 'audio',
     });
   } catch (e) {
     log.error('OpenAI TTS request error', e);
     return;
   }
 
-  if (!res.ok || !res.body) {
-    let txt = '';
-    try { txt = await res.text(); } catch (e) { txt = String(e); }
-    log.error('OpenAI TTS request failed', txt);
+  if (!res?.body) {
+    log.error('OpenAI TTS response did not include an audio body');
+    return;
+  }
+
+  const source = toNodeReadable(res.body);
+  if (!source || typeof source.pipe !== 'function') {
+    log.error('OpenAI TTS response body is not streamable');
     return;
   }
 
@@ -148,14 +156,14 @@ export async function playText(guildId, text, userId, _userTag) {
     filterWindow: 8,
     volume: 1,
   });
-  res.body.on('error', (err) => log.error('OpenAI TTS stream error', err));
+  source.on('error', (err) => log.error('OpenAI TTS stream error', err));
   resampler.on('error', (err) => log.error('PCM resampler error', err));
 
-  const pcmStream = res.body.pipe(resampler);
+  const pcmStream = source.pipe(resampler);
   const resource = createAudioResource(pcmStream, { inputType: StreamType.Raw });
 
   const player = state.player;
-  state.current = { player, resource, source: res.body, resampler };
+  state.current = { player, resource, source, resampler };
 
   const cleanup = () => {
     try { res.body.destroy(); } catch {}
