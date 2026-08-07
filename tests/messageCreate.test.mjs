@@ -48,6 +48,14 @@ describe('messageCreate event', () => {
     expect(enqueueSpeech).not.toHaveBeenCalled();
   });
 
+  test('ignores empty and oversized content', async () => {
+    ensureGuildState.mockReturnValue({ linkedTextChannelId: 'linked' });
+    for (const content of ['', '   ', 'x'.repeat(2001)]) {
+      await messageCreate({ log }, { author: { bot: false, id: 'user' }, guildId: 'guild', channelId: 'linked', content });
+    }
+    expect(enqueueSpeech).not.toHaveBeenCalled();
+  });
+
   test('assigns a voice and queues linked messages', async () => {
     const state = { linkedTextChannelId: 'linked', assignedUserOrder: [], assignedVoices: {} };
     ensureGuildState.mockReturnValue(state);
