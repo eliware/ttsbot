@@ -251,7 +251,7 @@ export async function skipCurrent(guildId) {
   const state = ensureGuildState(guildId);
   log.debug('Skipping current TTS', { guildId, queueLength: state.queue.length, hasCurrent: Boolean(state.current), playerStatus: state.player.state.status });
   if (state.player) state.player.stop(true);
-  cleanupCurrent(state);
+  cancelCurrent(state);
 }
 
 export async function stopAndClear(guildId) {
@@ -259,10 +259,10 @@ export async function stopAndClear(guildId) {
   log.debug('Stopping and clearing TTS', { guildId, queueLength: state.queue.length, hasCurrent: Boolean(state.current), playerStatus: state.player.state.status });
   state.queue = [];
   if (state.player) state.player.stop(true);
-  cleanupCurrent(state);
+  cancelCurrent(state);
 }
 
-function cleanupCurrent(state) {
+export function cancelCurrent(state) {
   if (!state.current) return;
   try { state.current.controller?.abort(); } catch {}
   try { state.current.source?.destroy?.(); } catch {}
