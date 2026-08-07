@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import { log, registerHandlers } from '@eliware/common';
 
 // Suppress specific Node deprecation warnings (e.g. DEP0040 for the `punycode` module)
