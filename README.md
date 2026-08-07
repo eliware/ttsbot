@@ -63,8 +63,8 @@ Available voices are defined in `src/discordClient.mjs` and exposed as `/voice` 
 - Bot-authored messages are ignored.
 - Messages longer than 2,000 characters are ignored.
 - Messages are queued FIFO per guild.
-- Users without saved settings receive an automatically assigned voice on first use.
-- Settings are stored as runtime state in `settings/<guildId>-<userId>.json` and should not be committed.
+- Users without settings receive an automatically assigned voice on first use.
+- Settings are kept in memory and reset when the process restarts.
 - Word replacements are loaded from `replacements.json` and applied before TTS requests.
 - `/leave`, `/skip`, `/stop`, and process shutdown clean active playback and queues.
 

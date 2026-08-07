@@ -1,37 +1,17 @@
-import fs from 'fs/promises';
-import { path } from '@eliware/common';
+const settings = new Map();
 
-export const SETTINGS_DIR = path(import.meta, '..', 'settings');
-
-export async function ensureSettingsDir() {
-  await fs.mkdir(SETTINGS_DIR, { recursive: true });
-}
-
-export function settingsPath(guildId, userId) {
-  return path(SETTINGS_DIR, `${guildId}-${userId}.json`);
+function key(guildId, userId) {
+  return `${guildId}:${userId}`;
 }
 
 export async function loadUserSettings(guildId, userId) {
-  try {
-    const p = settingsPath(guildId, userId);
-    const raw = await fs.readFile(p, 'utf8');
-    return JSON.parse(raw);
-  } catch {
-    return { voice: 'coral', instructions: '' };
-  }
+  return { voice: 'coral', instructions: '', ...settings.get(key(guildId, userId)) };
 }
 
-export async function saveUserSettings(guildId, userId, settings) {
-  const p = settingsPath(guildId, userId);
-  await fs.writeFile(p, JSON.stringify(settings, null, 2), 'utf8');
+export async function saveUserSettings(guildId, userId, value) {
+  settings.set(key(guildId, userId), { ...value });
 }
 
 export async function userHasSettings(guildId, userId) {
-  const p = settingsPath(guildId, userId);
-  try {
-    await fs.access(p);
-    return true;
-  } catch {
-    return false;
-  }
+  return settings.has(key(guildId, userId));
 }

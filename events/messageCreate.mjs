@@ -15,11 +15,8 @@ export default async function ({ log }, message) {
       state.assignedUserOrder ??= [];
       state.assignedVoices ??= {};
       if (!state.assignedUserOrder.includes(userId)) state.assignedUserOrder.push(userId);
-      const index = state.assignedUserOrder.indexOf(userId);
       const taken = new Set(Object.values(state.assignedVoices));
-      if (index === 0) state.assignedVoices[userId] = 'marin';
-      else if (index === 1) state.assignedVoices[userId] = 'cedar';
-      else state.assignedVoices[userId] = AVAILABLE_VOICES.find((voice) => !taken.has(voice)) || AVAILABLE_VOICES[0];
+      state.assignedVoices[userId] = AVAILABLE_VOICES.find((voice) => !taken.has(voice)) || AVAILABLE_VOICES[0];
       const settings = await loadUserSettings(message.guildId, userId);
       settings.voice = state.assignedVoices[userId];
       await saveUserSettings(message.guildId, userId, settings);

@@ -3,7 +3,7 @@ import { joinVoiceChannel, getVoiceConnection, entersState, VoiceConnectionStatu
 import { loadUserSettings, saveUserSettings } from './settings.mjs';
 import { ensureGuildState, skipCurrent, stopAndClear } from './ttsEngine.mjs';
 
-export const AVAILABLE_VOICES = ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer', 'verse', 'marin', 'cedar'];
+export const AVAILABLE_VOICES = ['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'];
 
 export function createDiscordActions({ log }) {
   return {

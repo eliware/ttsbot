@@ -126,10 +126,10 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
   // Request PCM for fastest streaming through the shared OpenAI client.
   let res;
   const metrics = { receivedAt, requestStartedAt: performance.now() };
-  log.debug('OpenAI TTS request', { guildId, userId, voice, inputLength: inputText.length, model: 'gpt-4o-mini-tts', responseFormat: 'pcm' });
+  log.debug('OpenAI TTS request', { guildId, userId, voice, inputLength: inputText.length, model: 'tts-1', responseFormat: 'pcm' });
   try {
     res = await getOpenAIClient().audio.speech.create({
-      model: 'gpt-4o-mini-tts',
+      model: 'tts-1',
       input: inputText,
       voice,
       instructions,
