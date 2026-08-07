@@ -65,4 +65,21 @@ describe('messageCreate event', () => {
     expect(saveSettings).toHaveBeenCalledWith('guild', 'user', expect.objectContaining({ voice: expect.stringMatching(/^(alloy|ash|coral)$/) }));
     expect(enqueueSpeech).toHaveBeenCalledWith('guild', expect.objectContaining({ text: 'hello', userId: 'user', userTag: 'user#1', receivedAt: expect.any(Number) }));
   });
+  test('handles rapid message bursts without dropping messages', async () => {
+    const state = { linkedTextChannelId: 'linked', assignedUserOrder: [], assignedVoices: {} };
+    ensureGuildState.mockReturnValue(state);
+    hasSettings.mockResolvedValue(true);
+    const messages = Array.from({ length: 20 }, (_, index) => ({
+      author: { bot: false, id: 'user', tag: 'user#1' },
+      guildId: 'guild',
+      channelId: 'linked',
+      content: `message ${index}`,
+    }));
+
+    for (const message of messages) await messageCreate({ log }, message);
+
+    expect(enqueueSpeech).toHaveBeenCalledTimes(messages.length);
+    expect(enqueueSpeech.mock.calls.map(([guildId, item]) => [guildId, item.text])).toEqual(messages.map((message) => ['guild', message.content]));
+  });
+
 });
