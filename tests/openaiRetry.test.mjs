@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { isRetryableOpenAIError, openAIRetryDelay } from '../src/ttsEngine.mjs';
+import { isRetryableOpenAIError, openAIRetryDelay } from '../src/ttsPolicies.mjs';
 
 describe('OpenAI retry policy', () => {
   test('retries rate limits and server failures only', () => {

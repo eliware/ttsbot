@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { shouldLogBufferUnderrun } from '../src/ttsEngine.mjs';
+import { shouldLogBufferUnderrun } from '../src/ttsPolicies.mjs';
 
 describe('buffer underrun detection', () => {
   test('only reports buffering after playback has started', () => {

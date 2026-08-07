@@ -1,5 +1,5 @@
 import { describe, expect, jest, test } from '@jest/globals';
-import { cancelCurrent } from '../src/ttsEngine.mjs';
+import { cancelCurrent } from '../src/audioLifecycle.mjs';
 
 describe('TTS cancellation', () => {
   test('skip/stop cancellation aborts and destroys the current pipeline', () => {

@@ -4,6 +4,8 @@ import { createOpenAI } from '@eliware/openai';
 import { createAudioPlayer, createAudioResource, AudioPlayerStatus, NoSubscriberBehavior, StreamType, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { Resampler } from '@eliware/resampler';
 import { loadUserSettings } from './settings.mjs';
+import { isRetryableOpenAIError, openAIRetryDelay, shouldLogBufferUnderrun } from './ttsPolicies.mjs';
+import { cancelCurrent } from './audioLifecycle.mjs';
 import fs from 'fs/promises';
 import { log, path } from '@eliware/common';
 
@@ -19,18 +21,6 @@ function getOpenAIClient() {
 function toNodeReadable(body) {
   if (body && typeof body.getReader === 'function') return Readable.fromWeb(body);
   return body;
-}
-
-export function isRetryableOpenAIError(error) {
-  return error?.status === 429 || error?.status >= 500;
-}
-
-export function openAIRetryDelay(attempt) {
-  return 250 * 2 ** (attempt - 1);
-}
-
-export function shouldLogBufferUnderrun(playbackStarted) {
-  return playbackStarted === true;
 }
 
 async function loadReplacements() {
@@ -279,11 +269,3 @@ export async function stopAndClear(guildId) {
   cancelCurrent(state);
 }
 
-export function cancelCurrent(state) {
-  if (!state.current) return;
-  try { state.current.controller?.abort(); } catch {}
-  try { state.current.source?.destroy?.(); } catch {}
-  try { state.current.resampler?.destroy?.(); } catch {}
-  try { state.current.jitterBuffer?.destroy?.(); } catch {}
-  state.current = null;
-}
