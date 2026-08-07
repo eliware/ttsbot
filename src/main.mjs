@@ -20,10 +20,11 @@ dotenv.config({ quiet: true });
 
 import { startDiscordClient } from './discordClient.mjs';
 
+const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-if (!DISCORD_TOKEN || !OPENAI_API_KEY) {
-  log.error('Missing DISCORD_TOKEN or OPENAI_API_KEY in environment. See .env.example');
+if (!DISCORD_CLIENT_ID || !DISCORD_TOKEN || !OPENAI_API_KEY) {
+  log.error('Missing DISCORD_CLIENT_ID, DISCORD_TOKEN, or OPENAI_API_KEY in environment. See .env.example');
   process.exit(1);
 }
 

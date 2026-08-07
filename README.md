@@ -22,11 +22,12 @@ The bot joins a Discord voice channel, links the current text channel, and speak
 Copy `.env.example` to `.env` and set:
 
 ```env
+DISCORD_CLIENT_ID=your_discord_application_client_id_here
 DISCORD_TOKEN=your_discord_bot_token_here
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-Both values are required secrets. Never commit `.env`, tokens, or API keys. Configuration is loaded at startup and is not logged.
+DISCORD_CLIENT_ID identifies the Discord application and is not secret. DISCORD_TOKEN and OPENAI_API_KEY are required secrets. Never commit `.env`, tokens, or API keys. Configuration is loaded at startup and is not logged.
 
 ## Install
 
