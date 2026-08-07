@@ -14,6 +14,7 @@ export function createDiscordActions({ log }) {
       await interaction.deferReply();
       const existing = getVoiceConnection(guildId);
       if (existing) return interaction.editReply({ content: 'I am already connected. Use /leave to disconnect first.' });
+      log.debug('Joining Discord voice channel', { guildId, channelId: voiceChannel.id, textChannelId: interaction.channelId });
       const connection = joinVoiceChannel({ channelId: voiceChannel.id, guildId, adapterCreator: voiceChannel.guild.voiceAdapterCreator });
       const state = ensureGuildState(guildId);
       state.connection = connection;
@@ -23,6 +24,7 @@ export function createDiscordActions({ log }) {
       connection.subscribe(state.player);
       try {
         await entersState(connection, VoiceConnectionStatus.Ready, 15_000);
+        log.debug('Discord voice channel ready', { guildId, channelId: voiceChannel.id });
         await interaction.editReply({ content: `Joined ${voiceChannel.name} and linked to this text channel for TTS.` });
       } catch (error) {
         log.error('Voice connection failed', error);

@@ -23,7 +23,7 @@ jest.unstable_mockModule('../src/discordActions.mjs', () => ({
 
 const { default: messageCreate } = await import('../events/messageCreate.mjs');
 
-const log = { error: jest.fn() };
+const log = { debug: jest.fn(), error: jest.fn() };
 
 afterEach(() => {
   jest.clearAllMocks();

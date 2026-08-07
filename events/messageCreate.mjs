@@ -4,6 +4,7 @@ import { ensureGuildState, enqueueSpeech } from '../src/ttsEngine.mjs';
 
 export default async function ({ log }, message) {
   if (message.author.bot || !message.guildId) return;
+  log.debug('messageCreate received', { guildId: message.guildId, channelId: message.channelId, messageId: message.id });
   const state = ensureGuildState(message.guildId);
   if (!state.linkedTextChannelId || message.channelId !== state.linkedTextChannelId) return;
   const content = message.content?.trim();
@@ -26,5 +27,6 @@ export default async function ({ log }, message) {
   } catch (error) {
     log.error('Failed to assign user voice', error);
   }
+  log.debug('messageCreate enqueueing TTS', { guildId: message.guildId, channelId: message.channelId, userId, length: content.length });
   await enqueueSpeech(message.guildId, { text: content, userId, userTag: message.author.tag });
 }
