@@ -6,13 +6,33 @@ StartLimitBurst=3
 StartLimitIntervalSec=60
 
 [Service]
+# TODO: provision a dedicated ttsbot system user, then replace root below.
 User=root
 Group=root
-RestartSec=5
-Restart=on-failure
+UMask=0077
 WorkingDirectory=/opt/ttsbot
 ExecStart=/opt/ttsbot/ttsbot.mjs
 EnvironmentFile=/opt/ttsbot/.env
+Environment=NODE_ENV=production
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+
+# Least-privilege systemd sandboxing.
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/opt/ttsbot/settings
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 
 [Install]
 WantedBy=multi-user.target
