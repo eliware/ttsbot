@@ -14,6 +14,11 @@ jest.unstable_mockModule('../src/settings.mjs', () => ({
 jest.unstable_mockModule('../src/ttsEngine.mjs', () => ({
   ensureGuildState,
   enqueueSpeech,
+  skipCurrent: jest.fn(),
+  stopAndClear: jest.fn(),
+}));
+jest.unstable_mockModule('../src/discordActions.mjs', () => ({
+  AVAILABLE_VOICES: ['marin', 'cedar', 'ash'],
 }));
 
 const { default: messageCreate } = await import('../events/messageCreate.mjs');
