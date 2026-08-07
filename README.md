@@ -25,6 +25,8 @@ Copy `.env.example` to `.env` and set:
 DISCORD_CLIENT_ID=your_discord_application_client_id_here
 DISCORD_TOKEN=your_discord_bot_token_here
 OPENAI_API_KEY=your_openai_api_key_here
+HEALTH_PORT=8080
+LOG_LEVEL=info
 ```
 
 DISCORD_CLIENT_ID identifies the Discord application and is not secret. DISCORD_TOKEN and OPENAI_API_KEY are required secrets. Never commit `.env`, tokens, or API keys. Configuration is loaded at startup and is not logged.
@@ -64,7 +66,9 @@ Available voices are defined in `src/discordClient.mjs` and exposed as `/voice` 
 - Messages are queued FIFO per guild.
 - Users without settings receive an automatically assigned voice on first use.
 - Settings are kept in memory and reset when the process restarts.
-- `TTS_JITTER_BUFFER_MS` controls the PCM prebuffer (default: 200 ms).
+- `TTS_JITTER_BUFFER_MS` controls the PCM prebuffer (optional integer 0-1000, default: 200 ms).
+- `HEALTH_PORT` controls the local health server port (optional integer, default: 8080).
+- `LOG_LEVEL` controls logging verbosity (optional, default: info).
 - Word replacements are loaded from `replacements.json` and applied before TTS requests.
 - `/leave`, `/skip`, `/stop`, and process shutdown clean active playback and queues.
 
@@ -109,7 +113,7 @@ The service restarts on failure. Verify logs after restart. Roll back by restori
 - Use the minimum Discord permissions required for the bot.
 - Do not expose logs containing message content, credentials, or full API responses.
 - Runtime settings are local mutable state; back them up only if preserving user preferences is required.
-- There is no HTTP health endpoint; readiness is indicated by successful Discord login and the `ClientReady` event.
+- The local HTTP health server exposes `GET /health` (process alive) and `GET /ready` (Discord startup complete) on `127.0.0.1:HEALTH_PORT`.
 
 ## Project files
 
@@ -117,6 +121,7 @@ The service restarts on failure. Verify logs after restart. Roll back by restori
 - `src/main.mjs` — startup and environment validation
 - `src/discordClient.mjs` — Discord commands, events, and shutdown
 - `src/ttsEngine.mjs` — TTS requests, queueing, resampling, and playback
+- `src/healthServer.mjs` — local health and readiness endpoints
 - `src/settings.mjs` — settings persistence
 - `tests/` — focused automated tests
 - `replacements.json` — search/replace rules

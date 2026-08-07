@@ -13,6 +13,7 @@ process.on('warning', (warning) => {
 registerHandlers({ events: ['uncaughtException', 'unhandledRejection'], log });
 
 import { startDiscordClient } from './discordClient.mjs';
+import { startHealthServer } from './healthServer.mjs';
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
@@ -23,9 +24,11 @@ if (!DISCORD_CLIENT_ID || !DISCORD_TOKEN || !OPENAI_API_KEY) {
 }
 
 (async () => {
+  const health = await startHealthServer();
   try {
     log.info('TTS POC starting...');
     await startDiscordClient();
+    health.setReady(true);
   } catch (e) {
     log.error('Failed to start Discord client', e);
     process.exit(1);

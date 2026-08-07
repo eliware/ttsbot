@@ -1,7 +1,7 @@
 {
   "name": "ttsbot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Discord text-to-speech bot using OpenAI TTS",
   "main": "ttsbot.mjs",
   "scripts": {
     "start": "node --no-deprecation ttsbot.mjs",
@@ -9,8 +9,13 @@
     "lint": "npx oxlint .",
     "test:gaps": "npm test 2>&1 | grep '|' | grep -vF '|     100 |      100 |     100 |     100 |'"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "discord",
+    "text-to-speech",
+    "openai",
+    "tts"
+  ],
+  "author": "Eliware",
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.10.0",

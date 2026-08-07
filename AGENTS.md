@@ -12,20 +12,23 @@ This repository contains `ttsbot`, a Discord text-to-speech bot.
 - TTS playback pipeline: `src/ttsEngine.mjs`
 - Per-user settings: `src/settings.mjs`
 - Replacements: `replacements.json`
-- Runtime settings: `settings/`
 
 ## Behavior summary
 
 - The bot joins a Discord voice channel on `/join`.
 - It speaks messages only from the linked text channel.
 - It uses OpenAI TTS and resamples audio for Discord playback.
-- It stores per-user voice and instruction preferences on disk.
-- It auto-assigns voices for users without saved settings.
+- It stores per-user voice preferences in memory and resets them on restart.
+- It auto-assigns voices for users without settings.
 
 ## Required environment
 
+- `DISCORD_CLIENT_ID`
 - `DISCORD_TOKEN`
 - `OPENAI_API_KEY`
+- `HEALTH_PORT` (optional, default `8080`)
+- `TTS_JITTER_BUFFER_MS` (optional, integer 0-1000, default `200`)
+- `LOG_LEVEL` (optional, default `info`)
 
 ## Run
 
@@ -41,5 +44,6 @@ This repository contains `ttsbot`, a Discord text-to-speech bot.
 
 ## Testing
 
-- No test suite exists yet.
-- If behavior changes, validate by starting the bot and checking Discord interaction flow.
+- `npm test`
+- `npm run test:gaps`
+- `npm run lint`

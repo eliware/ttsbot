@@ -17,13 +17,12 @@ Restart=on-failure
 RestartSec=5
 TimeoutStopSec=30
 
-# Least-privilege systemd sandboxing.
+# Runtime intentionally remains root pending infrastructure standardization.
 NoNewPrivileges=yes
 PrivateTmp=yes
 PrivateDevices=yes
 ProtectHome=yes
 ProtectSystem=strict
-ReadWritePaths=/opt/ttsbot/settings
 ProtectKernelTunables=yes
 ProtectKernelModules=yes
 ProtectControlGroups=yes
