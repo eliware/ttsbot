@@ -1,5 +1,8 @@
-import { afterEach, describe, expect, test } from '@jest/globals';
-import { createHealthServer, startHealthServer } from '../src/healthServer.mjs';
+import { afterEach, describe, expect, jest, test } from '@jest/globals';
+
+const log = { info: jest.fn() };
+jest.unstable_mockModule('@eliware/common', () => ({ log }));
+const { createHealthServer, startHealthServer } = await import('../src/healthServer.mjs');
 
 const healthServers = [];
 afterEach(async () => {
@@ -33,6 +36,49 @@ describe('health server', () => {
   test('starts using HEALTH_PORT', async () => {
     const previous = process.env.HEALTH_PORT;
     process.env.HEALTH_PORT = '0';
+    const health = await startHealthServer();
+    healthServers.push(health);
+    expect((await request(health.server, '/health')).status).toBe(200);
+    if (previous === undefined) delete process.env.HEALTH_PORT;
+    else process.env.HEALTH_PORT = previous;
+  });
+
+  test('supports defaults and reports startup conflicts', async () => {
+    const first = createHealthServer({ port: 0 });
+    const second = createHealthServer({ port: 0 });
+    await first.start();
+    const port = first.server.address().port;
+    const conflict = createHealthServer({ port });
+    await expect(conflict.start()).rejects.toHaveProperty('code', 'EADDRINUSE');
+    expect(second.server.listening).toBe(false);
+    await first.stop();
+    const defaults = createHealthServer();
+    expect(defaults.server).toBeDefined();
+  });
+
+  test('propagates close errors', async () => {
+    const health = createHealthServer({ port: 0 });
+    await health.start();
+    const close = health.server.close;
+    health.server.close = (callback) => callback(new Error('close failed'));
+    await expect(health.stop()).rejects.toThrow('close failed');
+    health.server.close = close;
+    await health.stop();
+  });
+
+  test('uses port 8080 when HEALTH_PORT is unset', async () => {
+    const previous = process.env.HEALTH_PORT;
+    delete process.env.HEALTH_PORT;
+    const health = await startHealthServer();
+    healthServers.push(health);
+    expect(health.server.address().port).toBe(8080);
+    if (previous === undefined) delete process.env.HEALTH_PORT;
+    else process.env.HEALTH_PORT = previous;
+  });
+
+  test('uses the default port when HEALTH_PORT is invalid', async () => {
+    const previous = process.env.HEALTH_PORT;
+    process.env.HEALTH_PORT = 'invalid';
     const health = await startHealthServer();
     healthServers.push(health);
     expect((await request(health.server, '/health')).status).toBe(200);
