@@ -5,8 +5,9 @@
   "main": "ttsbot.mjs",
   "scripts": {
     "start": "node --no-deprecation ttsbot.mjs",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "npx oxlint ."
+    "test": "npx --node-options=\"--experimental-vm-modules --no-warnings\" jest --detectOpenHandles --silent --coverage",
+    "lint": "npx oxlint .",
+    "test:gaps": "npm test 2>&1 | grep '|' | grep -vF '|     100 |     100 |     100 |     100 |'"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "prism-media": "^1.3.5"
   },
   "devDependencies": {
+    "jest": "^30.4.2",
     "oxlint": "^1.77.0"
   },
   "allowScripts": {
