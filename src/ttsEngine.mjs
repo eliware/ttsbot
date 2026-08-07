@@ -125,6 +125,9 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
 
   // Request PCM for fastest streaming through the shared OpenAI client.
   let res;
+  const controller = new AbortController();
+  const current = { controller };
+  state.current = current;
   const metrics = { receivedAt, requestStartedAt: performance.now() };
   log.debug('OpenAI TTS request', { guildId, userId, voice, inputLength: inputText.length, model: 'tts-1', responseFormat: 'pcm' });
   for (let attempt = 1; attempt <= 3; attempt += 1) {
@@ -135,10 +138,15 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
         voice,
         response_format: 'pcm',
         stream_format: 'audio',
+        signal: controller.signal,
       });
       break;
     } catch (e) {
       const retryable = e?.status === 429 || e?.status >= 500;
+      if (controller.signal.aborted) {
+        log.debug('OpenAI TTS request aborted', { guildId, userId });
+        return;
+      }
       if (!retryable || attempt === 3) {
         log.error('OpenAI TTS request error', e);
         return;
@@ -200,12 +208,13 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
   const resource = createAudioResource(pcmStream, { inputType: StreamType.Raw });
 
   const player = state.player;
-  state.current = { player, resource, source, resampler, jitterBuffer };
+  Object.assign(current, { player, resource, source, resampler, jitterBuffer });
 
   const cleanup = () => {
     try { res.body.destroy(); } catch {}
     try { resampler.destroy(); } catch {}
-    state.current = null;
+    try { jitterBuffer.destroy(); } catch {}
+    if (state.current === current) state.current = null;
   };
 
   return new Promise((resolve) => {
@@ -255,6 +264,7 @@ export async function stopAndClear(guildId) {
 
 function cleanupCurrent(state) {
   if (!state.current) return;
+  try { state.current.controller?.abort(); } catch {}
   try { state.current.source?.destroy?.(); } catch {}
   try { state.current.resampler?.destroy?.(); } catch {}
   try { state.current.jitterBuffer?.destroy?.(); } catch {}
