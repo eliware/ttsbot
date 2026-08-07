@@ -15,8 +15,11 @@ export default async function ({ log }, message) {
       state.assignedUserOrder ??= [];
       state.assignedVoices ??= {};
       if (!state.assignedUserOrder.includes(userId)) state.assignedUserOrder.push(userId);
-      const taken = new Set(Object.values(state.assignedVoices));
-      state.assignedVoices[userId] = AVAILABLE_VOICES.find((voice) => !taken.has(voice)) || AVAILABLE_VOICES[0];
+      const usage = new Map(AVAILABLE_VOICES.map((voice) => [voice, 0]));
+      for (const voice of Object.values(state.assignedVoices)) usage.set(voice, (usage.get(voice) || 0) + 1);
+      const leastUsed = Math.min(...usage.values());
+      const candidates = AVAILABLE_VOICES.filter((voice) => usage.get(voice) === leastUsed);
+      state.assignedVoices[userId] = candidates[Math.floor(Math.random() * candidates.length)];
       const settings = await loadUserSettings(message.guildId, userId);
       settings.voice = state.assignedVoices[userId];
       await saveUserSettings(message.guildId, userId, settings);
