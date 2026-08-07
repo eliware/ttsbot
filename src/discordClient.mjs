@@ -1,4 +1,5 @@
 import pkg from 'discord.js';
+import { log } from '@eliware/common';
 const { Client, GatewayIntentBits, Events, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = pkg;
 import { joinVoiceChannel, getVoiceConnection, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { ensureSettingsDir, loadUserSettings, saveUserSettings, userHasSettings } from './settings.mjs';
@@ -13,7 +14,7 @@ async function loadSettingsWithTimeout(guildId, userId, ms = 600) {
     const p = loadUserSettings(guildId, userId);
     return await Promise.race([p, new Promise((res) => setTimeout(() => res(null), ms))]);
   } catch (e) {
-    console.error('loadUserSettings error', e);
+    log.error('loadUserSettings error', e);
     return null;
   }
 }
@@ -46,11 +47,11 @@ export async function startDiscordClient() {
   process.once('SIGTERM', cleanShutdown);
   process.once('SIGHUP', cleanShutdown);
   process.once('uncaughtException', (err) => {
-    console.error('Uncaught exception', err);
+    log.error('Uncaught exception', err);
     cleanShutdown(1);
   });
   process.once('unhandledRejection', (reason) => {
-    console.error('Unhandled rejection', reason);
+    log.error('Unhandled rejection', reason);
     cleanShutdown(1);
   });
 
@@ -64,7 +65,7 @@ export async function startDiscordClient() {
       { name: 'skip', description: 'Skip the currently playing message' },
       { name: 'stop', description: 'Stop playback and clear queue' },
     ];
-    try { await client.application.commands.set(commands); } catch (e) { console.error('Failed to set application commands', e); }
+    try { await client.application.commands.set(commands); } catch (e) { log.error('Failed to set application commands', e); }
   });
 
   client.on(Events.InteractionCreate, async (interaction) => {
@@ -134,9 +135,9 @@ export async function startDiscordClient() {
             modal.addComponents(row);
             await interaction.showModal(modal);
           } catch (e) {
-            console.error('Failed to show modal', e);
+            log.error('Failed to show modal', e);
             // reply with an ephemeral error so user isn't left waiting
-            try { await interaction.reply({ content: 'Failed to open instructions modal — please try again.', flags: 64 }); } catch (e2) { console.error('Failed to reply after modal failure', e2); }
+            try { await interaction.reply({ content: 'Failed to open instructions modal — please try again.', flags: 64 }); } catch (e2) { log.error('Failed to reply after modal failure', e2); }
           }
         } else if (commandName === 'skip') {
           await skipCurrent(guildId);
@@ -158,7 +159,7 @@ export async function startDiscordClient() {
           await interaction.reply({ content: 'Saved instructions.', flags: 64 });
         }
       }
-    } catch (e) { console.error('Interaction handler error', e); }
+    } catch (e) { log.error('Interaction handler error', e); }
   });
 
   client.on('messageCreate', async (message) => {

@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { log, registerHandlers } from '@eliware/common';
 
 // Suppress specific Node deprecation warnings (e.g. DEP0040 for the `punycode` module)
 // Adding a warning listener prevents Node's default printing for warnings; we filter out DEP0040
@@ -7,8 +8,10 @@ process.on('warning', (warning) => {
     if (warning && warning.code === 'DEP0040') return; // ignore punycode deprecation
   } catch {}
   // For other warnings, print a concise message
-  console.warn(`${warning.name}${warning.code ? ' (' + warning.code + ')' : ''}: ${warning.message}`);
+  log.warn(`${warning.name}${warning.code ? ' (' + warning.code + ')' : ''}: ${warning.message}`);
 });
+
+registerHandlers({ events: ['uncaughtException', 'unhandledRejection'], log });
 
 // Load env quietly. dotenv supports `debug` which prints diagnostics when true; keep it false.
 // Some wrappers print additional info; setting DEBUG env vars for dotenv-related libs can help,
@@ -20,16 +23,16 @@ import { startDiscordClient } from './discordClient.mjs';
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 if (!DISCORD_TOKEN || !OPENAI_API_KEY) {
-  console.error('Missing DISCORD_TOKEN or OPENAI_API_KEY in environment. See .env.example');
+  log.error('Missing DISCORD_TOKEN or OPENAI_API_KEY in environment. See .env.example');
   process.exit(1);
 }
 
 (async () => {
   try {
-    console.log('TTS POC starting...');
+    log.info('TTS POC starting...');
     await startDiscordClient();
   } catch (e) {
-    console.error('Failed to start Discord client', e);
+    log.error('Failed to start Discord client', e);
     process.exit(1);
   }
 })();

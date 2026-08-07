@@ -1,10 +1,7 @@
 import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { path } from '@eliware/common';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-export const SETTINGS_DIR = path.join(__dirname, '..', 'settings');
+export const SETTINGS_DIR = path(import.meta, '..', 'settings');
 
 export async function ensureSettingsDir() {
   await fs.mkdir(SETTINGS_DIR, { recursive: true });

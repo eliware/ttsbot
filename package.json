@@ -15,6 +15,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.10.0",
     "@discordjs/voice": "^0.19.2",
+    "@eliware/common": "^1.1.6",
     "@eliware/resampler": "^1.1.2",
     "discord.js": "^14.27.0",
     "dotenv": "^17.4.2",

@@ -3,12 +3,9 @@ import { createAudioPlayer, createAudioResource, AudioPlayerStatus, NoSubscriber
 import { Resampler } from '@eliware/resampler';
 import { loadUserSettings } from './settings.mjs';
 import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { log, path } from '@eliware/common';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const REPLACEMENTS_PATH = path.join(__dirname, '..', 'replacements.json');
+const REPLACEMENTS_PATH = path(import.meta, '..', 'replacements.json');
 let replacementsCache = null;
 
 async function loadReplacements() {
@@ -40,7 +37,7 @@ function createGuildAudioPlayer(guildId) {
     },
   });
   player.on('error', (err) => {
-    console.error(`Discord audio player error for guild ${guildId}:`, err);
+    log.error(`Discord audio player error for guild ${guildId}:`, err);
   });
   return player;
 }
@@ -64,7 +61,7 @@ export async function enqueueSpeech(guildId, item) {
   const state = ensureGuildState(guildId);
   state.queue.push(item);
   if (!state.playing) {
-    processQueue(guildId).catch(console.error);
+    processQueue(guildId).catch((error) => log.error('Queue processing error', error));
   }
 }
 
@@ -77,7 +74,7 @@ async function processQueue(guildId) {
     try {
       await playText(guildId, job.text, job.userId, job.userTag);
     } catch (e) {
-      console.error('Error playing TTS:', e);
+      log.error('Error playing TTS:', e);
     }
     state.playing = false;
   }
@@ -88,13 +85,13 @@ export async function playText(guildId, text, userId, _userTag) {
   if (!text || text.length > 2000) return;
   const state = ensureGuildState(guildId);
   if (!state.connection) {
-    console.warn('No voice connection for guild', guildId);
+    log.warn('No voice connection for guild', guildId);
     return;
   }
   try {
     await entersState(state.connection, VoiceConnectionStatus.Ready, 10_000);
   } catch {
-    console.warn('Voice connection was not ready for guild', guildId);
+    log.warn('Voice connection was not ready for guild', guildId);
     return;
   }
   const settings = await loadUserSettings(guildId, userId);
@@ -109,7 +106,7 @@ export async function playText(guildId, text, userId, _userTag) {
       inputText = inputText.replace(r.regex, r.replace);
     }
   } catch (e) {
-    console.error('Replacements error', e);
+    log.error('Replacements error', e);
   }
 
   // Request PCM for fastest streaming
@@ -132,14 +129,14 @@ export async function playText(guildId, text, userId, _userTag) {
       }),
     });
   } catch (e) {
-    console.error('OpenAI TTS request error', e);
+    log.error('OpenAI TTS request error', e);
     return;
   }
 
   if (!res.ok || !res.body) {
     let txt = '';
     try { txt = await res.text(); } catch (e) { txt = String(e); }
-    console.error('OpenAI TTS request failed', txt);
+    log.error('OpenAI TTS request failed', txt);
     return;
   }
 
@@ -151,8 +148,8 @@ export async function playText(guildId, text, userId, _userTag) {
     filterWindow: 8,
     volume: 1,
   });
-  res.body.on('error', (err) => console.error('OpenAI TTS stream error', err));
-  resampler.on('error', (err) => console.error('PCM resampler error', err));
+  res.body.on('error', (err) => log.error('OpenAI TTS stream error', err));
+  resampler.on('error', (err) => log.error('PCM resampler error', err));
 
   const pcmStream = res.body.pipe(resampler);
   const resource = createAudioResource(pcmStream, { inputType: StreamType.Raw });
