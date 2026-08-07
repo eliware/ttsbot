@@ -20,7 +20,7 @@ function toNodeReadable(body) {
   return body;
 }
 
-const JITTER_BUFFER_MS = 100;
+const JITTER_BUFFER_MS = 200;
 const PCM_BYTES_PER_SECOND = 48_000 * 2 * 2;
 
 function createJitterBuffer() {
