@@ -50,7 +50,7 @@ The root entrypoint is `ttsbot.mjs`; it loads `src/main.mjs`, validates required
 - `/help` — show basic usage
 - `/join` — join your current voice channel and link the current text channel
 - `/leave` — leave voice and clear guild state
-- `/voice <voice>` — save your TTS voice
+- `/voice <voice>` — set your TTS voice
 - `/skip` — skip the current message
 - `/stop` — stop playback and clear the queue
 
@@ -68,6 +68,12 @@ Available voices are defined in `src/discordClient.mjs` and exposed as `/voice` 
 - Word replacements are loaded from `replacements.json` and applied before TTS requests.
 - `/leave`, `/skip`, `/stop`, and process shutdown clean active playback and queues.
 
+## Logging and privacy
+
+- `LOG_LEVEL=debug` enables detailed Discord, queue, OpenAI timing, playback, retry, and buffer logs.
+- Logs include operational IDs, lengths, statuses, and timings; message text and audio are not logged.
+- API keys and tokens are not logged. Avoid enabling debug logs permanently in production because IDs and timing data increase log volume.
+
 ## Development and validation
 
 ```bash
@@ -76,7 +82,7 @@ npm test
 npm run test:gaps
 ```
 
-Tests are under `tests/`. Tests use native ESM Jest and cover settings persistence and resampler stream behavior.
+Tests are under `tests/`. Tests use native ESM Jest and cover in-memory settings and resampler stream behavior.
 
 ## Deployment with systemd
 
