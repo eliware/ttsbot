@@ -1,6 +1,10 @@
 import { Transform } from 'node:stream';
 
-const JITTER_BUFFER_MS = Math.min(1000, Math.max(0, Number.parseInt(process.env.TTS_JITTER_BUFFER_MS || '200', 10) || 0));
+export function parseJitterBufferMs(value = process.env.TTS_JITTER_BUFFER_MS) {
+  return Math.min(1000, Math.max(0, Number.parseInt(value || '200', 10) || 0));
+}
+
+const JITTER_BUFFER_MS = parseJitterBufferMs();
 const PCM_BYTES_PER_SECOND = 48_000 * 2 * 2;
 
 export function createJitterBuffer() {

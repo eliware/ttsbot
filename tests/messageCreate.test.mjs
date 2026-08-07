@@ -73,6 +73,39 @@ describe('messageCreate event', () => {
     expect(saveSettings).toHaveBeenCalledWith('guild', 'user', expect.objectContaining({ voice: expect.stringMatching(/^(alloy|ash|coral)$/) }));
     expect(enqueueSpeech).toHaveBeenCalledWith('guild', expect.objectContaining({ text: 'hello', userId: 'user', userTag: 'user#1', receivedAt: expect.any(Number) }));
   });
+  test('handles existing assignment state and voice usage counts', async () => {
+    const state = { linkedTextChannelId: 'linked', assignedUserOrder: ['user'], assignedVoices: { other: 'alloy' } };
+    ensureGuildState.mockReturnValue(state);
+    hasSettings.mockResolvedValue(false);
+    loadSettings.mockResolvedValue({});
+
+    await messageCreate({ log }, {
+      author: { bot: false, id: 'user', tag: 'user#1' },
+      guildId: 'guild',
+      channelId: 'linked',
+      content: 'hello',
+    });
+
+    expect(state.assignedUserOrder).toEqual(['user']);
+    expect(saveSettings).toHaveBeenCalled();
+  });
+
+  test('logs voice assignment failures and still queues the message', async () => {
+    const state = { linkedTextChannelId: 'linked', assignedUserOrder: [], assignedVoices: {} };
+    ensureGuildState.mockReturnValue(state);
+    hasSettings.mockRejectedValue(new Error('settings unavailable'));
+
+    await messageCreate({ log }, {
+      author: { bot: false, id: 'user', tag: 'user#1' },
+      guildId: 'guild',
+      channelId: 'linked',
+      content: 'hello',
+    });
+
+    expect(log.error).toHaveBeenCalledWith('Failed to assign user voice', expect.any(Error));
+    expect(enqueueSpeech).toHaveBeenCalledWith('guild', expect.objectContaining({ text: 'hello' }));
+  });
+
   test('handles rapid message bursts without dropping messages', async () => {
     const state = { linkedTextChannelId: 'linked', assignedUserOrder: [], assignedVoices: {} };
     ensureGuildState.mockReturnValue(state);
