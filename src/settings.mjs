@@ -8,7 +8,7 @@ export async function ensureSettingsDir() {
 }
 
 export function settingsPath(guildId, userId) {
-  return path.join(SETTINGS_DIR, `${guildId}-${userId}.json`);
+  return path(SETTINGS_DIR, `${guildId}-${userId}.json`);
 }
 
 export async function loadUserSettings(guildId, userId) {
