@@ -33,13 +33,13 @@ export async function startDiscordClient() {
     shuttingDown = true;
     try {
       for (const [guildId] of client.guilds.cache) {
-        try { await stopAndClear(guildId); } catch (e) { /* ignore */ }
-        try { const conn = getVoiceConnection(guildId); if (conn) conn.destroy(); } catch (e) { /* ignore */ }
+        try { await stopAndClear(guildId); } catch {}
+        try { const conn = getVoiceConnection(guildId); if (conn) conn.destroy(); } catch {}
       }
-      try { if (client.user) client.user.setPresence({ activities: [], status: 'invisible' }); } catch (e) { /* ignore */ }
-      try { await client.destroy(); } catch (e) { /* ignore */ }
+      try { if (client.user) client.user.setPresence({ activities: [], status: 'invisible' }); } catch {}
+      try { await client.destroy(); } catch {}
     } finally {
-      try { process.exit(exitCode); } catch (e) { /* ignore */ }
+      try { process.exit(exitCode); } catch {}
     }
   }
   process.once('SIGINT', cleanShutdown);
@@ -86,7 +86,7 @@ export async function startDiscordClient() {
             const prevChannelId = existingConn.joinConfig?.channelId;
             let prevName = 'another voice channel';
             if (prevChannelId) {
-              try { const ch = await client.channels.fetch(prevChannelId); prevName = ch?.name || prevChannelId; } catch (e) { prevName = prevChannelId; }
+              try { const ch = await client.channels.fetch(prevChannelId); prevName = ch?.name || prevChannelId; } catch { prevName = prevChannelId; }
             }
             return interaction.editReply({ content: `I am already connected to ${prevName}. Use /leave to disconnect first.` });
           }
@@ -102,8 +102,8 @@ export async function startDiscordClient() {
           try {
             await entersState(connection, VoiceConnectionStatus.Ready, 15_000);
             await interaction.editReply({ content: `Joined ${voiceChannel.name} and linked to this text channel for TTS.` });
-          } catch (e) {
-            try { connection.destroy(); } catch (e2) {}
+          } catch {
+            try { connection.destroy(); } catch {}
             state.connection = null;
             state.linkedTextChannelId = null;
             await interaction.editReply({ content: 'Failed to connect to the voice channel. Please try /join again.' });
@@ -198,12 +198,12 @@ export async function startDiscordClient() {
           settings.voice = chosen;
           await saveUserSettings(guildId, userId, settings);
         }
-      } catch (e) {
+      } catch {
         // ignore settings errors
       }
 
       await enqueueSpeech(guildId, { text: content, userId: message.author.id, userTag: message.author.tag });
-    } catch (e) { /* ignore message errors */ }
+    } catch {}
   });
 
   await client.login(DISCORD_TOKEN);

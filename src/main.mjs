@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 process.on('warning', (warning) => {
   try {
     if (warning && warning.code === 'DEP0040') return; // ignore punycode deprecation
-  } catch (e) {}
+  } catch {}
   // For other warnings, print a concise message
   console.warn(`${warning.name}${warning.code ? ' (' + warning.code + ')' : ''}: ${warning.message}`);
 });

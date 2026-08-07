@@ -23,7 +23,7 @@ async function loadReplacements() {
       return { search, replace, regex };
     });
     return replacementsCache;
-  } catch (e) {
+  } catch {
     replacementsCache = [];
     return replacementsCache;
   }
@@ -84,7 +84,7 @@ async function processQueue(guildId) {
 }
 
 // Play text using streamed OpenAI PCM through a native resampler for minimal latency.
-export async function playText(guildId, text, userId, userTag) {
+export async function playText(guildId, text, userId, _userTag) {
   if (!text || text.length > 2000) return;
   const state = ensureGuildState(guildId);
   if (!state.connection) {
@@ -93,7 +93,7 @@ export async function playText(guildId, text, userId, userTag) {
   }
   try {
     await entersState(state.connection, VoiceConnectionStatus.Ready, 10_000);
-  } catch (e) {
+  } catch {
     console.warn('Voice connection was not ready for guild', guildId);
     return;
   }
@@ -161,8 +161,8 @@ export async function playText(guildId, text, userId, userTag) {
   state.current = { player, resource, source: res.body, resampler };
 
   const cleanup = () => {
-    try { res.body.destroy(); } catch (e) {}
-    try { resampler.destroy(); } catch (e) {}
+    try { res.body.destroy(); } catch {}
+    try { resampler.destroy(); } catch {}
     state.current = null;
   };
 
@@ -198,7 +198,7 @@ export async function stopAndClear(guildId) {
 
 function cleanupCurrent(state) {
   if (!state.current) return;
-  try { state.current.source?.destroy?.(); } catch (e) {}
-  try { state.current.resampler?.destroy?.(); } catch (e) {}
+  try { state.current.source?.destroy?.(); } catch {}
+  try { state.current.resampler?.destroy?.(); } catch {}
   state.current = null;
 }

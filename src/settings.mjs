@@ -19,7 +19,7 @@ export async function loadUserSettings(guildId, userId) {
     const p = settingsPath(guildId, userId);
     const raw = await fs.readFile(p, 'utf8');
     return JSON.parse(raw);
-  } catch (e) {
+  } catch {
     return { voice: 'coral', instructions: '' };
   }
 }
@@ -34,7 +34,7 @@ export async function userHasSettings(guildId, userId) {
   try {
     await fs.access(p);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
