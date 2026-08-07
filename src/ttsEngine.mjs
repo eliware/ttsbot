@@ -215,8 +215,10 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
     };
     player.on(AudioPlayerStatus.Idle, onIdle);
     player.on(AudioPlayerStatus.Playing, onPlaying);
-    player.play(resource);
+    // Subscribe before starting the resource so initial PCM frames are not
+    // produced while the voice connection has no subscriber.
     if (state.connection) state.connection.subscribe(player);
+    player.play(resource);
   });
 }
 
