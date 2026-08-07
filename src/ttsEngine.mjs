@@ -240,12 +240,14 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
 
 export async function skipCurrent(guildId) {
   const state = ensureGuildState(guildId);
+  log.debug('Skipping current TTS', { guildId, queueLength: state.queue.length, hasCurrent: Boolean(state.current), playerStatus: state.player.state.status });
   if (state.player) state.player.stop(true);
   cleanupCurrent(state);
 }
 
 export async function stopAndClear(guildId) {
   const state = ensureGuildState(guildId);
+  log.debug('Stopping and clearing TTS', { guildId, queueLength: state.queue.length, hasCurrent: Boolean(state.current), playerStatus: state.player.state.status });
   state.queue = [];
   if (state.player) state.player.stop(true);
   cleanupCurrent(state);
