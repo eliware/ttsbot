@@ -29,6 +29,10 @@ export function openAIRetryDelay(attempt) {
   return 250 * 2 ** (attempt - 1);
 }
 
+export function shouldLogBufferUnderrun(playbackStarted) {
+  return playbackStarted === true;
+}
+
 async function loadReplacements() {
   if (replacementsCache) return replacementsCache;
   try {
@@ -236,7 +240,7 @@ export async function playText(guildId, text, userId, _userTag, receivedAt) {
       resolve();
     };
     const onBuffering = () => {
-      if (metrics.playbackFirstByteAt != null) {
+      if (shouldLogBufferUnderrun(metrics.playbackFirstByteAt != null)) {
         log.warn('Discord audio buffer underrun', { guildId, userId });
       }
     };
