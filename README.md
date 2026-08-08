@@ -113,7 +113,7 @@ The service restarts on failure. Verify logs after restart. Roll back by restori
 - Use the minimum Discord permissions required for the bot.
 - Do not expose logs containing message content, credentials, or full API responses.
 - Runtime settings are local mutable state; back them up only if preserving user preferences is required.
-- The local HTTP health server exposes `GET /health` (process alive) and `GET /ready` (Discord startup complete) on `127.0.0.1:HEALTH_PORT`.
+- The local HTTP health server exposes `GET /health` (process alive) and `GET /ready` (Discord startup complete) on `0.0.0.0:HEALTH_PORT` for Kubernetes probe access.
 
 ## Project files
 
