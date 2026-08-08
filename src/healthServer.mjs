@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { log } from '@eliware/common';
 
-export function createHealthServer({ port = 8080, host = '127.0.0.1' } = {}) {
+export function createHealthServer({ port = 8080, host = '0.0.0.0' } = {}) {
   let ready = false;
   const server = createServer((request, response) => {
     if (request.url === '/health') {
@@ -38,8 +38,8 @@ export function createHealthServer({ port = 8080, host = '127.0.0.1' } = {}) {
 
 export async function startHealthServer() {
   const port = Number.parseInt(process.env.HEALTH_PORT || '8080', 10);
-  const health = createHealthServer({ port: Number.isFinite(port) ? port : 8080 });
+  const health = createHealthServer({ port: Number.isFinite(port) ? port : 8080, host: '0.0.0.0' });
   await health.start();
-  log.info('Health server listening', { host: '127.0.0.1', port: Number.isFinite(port) ? port : 8080 });
+  log.info('Health server listening', { host: '0.0.0.0', port: Number.isFinite(port) ? port : 8080 });
   return health;
 }
