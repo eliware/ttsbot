@@ -1,5 +1,11 @@
 # Release notes
 
+## 1.0.3
+
+- Bind health and readiness endpoints to all interfaces for Kubernetes HTTP probes.
+- Document Kubernetes health probe access.
+- Update Eliware runtime dependencies.
+
 ## 1.0.2
 
 - Added production Docker image and GHCR publishing workflow.

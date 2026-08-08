@@ -1,0 +1,40 @@
+npm notice run ttsbot@1.0.2 test
+npm notice run npx --node-options="--experimental-vm-modules --no-warnings" jest --detectOpenHandles --silent --coverage
+npm notice run ttsbot@1.0.2 npx
+npm notice run 'jest' --detectOpenHandles --silent --coverage
+PASS tests/healthServer.test.mjs
+PASS tests/discordHandlers.test.mjs
+PASS tests/resampler.test.mjs
+PASS tests/jitterBuffer.test.mjs
+PASS tests/messageCreate.test.mjs
+PASS tests/ttsFailurePaths.test.mjs
+PASS tests/ttsCancellation.test.mjs
+PASS tests/openaiRetry.test.mjs
+PASS tests/settings.test.mjs
+PASS tests/bufferUnderrun.test.mjs
+------------------------|---------|----------|---------|---------|-------------------
+File                    | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+------------------------|---------|----------|---------|---------|-------------------
+All files               |     100 |      100 |     100 |     100 |                   
+ commands               |     100 |      100 |     100 |     100 |                   
+  help.mjs              |     100 |      100 |     100 |     100 |                   
+  join.mjs              |     100 |      100 |     100 |     100 |                   
+  leave.mjs             |     100 |      100 |     100 |     100 |                   
+  skip.mjs              |     100 |      100 |     100 |     100 |                   
+  stop.mjs              |     100 |      100 |     100 |     100 |                   
+  voice.mjs             |     100 |      100 |     100 |     100 |                   
+ events                 |     100 |      100 |     100 |     100 |                   
+  interactionCreate.mjs |     100 |      100 |     100 |     100 |                   
+  messageCreate.mjs     |     100 |      100 |     100 |     100 |                   
+ src                    |     100 |      100 |     100 |     100 |                   
+  audioLifecycle.mjs    |     100 |      100 |     100 |     100 |                   
+  healthServer.mjs      |     100 |      100 |     100 |     100 |                   
+  jitterBuffer.mjs      |     100 |      100 |     100 |     100 |                   
+  settings.mjs          |     100 |      100 |     100 |     100 |                   
+  ttsPolicies.mjs       |     100 |      100 |     100 |     100 |                   
+------------------------|---------|----------|---------|---------|-------------------
+
+Test Suites: 10 passed, 10 total
+Tests:       36 passed, 36 total
+Snapshots:   0 total
+Time:        0.843 s, estimated 1 s
