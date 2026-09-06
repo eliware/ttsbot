@@ -1,5 +1,7 @@
 # ttsbot
 
+Documentation: [docs](docs/README.md) · [specifications](specs/README.md) · [examples](examples/README.md)
+
 Discord text-to-speech bot using OpenAI TTS and Discord voice playback.
 
 ## Scope
