@@ -90,7 +90,7 @@ Tests are under `tests/`. Tests use native ESM Jest and cover in-memory settings
 
 ## Deployment with systemd
 
-The included `ttsbot.service` runs the bot from `/opt/ttsbot` using `/opt/ttsbot/.env`:
+The included `ttsbot.service` runs the bot from the configured project root using `.env`:
 
 ```bash
 sudo systemctl enable --now ttsbot.service
