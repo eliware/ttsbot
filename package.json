@@ -57,6 +57,7 @@
       "endOfLine": "lf"
     },
     "eliware": {
+      "id": "E-3040",
       "apply": ["general", "application", "discord", "ghcr-published"]
     }
 }
