@@ -1,8 +1,8 @@
 import { createJitterBuffer } from '../jitterBuffer.mjs';
-import { createOpenAI } from '@eliware/openai';
 import { createAudioResource, AudioPlayerStatus, StreamType, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { Resampler } from '@eliware/resampler';
 import { createAudioPipeline, toNodeReadable } from './audio-pipeline.mjs';
+import { createOpenAIClient } from './client.mjs';
 import { loadUserSettings } from '../settings.mjs';
 import { isRetryableOpenAIError, openAIRetryDelay } from '../ttsPolicies.mjs';
 import { requestSpeech } from './openai-request.mjs';
@@ -13,7 +13,7 @@ import { log } from '@eliware/common';
 const sleep = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
 
 export function createPlayback({
-  createClient = createOpenAI,
+  createClient,
   createBuffer = createJitterBuffer,
   createResource = createAudioResource,
   AudioStatus = AudioPlayerStatus,
@@ -30,11 +30,7 @@ export function createPlayback({
   delay = sleep,
 } = {}) {
   const buildPipeline = createAudioPipeline({ createBuffer, createResource, streamType, ResamplerClass, log: logger });
-  let openaiClient;
-  const getOpenAIClient = () => {
-    if (!openaiClient) openaiClient = createClient({ apiKey: process.env.OPENAI_API_KEY });
-    return openaiClient;
-  };
+  const getOpenAIClient = createOpenAIClient({ createClient });
 
   return async function playText(guildId, text, userId, _userTag, receivedAt, state) {
     if (!text || text.length > 2000) return;
