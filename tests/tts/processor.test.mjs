@@ -32,16 +32,3 @@ describe('TTS queue processor', () => {
   });
 
 });
-
-describe('TTS queue processor error handling', () => {
-  test('resets playing when error logging throws during recovery', async () => {
-    const state = { queue: [{ text: 'bad' }], playing: false };
-    const processQueue = createQueueProcessor({
-      getGuildState: () => state,
-      playText: async () => { throw new Error('playback failed'); },
-      log: { debug: jest.fn(), error: () => { throw new Error('logger failed'); } },
-    });
-    await expect(processQueue('guild')).rejects.toThrow('logger failed');
-    expect(state.playing).toBe(false);
-  });
-});

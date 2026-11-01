@@ -5,12 +5,11 @@ import { createAudioPipeline } from './audio-pipeline.mjs';
 import { preparePlaybackInput } from './input.mjs';
 import { validateSpeechResponse } from './response.mjs';
 import { createOpenAIClient } from './client.mjs';
+import { sleep } from './delay.mjs';
 import { isRetryableOpenAIError, openAIRetryDelay } from '../ttsPolicies.mjs';
 import { requestSpeech } from './openai-request.mjs';
 import { waitForPlayback } from './playback-events.mjs';
 import { log } from '@eliware/common';
-
-const sleep = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
 
 export function createPlayback({
   createClient,
@@ -62,4 +61,3 @@ export function createPlayback({
   };
 }
 
-export const playText = createPlayback();

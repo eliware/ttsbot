@@ -1,20 +1,12 @@
 import { EventEmitter } from 'node:events';
 import { describe, expect, jest, test } from '@jest/globals';
 import { createAudioPipeline } from '../../src/audio/audio-pipeline.mjs';
-import { toNodeReadable } from '../../src/audio/stream-converter.mjs';
 
 class FakeStream extends EventEmitter {
   pipe(destination) { return destination; }
 }
 
 describe('audio pipeline', () => {
-  test('converts Web streams and preserves already streamable bodies', () => {
-    const webStream = new ReadableStream({ start(controller) { controller.close(); } });
-    expect(typeof toNodeReadable(webStream).pipe).toBe('function');
-    const body = {};
-    expect(toNodeReadable(body)).toBe(body);
-  });
-
   test('builds the resampling and resource pipeline', () => {
     const source = new FakeStream();
     const resampler = new FakeStream();

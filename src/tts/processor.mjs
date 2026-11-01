@@ -1,5 +1,5 @@
 import { log as defaultLog } from '@eliware/common';
-import { playText as defaultPlayText } from '../audio/playback.mjs';
+import { playText as defaultPlayText } from '../audio/default-playback.mjs';
 import { ensureGuildState } from './state.mjs';
 
 export function createQueueProcessor({ getGuildState = ensureGuildState, playText = defaultPlayText, log = defaultLog } = {}) {
