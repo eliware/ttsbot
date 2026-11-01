@@ -1,13 +1,13 @@
 import { createJitterBuffer } from '../jitterBuffer.mjs';
 import { createAudioResource, AudioPlayerStatus, StreamType, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { Resampler } from '@eliware/resampler';
-import { createAudioPipeline, toNodeReadable } from './audio-pipeline.mjs';
+import { createAudioPipeline } from './audio-pipeline.mjs';
+import { preparePlaybackInput } from './input.mjs';
+import { validateSpeechResponse } from './response.mjs';
 import { createOpenAIClient } from './client.mjs';
-import { loadUserSettings } from '../settings.mjs';
 import { isRetryableOpenAIError, openAIRetryDelay } from '../ttsPolicies.mjs';
 import { requestSpeech } from './openai-request.mjs';
 import { waitForPlayback } from './playback-events.mjs';
-import { replaceText } from '../text/replacements.mjs';
 import { log } from '@eliware/common';
 
 const sleep = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -21,8 +21,8 @@ export function createPlayback({
   waitForState = entersState,
   connectionStatus = VoiceConnectionStatus,
   ResamplerClass = Resampler,
-  getUserSettings = loadUserSettings,
-  replaceText: replace = replaceText,
+  getUserSettings,
+  replaceText,
   isRetryable = isRetryableOpenAIError,
   retryDelay = openAIRetryDelay,
   log: logger = log,
@@ -33,25 +33,11 @@ export function createPlayback({
   const getOpenAIClient = createOpenAIClient({ createClient });
 
   return async function playText(guildId, text, userId, _userTag, receivedAt, state) {
-    if (!text || text.length > 2000) return;
-    if (!state.connection) {
-      logger.warn('No voice connection for guild', guildId);
-      return;
-    }
-    try {
-      await waitForState(state.connection, connectionStatus.Ready, 10_000);
-    } catch {
-      logger.warn('Voice connection was not ready for guild', guildId);
-      return;
-    }
-    const settings = await getUserSettings(guildId, userId);
-    const voice = settings.voice || 'coral';
-    let inputText = String(text);
-    try {
-      inputText = await replace(inputText);
-    } catch (error) {
-      logger.error('Replacements error', error);
-    }
+    const input = await preparePlaybackInput({
+      text, state, guildId, userId, waitForState, connectionStatus, getUserSettings, replaceText, log: logger,
+    });
+    if (!input) return;
+    const { inputText, voice } = input;
 
     const controller = new AbortController();
     const current = { controller };
@@ -62,28 +48,9 @@ export function createPlayback({
       client: getOpenAIClient(), input: inputText, voice, signal: controller.signal, guildId, userId,
       log: logger, isRetryableOpenAIError: isRetryable, openAIRetryDelay: retryDelay, sleep: delay,
     });
-    if (result.aborted || result.failed) return;
-    const response = result.response;
-    metrics.responseReceivedAt = now();
-    logger.debug('OpenAI TTS response received', {
-      guildId, userId, hasBody: Boolean(response?.body),
-      requestMs: Math.round(metrics.responseReceivedAt - metrics.requestStartedAt),
-      discordToOpenAIResponseMs: receivedAt == null ? undefined : Math.round(metrics.responseReceivedAt - receivedAt),
-    });
-    if (controller.signal.aborted) {
-      logger.debug('Discarding canceled OpenAI TTS response', { guildId, userId });
-      try { response.body?.cancel?.(); } catch {}
-      return;
-    }
-    if (!response?.body) {
-      logger.error('OpenAI TTS response did not include an audio body');
-      return;
-    }
-    const source = toNodeReadable(response.body);
-    if (!source || typeof source.pipe !== 'function') {
-      logger.error('OpenAI TTS response body is not streamable');
-      return;
-    }
+    const audio = validateSpeechResponse({ result, signal: controller.signal, receivedAt, metrics, now, guildId, userId, log: logger });
+    if (!audio) return;
+    const { response, source } = audio;
 
     const { resampler, jitterBuffer, resource } = buildPipeline(source);
     const player = state.player;

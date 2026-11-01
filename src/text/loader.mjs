@@ -1,14 +1,11 @@
-import fs from 'node:fs/promises';
-import { path } from '@eliware/common';
 import { compileReplacements } from './compiler.mjs';
+import { createReplacementFileReader } from './file-reader.mjs';
 
-const REPLACEMENTS_PATH = path(import.meta, '..', '..', '..', 'replacements.json');
-
-export function createReplacementLoader({ readFile = fs.readFile, filePath = REPLACEMENTS_PATH } = {}) {
+export function createReplacementLoader({ readReplacements = createReplacementFileReader() } = {}) {
   let cache = null;
   return async function loadReplacements() {
     if (cache) return cache;
-    try { cache = compileReplacements(await readFile(filePath, 'utf8')); }
+    try { cache = compileReplacements(await readReplacements()); }
     catch { cache = []; }
     return cache;
   };
