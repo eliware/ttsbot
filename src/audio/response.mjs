@@ -1,5 +1,5 @@
 import { toNodeReadable } from './stream-converter.mjs';
-import { recordSpeechResponseMetrics } from './response-metrics.mjs';
+import { observeSpeechResponse } from './response-observation.mjs';
 import { cancelSpeechResponseBody } from './response-cancellation.mjs';
 import { log as defaultLog } from '@eliware/common';
 
@@ -8,7 +8,7 @@ export function validateSpeechResponse({
 }) {
   if (result.aborted || result.failed) return null;
   const response = result.response;
-  recordSpeechResponseMetrics({
+  observeSpeechResponse({
     metrics, now, receivedAt, guildId, userId, hasBody: Boolean(response?.body), log,
   });
   if (signal.aborted) {

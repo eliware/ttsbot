@@ -17,6 +17,8 @@ describe('speech response validation', () => {
     const body = { pipe: jest.fn() };
     const result = validateSpeechResponse({ ...deps, result: { response: { body } } });
     expect(result.source).toBe(body);
+    expect(deps.metrics.responseReceivedAt).toBe(30);
+    expect(deps.log.debug).toHaveBeenCalledWith('OpenAI TTS response received', expect.objectContaining({ hasBody: true }));
   });
 
   test('stops for failed results, missing bodies, and nonstreamable bodies', () => {
