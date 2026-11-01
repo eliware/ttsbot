@@ -6,7 +6,11 @@ export function cleanupCurrent(current, { responseBody, abort = true } = {}) {
   try { current.jitterBuffer?.destroy?.(); } catch {}
   if (responseBody !== current.source) {
     try { responseBody?.destroy?.(); } catch {}
-    if (typeof responseBody?.destroy !== 'function') { try { responseBody?.cancel?.(); } catch {} }
+    if (typeof responseBody?.destroy !== 'function') cancelResponseBody(responseBody);
   }
+}
+
+export function cancelResponseBody(responseBody) {
+  try { responseBody?.cancel?.(); } catch {}
 }
 

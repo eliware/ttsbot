@@ -8,4 +8,9 @@ describe('replacement rule loader', () => {
     expect(rules[0].regex.test('brb')).toBe(true);
     expect(readReplacements).toHaveBeenCalledTimes(1);
   });
+
+  test('returns no rules for empty input', async () => {
+    const readReplacements = jest.fn(async () => '');
+    await expect(createReplacementRuleLoader({ readReplacements })()).resolves.toEqual([]);
+  });
 });

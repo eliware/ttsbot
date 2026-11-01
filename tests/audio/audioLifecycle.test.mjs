@@ -29,4 +29,10 @@ describe('audio lifecycle cleanup', () => {
     expect(() => cleanupCurrent(current, { responseBody, abort: false })).not.toThrow();
     expect(current.jitterBuffer.destroy).toHaveBeenCalled();
   });
+
+  test('cancels a response body that has no destroy method', () => {
+    const responseBody = { cancel: jest.fn() };
+    cleanupCurrent({}, { responseBody, abort: false });
+    expect(responseBody.cancel).toHaveBeenCalled();
+  });
 });
