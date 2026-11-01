@@ -31,6 +31,9 @@ describe('TTS queue processor', () => {
     expect(state.playing).toBe(false);
   });
 
+});
+
+describe('TTS queue processor error handling', () => {
   test('resets playing when error logging throws during recovery', async () => {
     const state = { queue: [{ text: 'bad' }], playing: false };
     const processQueue = createQueueProcessor({

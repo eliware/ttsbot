@@ -1,6 +1,6 @@
-const runQueueAction = (name) => (...args) => import('../tts/queue-control.mjs').then((actions) => actions[name](...args));
+const runQueueAction = (modulePath, name) => (...args) => import(modulePath).then((actions) => actions[name](...args));
 
-export function createPlaybackActions({ log, skip = runQueueAction('skipCurrent'), stop = runQueueAction('stopAndClear') }) {
+export function createPlaybackActions({ log, skip = runQueueAction('../tts/skip.mjs', 'skipCurrent'), stop = runQueueAction('../tts/stop.mjs', 'stopAndClear') }) {
   return {
     async skip(interaction) {
       log.debug('Skip command started', { guildId: interaction.guildId, userId: interaction.user?.id });
