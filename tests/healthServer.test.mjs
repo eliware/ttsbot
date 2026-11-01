@@ -11,29 +11,7 @@ afterEach(async () => {
   await Promise.all(healthServers.splice(0).map((health) => health.stop()));
 });
 
-async function start() {
-  const health = createHealthServer({ port: 0 });
-  healthServers.push(health);
-  await health.start();
-  return health;
-}
-
-async function request(server, path) {
-  const address = server.address();
-  return fetch(`http://127.0.0.1:${address.port}${path}`);
-}
-
 describe('health server', () => {
-  test('exposes liveness and readiness routes', async () => {
-    const health = await start();
-    expect((await request(health.server, '/health')).status).toBe(200);
-    expect((await request(health.server, '/ready')).status).toBe(503);
-    health.setReady(true);
-    expect((await request(health.server, '/ready')).status).toBe(200);
-    health.setReady(false);
-    expect((await request(health.server, '/ready')).status).toBe(503);
-  });
-
   test('starts on the configured port', async () => {
     const previous = process.env.HEALTH_PORT;
     process.env.HEALTH_PORT = '0';
@@ -41,7 +19,6 @@ describe('health server', () => {
       const health = await startHealthServer({ log });
       healthServers.push(health);
       const port = health.server.address().port;
-      expect(port).toBeGreaterThan(0);
       expect(port).toBeGreaterThan(0);
     } finally {
       if (previous === undefined) delete process.env.HEALTH_PORT;

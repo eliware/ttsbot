@@ -1,10 +1,9 @@
 import { createJitterBuffer } from '../jitterBuffer.mjs';
 import { createAudioResource, AudioPlayerStatus, StreamType, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { Resampler } from '@eliware/resampler';
-import { createAudioPipeline } from './audio-pipeline.mjs';
+import { createPlaybackDependencies } from './playback-factory.mjs';
 import { preparePlaybackInput } from './input.mjs';
 import { validateSpeechResponse } from './response.mjs';
-import { createOpenAIClient } from './client.mjs';
 import { sleep } from './delay.mjs';
 import { isRetryableOpenAIError, openAIRetryDelay } from '../ttsPolicies.mjs';
 import { requestSpeech } from './retry.mjs';
@@ -28,8 +27,9 @@ export function createPlayback({
   now = () => performance.now(),
   delay = sleep,
 } = {}) {
-  const buildPipeline = createAudioPipeline({ createBuffer, createResource, streamType, ResamplerClass, log: logger });
-  const getOpenAIClient = createOpenAIClient({ createClient });
+  const { buildPipeline, getOpenAIClient } = createPlaybackDependencies({
+    createClient, createBuffer, createResource, streamType, ResamplerClass, log: logger,
+  });
 
   return async function playText(guildId, text, userId, _userTag, receivedAt, state) {
     const input = await preparePlaybackInput({

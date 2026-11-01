@@ -1,5 +1,4 @@
 import { describe, expect, jest, test } from '@jest/globals';
-import { isRetryableOpenAIError, openAIRetryDelay } from '../../src/ttsPolicies.mjs';
 import { requestSpeech } from '../../src/audio/retry.mjs';
 import { requestSpeechOnce } from '../../src/audio/openai-request.mjs';
 
@@ -24,7 +23,7 @@ describe('OpenAI speech request', () => {
 
     await expect(requestSpeech({
       client: { audio: { speech: { create } } }, input: 'hello', voice: 'coral', signal,
-      guildId: 'guild', userId: 'user', log, isRetryableOpenAIError, openAIRetryDelay, sleep,
+      guildId: 'guild', userId: 'user', log, sleep,
     })).resolves.toEqual({ response });
 
     expect(create).toHaveBeenCalledTimes(2);
@@ -44,7 +43,7 @@ describe('OpenAI speech request', () => {
     await expect(requestSpeech({
       client: { audio: { speech: { create } } }, input: 'hello', voice: 'coral',
       signal: new AbortController().signal, guildId: 'guild', userId: 'user',
-      log, isRetryableOpenAIError, openAIRetryDelay, sleep,
+      log, sleep,
     })).resolves.toEqual({ failed: true });
 
     expect(create).toHaveBeenCalledTimes(3);
@@ -60,7 +59,7 @@ describe('OpenAI speech request', () => {
     await expect(requestSpeech({
       client: { audio: { speech: { create } } }, input: 'hello', voice: 'coral',
       signal: new AbortController().signal, guildId: 'guild', userId: 'user',
-      log, isRetryableOpenAIError, openAIRetryDelay, sleep: jest.fn(),
+      log, sleep: jest.fn(),
     })).resolves.toEqual({ failed: true });
 
     expect(create).toHaveBeenCalledTimes(1);
@@ -78,7 +77,7 @@ describe('OpenAI speech request', () => {
     await expect(requestSpeech({
       client: { audio: { speech: { create } } }, input: 'hello', voice: 'coral',
       signal: controller.signal, guildId: 'guild', userId: 'user',
-      log, isRetryableOpenAIError, openAIRetryDelay, sleep: jest.fn(),
+      log, sleep: jest.fn(),
     })).resolves.toEqual({ aborted: true });
 
     expect(create).toHaveBeenCalledTimes(1);
