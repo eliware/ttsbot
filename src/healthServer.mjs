@@ -1,12 +1,13 @@
 import { createServer } from 'node:http';
 import { createHealthRequestHandler } from './health-routes.mjs';
+import { createHealthReadiness } from './health-readiness.mjs';
 
 export function createHealthServer({ port = 3040, host = '0.0.0.0' } = {}) {
-  let ready = false;
-  const server = createServer(createHealthRequestHandler(() => ready));
+  const readiness = createHealthReadiness();
+  const server = createServer(createHealthRequestHandler(readiness.getReady));
   return {
     server,
-    setReady(value) { ready = value === true; },
+    setReady: readiness.setReady,
     start() {
       return new Promise((resolve, reject) => {
         const onError = (error) => { server.removeListener('listening', onListening); reject(error); };
