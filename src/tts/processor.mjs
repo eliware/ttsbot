@@ -1,6 +1,7 @@
 import { log as defaultLog } from '@eliware/common';
 import { playText as defaultPlayText } from '../audio/default-playback.mjs';
 import { ensureGuildState } from './state.mjs';
+import { logPlaybackFailure } from './playback-failure.mjs';
 
 export function createQueueProcessor({ getGuildState = ensureGuildState, playText = defaultPlayText, log = defaultLog } = {}) {
   return async function processQueue(guildId) {
@@ -14,7 +15,7 @@ export function createQueueProcessor({ getGuildState = ensureGuildState, playTex
       });
       state.playing = true;
       try { await playText(guildId, job.text, job.userId, job.userTag, job.receivedAt, state); }
-      catch (error) { log.error('Error playing TTS:', error); }
+      catch (error) { logPlaybackFailure(error, log); }
       finally { state.playing = false; }
     }
   };
