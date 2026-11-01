@@ -1,13 +1,10 @@
-import { createGuildAudioPlayer } from './player.mjs';
+import { createGuildState } from './state-factory.mjs';
 
 const guildStates = new Map();
 
 export function ensureGuildState(guildId) {
   if (!guildStates.has(guildId)) {
-    guildStates.set(guildId, {
-      connection: null, player: createGuildAudioPlayer({ guildId }), queue: [], playing: false,
-      linkedTextChannelId: null, current: null,
-    });
+    guildStates.set(guildId, createGuildState({ guildId }));
   }
   return guildStates.get(guildId);
 }

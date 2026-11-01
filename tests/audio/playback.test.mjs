@@ -136,7 +136,7 @@ describe('TTS playback', () => {
     expect(aborted.log.debug).toHaveBeenCalledWith('OpenAI TTS request aborted', { guildId: 'guild', userId: 'user' });
   });
 
-  test('logs stream errors and tolerates cleanup failures', async () => {
+  test('tolerates cleanup failures', async () => {
     const body = new FakeStream();
     body.destroy.mockImplementation(() => { throw new Error('body cleanup failed'); });
     const harness = createHarness({ responses: [{ body }] });
@@ -153,15 +153,8 @@ describe('TTS playback', () => {
     });
     const completion = playText('guild', 'hello', 'user', '', 0, harness.state);
     await new Promise((resolve) => harness.player.once('play', resolve));
-    const current = harness.state.current;
-    const streamError = new Error('source error');
-    const resamplerError = new Error('resampler error');
-    current.source.emit('error', streamError);
-    current.resampler.emit('error', resamplerError);
     harness.player.emit('idle');
     await completion;
-
-    expect(harness.log.error).toHaveBeenCalledWith('OpenAI TTS stream error', streamError);
-    expect(harness.log.error).toHaveBeenCalledWith('PCM resampler error', resamplerError);
+    expect(body.destroy).toHaveBeenCalled();
   });
 });

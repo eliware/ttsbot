@@ -15,7 +15,7 @@ export function createQueueProcessor({ getGuildState = ensureGuildState, playTex
       state.playing = true;
       try { await playText(guildId, job.text, job.userId, job.userTag, job.receivedAt, state); }
       catch (error) { log.error('Error playing TTS:', error); }
-      state.playing = false;
+      finally { state.playing = false; }
     }
   };
 }
