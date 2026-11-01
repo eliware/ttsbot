@@ -3,6 +3,7 @@ import { enqueueSpeech } from '../src/tts/queue.mjs';
 import { createVoiceAssigner } from '../src/tts/voice-assignment.mjs';
 import { normalizeMessageContent } from '../src/discord/message-content.mjs';
 import { assignMessageVoice } from '../src/discord/message-voice.mjs';
+import { enqueueMessageForSpeech } from '../src/discord/message-queue.mjs';
 
 export default async function ({ log }, message) {
   if (message.author.bot || !message.guildId) return;
@@ -13,6 +14,8 @@ export default async function ({ log }, message) {
   if (!content) return;
   const userId = message.author.id;
   await assignMessageVoice({ assignVoice: createVoiceAssigner(), guildId: message.guildId, userId, state, log });
-  log.debug('messageCreate enqueueing TTS', { guildId: message.guildId, channelId: message.channelId, userId, length: content.length });
-  await enqueueSpeech(message.guildId, { text: content, userId, userTag: message.author.tag, receivedAt: performance.now() });
+  await enqueueMessageForSpeech({
+    enqueueSpeech, guildId: message.guildId, channelId: message.channelId, content,
+    userId, userTag: message.author.tag, log,
+  });
 }

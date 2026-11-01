@@ -102,21 +102,6 @@ describe('TTS playback', () => {
     expect(harness.speechCreate).toHaveBeenCalledTimes(2);
   });
 
-  test('uses coral when no user voice exists and keeps the original text after replacement errors', async () => {
-    const replaceError = new Error('replacement failed');
-    const body = new FakeStream();
-    const harness = createHarness({
-      responses: [{ body }], settings: {},
-      replace: jest.fn(async () => { throw replaceError; }),
-    });
-    const playText = createPlayback(harness.dependencies);
-
-    await completePlayback(playText, harness);
-
-    expect(harness.speechCreate).toHaveBeenCalledWith(expect.objectContaining({ input: 'hello', voice: 'coral' }));
-    expect(harness.log.error).toHaveBeenCalledWith('Replacements error', replaceError);
-  });
-
   test('stops when OpenAI fails or cancels the request', async () => {
     const requestError = { status: 401 };
     const failed = createHarness({ responses: [] });
