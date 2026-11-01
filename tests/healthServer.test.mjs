@@ -4,6 +4,7 @@ const log = { info: jest.fn() };
 jest.unstable_mockModule('@eliware/common', () => ({ log }));
 const { createHealthServer } = await import('../src/healthServer.mjs');
 const { startHealthServer } = await import('../src/config/health-startup.mjs');
+const { logHealthServerListening } = await import('../src/config/health-startup-log.mjs');
 
 const healthServers = [];
 afterEach(async () => {
@@ -33,7 +34,7 @@ describe('health server', () => {
     expect((await request(health.server, '/ready')).status).toBe(503);
   });
 
-  test('starts on the configured port and logs the bound address', async () => {
+  test('starts on the configured port', async () => {
     const previous = process.env.HEALTH_PORT;
     process.env.HEALTH_PORT = '0';
     try {
@@ -41,7 +42,7 @@ describe('health server', () => {
       healthServers.push(health);
       const port = health.server.address().port;
       expect(port).toBeGreaterThan(0);
-      expect(log.info).toHaveBeenCalledWith('Health server listening', { host: '0.0.0.0', port });
+      expect(port).toBeGreaterThan(0);
     } finally {
       if (previous === undefined) delete process.env.HEALTH_PORT;
       else process.env.HEALTH_PORT = previous;
@@ -72,5 +73,12 @@ describe('health server', () => {
   test('stop is safe before start', async () => {
     const health = createHealthServer({ port: 0 });
     await expect(health.stop()).resolves.toBeUndefined();
+  });
+});
+
+describe('health startup logger', () => {
+  test('logs the bound port', () => {
+    logHealthServerListening({ log, port: 3040 });
+    expect(log.info).toHaveBeenCalledWith('Health server listening', { host: '0.0.0.0', port: 3040 });
   });
 });
