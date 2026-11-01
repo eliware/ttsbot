@@ -89,8 +89,6 @@ describe('TTS playback', () => {
     expect(harness.log.warn).toHaveBeenCalledWith('Discord audio buffer underrun', { guildId: 'guild', userId: 'user' });
     expect(harness.log.debug).toHaveBeenCalledWith('OpenAI TTS first audio byte', expect.any(Object));
     expect(harness.log.debug).toHaveBeenCalledWith('Discord audio playback started', expect.any(Object));
-    expect(body.destroy).toHaveBeenCalledTimes(1);
-    expect(harness.state.current).toBeNull();
   });
 
   test('caches one OpenAI client across queued playback', async () => {

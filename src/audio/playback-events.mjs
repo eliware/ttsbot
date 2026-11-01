@@ -1,6 +1,6 @@
 import { shouldLogBufferUnderrun } from '../ttsPolicies.mjs';
 import { attachStreamMetrics } from './stream-metrics.mjs';
-import { cleanupCurrent } from '../audioLifecycle.mjs';
+import { cleanupPlayback } from './playback-cleanup.mjs';
 
 export function waitForPlayback({
   source,
@@ -32,8 +32,7 @@ export function waitForPlayback({
         playbackTotalMs: Math.round(metrics.playbackIdleAt - metrics.requestStartedAt),
         openaiToPlaybackIdleMs: metrics.openaiFirstByteAt == null ? undefined : Math.round(metrics.playbackIdleAt - metrics.openaiFirstByteAt),
       });
-      cleanupCurrent(current, { responseBody: response.body, abort: false });
-      if (state.current === current) state.current = null;
+      cleanupPlayback({ state, current, responseBody: response.body });
       resolve();
     };
     const onBuffering = () => {
