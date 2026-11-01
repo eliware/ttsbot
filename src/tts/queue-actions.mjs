@@ -1,4 +1,4 @@
-import { cancelCurrent } from '../audioLifecycle.mjs';
+import { cancelCurrent } from './cancellation.mjs';
 import { log } from '@eliware/common';
 import { ensureGuildState } from './state.mjs';
 

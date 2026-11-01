@@ -6,24 +6,24 @@ const saveSettings = jest.fn();
 const ensureGuildState = jest.fn();
 const enqueueSpeech = jest.fn();
 
-jest.unstable_mockModule('../src/settings.mjs', () => ({
+jest.unstable_mockModule('../../src/settings.mjs', () => ({
   userHasSettings: hasSettings,
   loadUserSettings: loadSettings,
   saveUserSettings: saveSettings,
 }));
-jest.unstable_mockModule('../src/tts/state.mjs', () => ({
+jest.unstable_mockModule('../../src/tts/state.mjs', () => ({
   ensureGuildState,
 }));
-jest.unstable_mockModule('../src/tts/queue.mjs', () => ({
+jest.unstable_mockModule('../../src/tts/queue.mjs', () => ({
   enqueueSpeech,
   skipCurrent: jest.fn(),
   stopAndClear: jest.fn(),
 }));
-jest.unstable_mockModule('../src/discordActions.mjs', () => ({
+jest.unstable_mockModule('../../src/discordActions.mjs', () => ({
   AVAILABLE_VOICES: ['alloy', 'ash', 'coral'],
 }));
 
-const { default: messageCreate } = await import('../events/messageCreate.mjs');
+const { default: messageCreate } = await import('../../events/messageCreate.mjs');
 
 const log = { debug: jest.fn(), error: jest.fn() };
 

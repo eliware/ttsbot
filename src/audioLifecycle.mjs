@@ -10,8 +10,3 @@ export function cleanupCurrent(current, { responseBody, abort = true } = {}) {
   }
 }
 
-export function cancelCurrent(state) {
-  if (!state.current) return;
-  cleanupCurrent(state.current);
-  state.current = null;
-}
