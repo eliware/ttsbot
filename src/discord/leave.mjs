@@ -1,4 +1,5 @@
 import { getVoiceConnection } from '@discordjs/voice';
+import { clearGuildVoiceConnection } from './connection-state.mjs';
 
 const loadGuildState = async (guildId) => (await import('../tts/state.mjs')).ensureGuildState(guildId);
 
@@ -9,9 +10,7 @@ export function createLeaveAction({ log, getConnection = getVoiceConnection, get
     const connection = getConnection(interaction.guildId);
     if (!connection) return interaction.reply({ content: 'I am not in a voice channel.', flags: 64 });
     connection.destroy();
-    state.connection = null;
-    state.linkedTextChannelId = null;
-    state.queue = [];
+    clearGuildVoiceConnection(state, { clearQueue: true });
     await interaction.reply('Left the voice channel and cleared state.');
     log.debug('Leave command completed', { guildId: interaction.guildId });
   };

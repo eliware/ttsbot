@@ -2,6 +2,7 @@ import { ensureGuildState } from '../src/tts/state.mjs';
 import { enqueueSpeech } from '../src/tts/queue.mjs';
 import { createVoiceAssigner } from '../src/tts/voice-assignment.mjs';
 import { normalizeMessageContent } from '../src/discord/message-content.mjs';
+import { assignMessageVoice } from '../src/discord/message-voice.mjs';
 
 const assignVoice = createVoiceAssigner();
 
@@ -13,11 +14,7 @@ export default async function ({ log }, message) {
   const content = normalizeMessageContent(message.content);
   if (!content) return;
   const userId = message.author.id;
-  try {
-    await assignVoice(message.guildId, userId, state);
-  } catch (error) {
-    log.error('Failed to assign user voice', error);
-  }
+  await assignMessageVoice({ assignVoice, guildId: message.guildId, userId, state, log });
   log.debug('messageCreate enqueueing TTS', { guildId: message.guildId, channelId: message.channelId, userId, length: content.length });
   await enqueueSpeech(message.guildId, { text: content, userId, userTag: message.author.tag, receivedAt: performance.now() });
 }

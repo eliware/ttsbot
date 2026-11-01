@@ -1,5 +1,6 @@
 import { joinVoiceChannel, getVoiceConnection, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { ensureAssignmentState } from '../tts/assignment-state.mjs';
+import { clearGuildVoiceConnection, setGuildVoiceConnection } from './connection-state.mjs';
 
 const loadGuildState = async (guildId) => (await import('../tts/state.mjs')).ensureGuildState(guildId);
 
@@ -24,8 +25,7 @@ export function createJoinAction({
     log.debug('Joining Discord voice channel', { guildId, channelId: voiceChannel.id, textChannelId: interaction.channelId });
     const connection = joinConnection({ channelId: voiceChannel.id, guildId, adapterCreator: voiceChannel.guild.voiceAdapterCreator });
     const state = await getGuildState(guildId);
-    state.connection = connection;
-    state.linkedTextChannelId = interaction.channelId;
+    setGuildVoiceConnection(state, connection, interaction.channelId);
     ensureAssignmentState(state);
     connection.subscribe(state.player);
     try {
@@ -36,8 +36,7 @@ export function createJoinAction({
     } catch (error) {
       log.error('Voice connection failed', error);
       connection.destroy();
-      state.connection = null;
-      state.linkedTextChannelId = null;
+      clearGuildVoiceConnection(state);
       await interaction.editReply({ content: 'Failed to connect to the voice channel. Please try /join again.' });
     }
   };

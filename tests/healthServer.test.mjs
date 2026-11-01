@@ -3,6 +3,7 @@ import { afterEach, describe, expect, jest, test } from '@jest/globals';
 const log = { info: jest.fn() };
 jest.unstable_mockModule('@eliware/common', () => ({ log }));
 const { createHealthServer } = await import('../src/healthServer.mjs');
+const { startHealthServer } = await import('../src/config/health-startup.mjs');
 
 const healthServers = [];
 afterEach(async () => {
@@ -30,6 +31,21 @@ describe('health server', () => {
     expect((await request(health.server, '/ready')).status).toBe(200);
     health.setReady(false);
     expect((await request(health.server, '/ready')).status).toBe(503);
+  });
+
+  test('starts on the configured port and logs the bound address', async () => {
+    const previous = process.env.HEALTH_PORT;
+    process.env.HEALTH_PORT = '0';
+    try {
+      const health = await startHealthServer({ log });
+      healthServers.push(health);
+      const port = health.server.address().port;
+      expect(port).toBeGreaterThan(0);
+      expect(log.info).toHaveBeenCalledWith('Health server listening', { host: '0.0.0.0', port });
+    } finally {
+      if (previous === undefined) delete process.env.HEALTH_PORT;
+      else process.env.HEALTH_PORT = previous;
+    }
   });
 
   test('supports defaults and reports startup conflicts', async () => {
