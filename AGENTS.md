@@ -1,49 +1,52 @@
 # AGENTS.md
 
-## Scope
+## Project
 
-This repository contains `ttsbot`, a Discord text-to-speech bot.
+Maintain the ttsbot Discord text-to-speech application. Eliware owns this repository.
 
-## High-signal overview
+## Scope and boundaries
 
-- Entry point: `ttsbot.mjs`
-- Main bootstrap: `src/main.mjs`
-- Discord logic: `src/discordClient.mjs`
-- TTS playback pipeline: `src/ttsEngine.mjs`
-- Per-user settings: `src/settings.mjs`
-- Replacements: `replacements.json`
+Keep application behavior in this repository. Keep end-user procedures in `docs/USER_GUIDE.md`.
 
-## Behavior summary
+## Layout
 
-- The bot joins a Discord voice channel on `/join`.
-- It speaks messages only from the linked text channel.
-- It uses OpenAI TTS and resamples audio for Discord playback.
-- It stores per-user voice preferences in memory and resets them on restart.
-- It auto-assigns voices for users without settings.
+Keep runtime code in `src/`, Discord command definitions in `commands/`, event handlers in `events/`, and tests in `tests/`. Keep end-user documentation in `docs/` and link each document from `docs/README.md`.
 
-## Required environment
+## Development
 
-- `DISCORD_CLIENT_ID`
-- `DISCORD_TOKEN`
-- `OPENAI_API_KEY`
-- `HEALTH_PORT` (optional, default `8080`)
-- `TTS_JITTER_BUFFER_MS` (optional, integer 0-1000, default `200`)
-- `LOG_LEVEL` (optional, default `info`)
+Use Node.js 26 or later and native ESM. Run focused tests first during development.
+Run one test file with `npm test -- tests/path/to/example.test.mjs`.
+Run multiple test files with `npm test -- tests/path/to/first.test.mjs tests/path/to/second.test.mjs`.
+Prevent repeated full-suite runs during development.
+Update end-user documentation when behavior or setup changes.
 
-## Run
+## Validation
 
-- `npm install`
-- `npm start`
+Run `npm test` for the full Jest suite before a commit.
+Run `npm run lint` for lint checks.
 
-## Edit rules
+## Security
 
-- Keep changes focused.
-- Prefer small edits over broad rewrites.
-- Match the existing ESM style.
-- Update this file and `README.md` when behavior or setup changes.
+Keep Discord tokens, OpenAI API keys, and runtime state out of Git. Restrict access to the unauthenticated health server.
 
-## Testing
+## Changes
 
-- `npm test`
-- `npm run test:gaps`
-- `npm run lint`
+Keep changes focused. Update release notes for user-visible changes.
+
+## Application
+
+Keep startup configuration and user procedures accurate in `README.md` and `docs/USER_GUIDE.md`.
+
+## Discord
+
+Document each slash command and each required intent and permission. Keep command definitions in `commands/` and event handlers in `events/`.
+
+## GHCR publication
+
+Image: `ghcr.io/eliware/ttsbot`
+
+Pull command: `docker pull ghcr.io/eliware/ttsbot:vMAJOR.MINOR.PATCH`
+
+Supported tags: `vMAJOR.MINOR.PATCH`
+
+Deployment boundary: Publication does not deploy. Verify an immutable image digest before deployment.

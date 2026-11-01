@@ -1,5 +1,10 @@
 # Release notes
 
+## 15.1.0 - 2026-11-01
+
+- Update direct dependencies to their latest releases.
+- Add an end-user guide for setup, configuration, commands, deployment, and recovery.
+
 ## 1.0.4
 
 - Rebuilt the published image with the pinned Node.js 26.13.0 base image.
@@ -15,7 +20,6 @@
 - Added production Docker image and GHCR publishing workflow.
 - Added Docker health smoke validation.
 - Added Kubernetes deployment support and health/readiness probes.
-
 
 ## 1.0.1
 

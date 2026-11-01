@@ -1,132 +1,96 @@
-# ttsbot
+# [![eliware.org](https://eliware.org/logos/brand.png)](https://discord.gg/M6aTR9eTwN)
 
-Discord text-to-speech bot using OpenAI TTS and Discord voice playback.
+## ttsbot [![License](https://img.shields.io/github/license/eliware/ttsbot)](https://github.com/eliware/ttsbot) [![CI](https://github.com/eliware/ttsbot/actions/workflows/ci.yaml/badge.svg)](https://github.com/eliware/ttsbot/actions/workflows/ci.yaml)
 
-## Scope
+Discord text-to-speech bot using OpenAI TTS and Discord voice playback
 
-The bot joins a Discord voice channel, links the current text channel, and speaks new messages from that channel. Speech is queued FIFO, converted from OpenAI 24 kHz mono PCM to Discord-compatible 48 kHz stereo PCM, and played in the voice channel.
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Development](#development)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Security](#security)
+- [Configuration](#configuration)
+- [Operations](#operations)
+- [Commands](#commands)
+- [Events](#events)
+- [Intents and permissions](#intents-and-permissions)
+- [Support](#support)
+- [Links](#links)
+- [License](#license)
+
+## Features
+
+ttsbot reads messages from one linked Discord text channel, converts them to speech with OpenAI, and plays audio in a Discord voice channel.
 
 ## Requirements
 
-- Node.js 26 or newer
-- Discord application/bot token
-- OpenAI API key
-- Discord server where the bot can:
-  - View channels and read message history
-  - Read message content
-  - Connect to and speak in voice channels
-  - Use slash commands
+Use Node.js 26 or later. Create a Discord application and an OpenAI API key. Enable the Message Content privileged intent for the Discord application.
+
+## Setup
+
+Copy `.env.example` to `.env` and set `DISCORD_CLIENT_ID`, `DISCORD_TOKEN`, and `OPENAI_API_KEY`. Run `npm ci`, then run `npm start`.
+
+## Usage
+
+Invite the bot with the `bot` and `applications.commands` scopes. Use `/join` while you are in a voice channel to link that channel to the text channel where you ran the command. Read the [user guide](docs/USER_GUIDE.md) for complete setup, configuration, operation, and recovery steps. Read [release notes](RELEASE_NOTES.md) for version history.
+
+## Development
+
+Read [AGENTS.md](AGENTS.md) before you change repository files. Find user documentation in [docs/README.md](docs/README.md).
+
+## Testing
+
+Run `npm test` for the full Jest suite. Run `npm run lint` for lint checks.
+
+## Troubleshooting
+
+If the bot does not speak, confirm that it joined the expected voice channel and that the message came from the linked text channel. Check the user guide for configuration and connection troubleshooting.
+
+## Security
+
+Keep `DISCORD_TOKEN` and `OPENAI_API_KEY` out of Git. The health server has no authentication and listens on all interfaces. Restrict its network access.
 
 ## Configuration
 
-Copy `.env.example` to `.env` and set:
+`DISCORD_CLIENT_ID`, `DISCORD_TOKEN`, and `OPENAI_API_KEY` are required. `HEALTH_PORT` is optional and defaults to `8080`. `TTS_JITTER_BUFFER_MS` is optional and defaults to `200`, with values limited to 0 through 1000. Read [configuration details](docs/USER_GUIDE.md#configure-the-bot) for all settings.
 
-```env
-DISCORD_CLIENT_ID=your_discord_application_client_id_here
-DISCORD_TOKEN=your_discord_bot_token_here
-OPENAI_API_KEY=your_openai_api_key_here
-HEALTH_PORT=8080
-LOG_LEVEL=info
-```
+## Operations
 
-DISCORD_CLIENT_ID identifies the Discord application and is not secret. DISCORD_TOKEN and OPENAI_API_KEY are required secrets. Never commit `.env`, tokens, or API keys. Configuration is loaded at startup and is not logged.
-
-## Install
-
-```bash
-npm install
-```
-
-The project uses native ESM and requires Node.js 26 or newer.
-
-## Run
-
-```bash
-npm start
-```
-
-The root entrypoint is `ttsbot.mjs`; it loads `src/main.mjs`, validates required environment variables, initializes the Discord client, and registers lifecycle handlers.
+Build a local container with `docker build -t ttsbot:local .`. The included systemd unit expects `/opt/ttsbot` and `/opt/ttsbot/.env`. Read [deployment instructions](docs/USER_GUIDE.md#run-with-docker) and [systemd instructions](docs/USER_GUIDE.md#run-with-systemd) before deployment. The GHCR workflow publishes only when a version tag matches the package version.
 
 ## Commands
 
-- `/help` — show basic usage
-- `/join` — join your current voice channel and link the current text channel
-- `/leave` — leave voice and clear guild state
-- `/voice <voice>` — set your TTS voice
-- `/skip` — skip the current message
-- `/stop` — stop playback and clear the queue
+The bot provides `/help`, `/join`, `/leave`, `/voice`, `/skip`, and `/stop`. Read [command behavior](docs/USER_GUIDE.md#use-slash-commands) for details.
 
-Available voices are defined in `src/discordClient.mjs` and exposed as `/voice` choices.
+## Events
 
-## Behavior and state
+The bot handles Discord client readiness, slash command interactions, and server messages. It ignores bot-authored messages and messages outside the linked text channel.
 
-- Only messages in the linked text channel are spoken.
-- Bot-authored messages are ignored.
-- Messages longer than 2,000 characters are ignored.
-- Messages are queued FIFO per guild.
-- Users without settings receive an automatically assigned voice on first use.
-- Settings are kept in memory and reset when the process restarts.
-- `TTS_JITTER_BUFFER_MS` controls the PCM prebuffer (optional integer 0-1000, default: 200 ms).
-- `HEALTH_PORT` controls the local health server port (optional integer, default: 8080).
-- `LOG_LEVEL` controls logging verbosity (optional, default: info).
-- Word replacements are loaded from `replacements.json` and applied before TTS requests.
-- `/leave`, `/skip`, `/stop`, and process shutdown clean active playback and queues.
+## Intents and permissions
 
-## Logging and privacy
+The bot uses the Guilds, Guild Messages, Message Content, and Guild Voice States intents. Grant View Channels and Send Messages in the text channel. Grant Connect and Speak in the voice channel. Enable the Message Content privileged intent in the Discord Developer Portal.
 
-- `LOG_LEVEL=debug` enables detailed Discord, queue, OpenAI timing, playback, retry, and buffer logs.
-- Logs include operational IDs, lengths, statuses, and timings; message text and audio are not logged.
-- API keys and tokens are not logged. Avoid enabling debug logs permanently in production because IDs and timing data increase log volume.
+## Support
 
-## Development and validation
+For help, questions, or to chat with the author and community, visit:
 
-```bash
-npm run lint
-npm test
-npm run test:gaps
-```
+[![Discord](https://eliware.org/logos/discord_96.png)](https://discord.gg/M6aTR9eTwN)[![eliware.org](https://eliware.org/logos/eliware_96.png)](https://discord.gg/M6aTR9eTwN)
 
-Tests are under `tests/`. Tests use native ESM Jest and cover in-memory settings and resampler stream behavior.
+**[eliware.org on Discord](https://discord.gg/M6aTR9eTwN)**
 
-## Deployment with systemd
+## Links
 
-The included `ttsbot.service` runs the bot from `/opt/ttsbot` using `/opt/ttsbot/.env`:
+- [Home Page](https://eliware.org)
+- [GitHub Org](https://github.com/eliware)
+- [GitHub Repo](https://github.com/eliware/ttsbot)
+- [Bug Reports](https://github.com/eliware/ttsbot/issues)
+- [Discord](https://discord.gg/M6aTR9eTwN)
 
-```bash
-sudo systemctl enable --now ttsbot.service
-sudo systemctl status ttsbot.service
-journalctl -u ttsbot.service -f
-```
+## License
 
-After code or dependency changes:
-
-```bash
-sudo systemctl restart ttsbot.service
-```
-
-The service restarts on failure. Verify logs after restart. Roll back by restoring the previous repository revision, reinstalling dependencies, and restarting the service.
-
-## Security and operational notes
-
-- Keep `.env` outside version control and restrict its permissions, for example `chmod 600 .env`.
-- The bot requires the Discord Message Content privileged intent; enable it in the Discord Developer Portal.
-- Use the minimum Discord permissions required for the bot.
-- Do not expose logs containing message content, credentials, or full API responses.
-- Runtime settings are local mutable state; back them up only if preserving user preferences is required.
-- The local HTTP health server exposes `GET /health` (process alive) and `GET /ready` (Discord startup complete) on `0.0.0.0:HEALTH_PORT` for Kubernetes probe access.
-
-## Project files
-
-- `ttsbot.mjs` — root entrypoint
-- `src/main.mjs` — startup and environment validation
-- `src/discordClient.mjs` — Discord commands, events, and shutdown
-- `src/ttsEngine.mjs` — TTS requests, queueing, resampling, and playback
-- `src/healthServer.mjs` — local health and readiness endpoints
-- `src/settings.mjs` — settings persistence
-- `tests/` — focused automated tests
-- `replacements.json` — search/replace rules
-- `ttsbot.service` — systemd unit
-
-## License and support
-
-This project is maintained for Eliware infrastructure. See package metadata and repository history for project ownership and changes.
+The package metadata declares the ISC license. Read the [ISC license](https://spdx.org/licenses/ISC.html).

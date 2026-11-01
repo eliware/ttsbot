@@ -1,6 +1,6 @@
 {
     "name": "ttsbot",
-    "version": "1.0.4",
+    "version": "15.1.0",
     "description": "Discord text-to-speech bot using OpenAI TTS",
     "main": "ttsbot.mjs",
     "scripts": {
@@ -19,23 +19,23 @@
     "author": "Eliware",
     "license": "ISC",
     "dependencies": {
-        "@discordjs/opus": "^0.10.0",
+        "@discordjs/opus": "^0.11.0",
         "@discordjs/voice": "^0.19.2",
-        "@eliware/common": "^1.1.7",
-        "@eliware/discord": "^1.1.4",
-        "@eliware/openai": "^1.1.11",
-        "@eliware/resampler": "^1.1.3",
-        "discord.js": "^14.27.0",
-        "dotenv": "^17.4.2",
-        "openai": "^7.4.0",
+        "@eliware/common": "^15.0.1",
+        "@eliware/discord": "^15.0.2",
+        "@eliware/openai": "^15.0.1",
+        "@eliware/resampler": "^15.0.1",
+        "discord.js": "^14.28.0",
+        "dotenv": "^18.0.9",
+        "openai": "^7.47.0",
         "prism-media": "^1.3.5"
     },
     "devDependencies": {
-        "jest": "^30.4.2",
-        "oxlint": "^1.77.0"
+        "jest": "^30.5.2",
+        "oxlint": "^1.90.0"
     },
     "allowScripts": {
-        "@discordjs/opus@0.10.0": true
+        "@discordjs/opus@0.11.0": true
     },
     "type": "module",
     "engines": {
