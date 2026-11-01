@@ -1,8 +1,7 @@
+import { recordSpeechResponseTiming } from './response-timing.mjs';
+import { logSpeechResponse } from './response-log.mjs';
+
 export function recordSpeechResponseMetrics({ metrics, now, receivedAt, guildId, userId, hasBody, log }) {
-  metrics.responseReceivedAt = now();
-  log.debug('OpenAI TTS response received', {
-    guildId, userId, hasBody,
-    requestMs: Math.round(metrics.responseReceivedAt - metrics.requestStartedAt),
-    discordToOpenAIResponseMs: receivedAt == null ? undefined : Math.round(metrics.responseReceivedAt - receivedAt),
-  });
+  recordSpeechResponseTiming(metrics, now);
+  logSpeechResponse({ log, metrics, receivedAt, guildId, userId, hasBody });
 }

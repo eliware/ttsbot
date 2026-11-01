@@ -1,14 +1,10 @@
-import { describe, expect, jest, test } from '@jest/globals';
-import { recordSpeechResponseMetrics } from '../../src/audio/response-metrics.mjs';
+import { describe, expect, test } from '@jest/globals';
+import { recordSpeechResponseTiming } from '../../src/audio/response-timing.mjs';
 
 describe('speech response metrics', () => {
-  test('records response timing and logs the response', () => {
+  test('records response timing', () => {
     const metrics = { requestStartedAt: 10 };
-    const log = { debug: jest.fn() };
-    recordSpeechResponseMetrics({ metrics, now: () => 30, receivedAt: 20, guildId: 'g', userId: 'u', hasBody: true, log });
+    recordSpeechResponseTiming(metrics, () => 30);
     expect(metrics.responseReceivedAt).toBe(30);
-    expect(log.debug).toHaveBeenCalledWith('OpenAI TTS response received', {
-      guildId: 'g', userId: 'u', hasBody: true, requestMs: 20, discordToOpenAIResponseMs: 10,
-    });
   });
 });

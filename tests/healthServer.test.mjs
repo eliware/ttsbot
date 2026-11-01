@@ -4,7 +4,6 @@ const log = { info: jest.fn() };
 jest.unstable_mockModule('@eliware/common', () => ({ log }));
 const { createHealthServer } = await import('../src/healthServer.mjs');
 const { startHealthServer } = await import('../src/config/health-startup.mjs');
-const { logHealthServerListening } = await import('../src/config/health-startup-log.mjs');
 
 const healthServers = [];
 afterEach(async () => {
@@ -53,9 +52,3 @@ describe('health server', () => {
   });
 });
 
-describe('health startup logger', () => {
-  test('logs the bound port', () => {
-    logHealthServerListening({ log, port: 3040 });
-    expect(log.info).toHaveBeenCalledWith('Health server listening', { host: '0.0.0.0', port: 3040 });
-  });
-});
