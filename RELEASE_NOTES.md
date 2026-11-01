@@ -1,5 +1,9 @@
 # Release notes
 
+## 1.0.4
+
+- Rebuilt the published image with the pinned Node.js 26.13.0 base image.
+
 ## 1.0.3
 
 - Bind health and readiness endpoints to all interfaces for Kubernetes HTTP probes.

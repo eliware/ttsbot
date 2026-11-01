@@ -1,6 +1,6 @@
 {
     "name": "ttsbot",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Discord text-to-speech bot using OpenAI TTS",
     "main": "ttsbot.mjs",
     "scripts": {
