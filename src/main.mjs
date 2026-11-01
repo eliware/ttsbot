@@ -1,5 +1,5 @@
 import { log, registerHandlers, registerSignals } from '@eliware/common';
-import { logNodeWarning } from './warnings.mjs';
+import { logNodeWarning } from './warnings/logger.mjs';
 import { hasRequiredSettings } from './config/required-settings.mjs';
 
 // Suppress specific Node deprecation warnings (e.g. DEP0040 for the `punycode` module)
