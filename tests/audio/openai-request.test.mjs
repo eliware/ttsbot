@@ -83,4 +83,18 @@ describe('OpenAI speech request', () => {
     expect(create).toHaveBeenCalledTimes(1);
     expect(log.debug).toHaveBeenCalledWith('OpenAI TTS request aborted', { guildId: 'guild', userId: 'user' });
   });
+
+  test('returns a handled failure when the retry delay rejects', async () => {
+    const requestError = { status: 429 };
+    const delayError = new Error('delay failed');
+    const create = jest.fn().mockRejectedValue(requestError);
+    const log = { debug: jest.fn(), error: jest.fn(), warn: jest.fn() };
+    await expect(requestSpeech({
+      client: { audio: { speech: { create } } }, input: 'hello', voice: 'coral',
+      signal: new AbortController().signal, guildId: 'guild', userId: 'user', log,
+      sleep: jest.fn().mockRejectedValue(delayError),
+    })).resolves.toEqual({ failed: true });
+    expect(log.error).toHaveBeenCalledWith('OpenAI TTS retry delay failed', delayError);
+    expect(create).toHaveBeenCalledTimes(1);
+  });
 });

@@ -98,6 +98,20 @@ describe('Discord application lifecycle', () => {
     expect(harness.states.get('guild-2').connection).toBeNull();
   });
 
+  test('continues shutdown when guild state lookup fails', async () => {
+    const harness = createHarness({ guildIds: ['guild-1', 'guild-2'] });
+    const stateError = new Error('state lookup failed');
+    harness.dependencies.ensureGuildState.mockImplementation((guildId) => {
+      if (guildId === 'guild-1') throw stateError;
+      return harness.states.get(guildId);
+    });
+    const client = await startDiscordApplication(harness.dependencies);
+    await client.shutdown();
+    expect(harness.log.error).toHaveBeenCalledWith('Failed to clear guild voice state', stateError);
+    expect(harness.dependencies.getVoiceConnection).toHaveBeenCalledWith('guild-2');
+    expect(harness.discordShutdownMock).toHaveBeenCalledTimes(1);
+  });
+
   test('logs health and Discord shutdown failures and completes cleanup', async () => {
     const healthError = new Error('health stop failed');
     const discordError = new Error('Discord shutdown failed');

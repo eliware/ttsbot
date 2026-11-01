@@ -29,4 +29,13 @@ describe('voice assignment', () => {
     expect(saveSettings).not.toHaveBeenCalled();
     expect(state).toEqual({});
   });
+
+  test('does not mutate or save when no voices are available', async () => {
+    const state = {};
+    const saveSettings = jest.fn();
+    const assignVoice = createVoiceAssigner({ hasSettings: async () => false, saveSettings, voices: [] });
+    await expect(assignVoice('guild', 'user', state)).rejects.toThrow('At least one voice is required');
+    expect(state).toEqual({});
+    expect(saveSettings).not.toHaveBeenCalled();
+  });
 });

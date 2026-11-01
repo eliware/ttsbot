@@ -57,7 +57,7 @@ Run these commands in a server where the bot has been invited:
 | --- | --- |
 | `/help` | Shows basic usage. |
 | `/join` | Joins your current voice channel and links the text channel where you ran the command. |
-| `/leave` | Disconnects from voice and clears the guild queue and linked channel. |
+| `/leave` | Stops playback, disconnects from voice, and clears the guild queue and linked channel. |
 | `/voice <voice>` | Sets your voice for the current server. |
 | `/skip` | Stops the current message and continues with the next queued message. |
 | `/stop` | Stops the current message and clears the queue. |
@@ -74,7 +74,7 @@ Each user has a voice setting per server. Settings exist only in memory and rese
 
 Before each OpenAI request, ttsbot applies the word replacements in `replacements.json`. Each record has `search` and `replace` strings. The bot matches whole words without regard to letter case. Keep valid JSON in that file. The bot loads the replacement list the first time it needs one and then caches it until restart.
 
-The bot requests 24 kHz mono PCM from OpenAI. It retries HTTP 429 and server errors up to three times, with 250 ms and 500 ms delays. It resamples the audio to 48 kHz stereo PCM for Discord playback. The jitter buffer holds audio until it has buffered the configured number of milliseconds. Set `TTS_JITTER_BUFFER_MS=0` to disable that prebuffer.
+The bot requests PCM audio from OpenAI. It processes the returned audio as 24 kHz mono input and resamples it to 48 kHz stereo PCM for Discord playback. It retries HTTP 429 and server errors up to three times, with 250 ms and 500 ms delays. The jitter buffer holds audio until it has buffered the configured number of milliseconds. Set `TTS_JITTER_BUFFER_MS=0` to disable that prebuffer.
 
 ## Health and readiness
 
@@ -136,6 +136,6 @@ sudo systemctl restart ttsbot.service
 
 ## Stop and recover
 
-Use `/stop` to stop playback and clear the server queue. Use `/leave` to disconnect and clear the channel link. During process shutdown, ttsbot marks readiness false, closes the health server, stops audio, disconnects voice sessions, and shuts down Discord.
+Use `/stop` to stop playback and clear the server queue. Use `/leave` to stop playback, disconnect, and clear the channel link. During process shutdown, ttsbot marks readiness false, closes the health server, stops audio, disconnects voice sessions, and shuts down Discord.
 
 User voice settings are not persisted. Users can run `/voice` again after a restart. To roll back a deployment, restore the prior repository revision or image digest, reinstall the matching dependencies when using a source deployment, and restart the service.

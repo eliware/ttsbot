@@ -9,7 +9,7 @@ const makeInteraction = () => ({
 });
 
 function setup({ connected = null, ready = true } = {}) {
-  const state = { player: {}, queue: ['queued'] };
+  const state = { player: { stop: jest.fn() }, queue: ['queued'], current: null };
   const connection = { subscribe: jest.fn(), destroy: jest.fn() };
   const log = { debug: jest.fn(), error: jest.fn() };
   const join = createJoinAction({
@@ -20,8 +20,9 @@ function setup({ connected = null, ready = true } = {}) {
     connectionStatus: { Ready: 'ready' },
     getGuildState: jest.fn(() => state),
   });
-  const leave = createLeaveAction({ log, getConnection: () => connected, getGuildState: () => state });
-  return { join, leave, connection, log, state };
+  const stopAndClear = jest.fn(async () => { state.queue = []; state.player.stop(true); });
+  const leave = createLeaveAction({ log, getConnection: () => connected, getGuildState: () => state, stopAndClear });
+  return { join, leave, connection, log, state, stopAndClear };
 }
 
 describe('voice connection actions', () => {
@@ -57,10 +58,12 @@ describe('voice connection actions', () => {
   });
 
   test('leaves a connection and clears guild state', async () => {
-    const { connection, state } = setup({ connected: null });
+    const { connection, state, stopAndClear } = setup({ connected: null });
     state.connection = connection;
     state.linkedTextChannelId = 'text';
-    await createLeaveAction({ log: { debug: jest.fn(), error: jest.fn() }, getConnection: () => connection, getGuildState: () => state })(makeInteraction());
+    await createLeaveAction({ log: { debug: jest.fn(), error: jest.fn() }, getConnection: () => connection, getGuildState: () => state, stopAndClear })(makeInteraction());
+    expect(stopAndClear).toHaveBeenCalledWith('guild');
+    expect(state.player.stop).toHaveBeenCalledWith(true);
     expect(connection.destroy).toHaveBeenCalled();
     expect(state).toMatchObject({ connection: null, linkedTextChannelId: null, queue: [] });
   });

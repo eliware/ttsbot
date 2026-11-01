@@ -11,7 +11,7 @@ export function attachStreamMetricListeners({ source, resampler, metrics, receiv
     metrics.openaiLastByteAt = now();
     log.debug('OpenAI TTS stream ended', {
       guildId, userId, audioBytes: getAudioBytes(),
-      openaiStreamMs: Math.round(metrics.openaiLastByteAt - metrics.openaiFirstByteAt),
+      openaiStreamMs: metrics.openaiFirstByteAt == null ? undefined : Math.round(metrics.openaiLastByteAt - metrics.openaiFirstByteAt),
       requestToLastOpenAIMs: Math.round(metrics.openaiLastByteAt - metrics.requestStartedAt),
     });
   });
@@ -26,7 +26,7 @@ export function attachStreamMetricListeners({ source, resampler, metrics, receiv
     metrics.resamplerLastByteAt = now();
     log.debug('Discord audio last PCM byte ready', {
       guildId, userId,
-      resampledAudioMs: Math.round(metrics.resamplerLastByteAt - metrics.resamplerFirstByteAt),
+      resampledAudioMs: metrics.resamplerFirstByteAt == null ? undefined : Math.round(metrics.resamplerLastByteAt - metrics.resamplerFirstByteAt),
     });
   });
 }

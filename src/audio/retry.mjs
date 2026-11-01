@@ -22,7 +22,11 @@ export async function requestSpeech({
       }
       const delayMs = retryDelay(attempt);
       log.warn('Retrying OpenAI TTS request', { guildId, userId, attempt, delayMs, status: error.status });
-      await sleep(delayMs);
+      try { await sleep(delayMs); }
+      catch (delayError) {
+        log.error('OpenAI TTS retry delay failed', delayError);
+        return { failed: true };
+      }
     }
   }
 }
