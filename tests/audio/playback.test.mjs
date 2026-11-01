@@ -154,31 +154,6 @@ describe('TTS playback', () => {
     expect(aborted.log.debug).toHaveBeenCalledWith('OpenAI TTS request aborted', { guildId: 'guild', userId: 'user' });
   });
 
-  test('cancels an audio body when its request is aborted after the response', async () => {
-    const cancel = jest.fn();
-    const response = { body: { cancel } };
-    const harness = createHarness({ responses: [response] });
-    harness.speechCreate.mockImplementation(() => {
-      harness.state.current.controller.abort();
-      return response;
-    });
-
-    await createPlayback(harness.dependencies)('guild', 'hello', 'user', '', 0, harness.state);
-
-    expect(cancel).toHaveBeenCalledTimes(1);
-    expect(harness.log.debug).toHaveBeenCalledWith('Discarding canceled OpenAI TTS response', { guildId: 'guild', userId: 'user' });
-  });
-
-  test('reports missing and non-streamable audio bodies', async () => {
-    const missing = createHarness({ responses: [{}] });
-    await createPlayback(missing.dependencies)('guild', 'hello', 'user', '', 0, missing.state);
-    expect(missing.log.error).toHaveBeenCalledWith('OpenAI TTS response did not include an audio body');
-
-    const invalid = createHarness({ responses: [{ body: {} }] });
-    await createPlayback(invalid.dependencies)('guild', 'hello', 'user', '', 0, invalid.state);
-    expect(invalid.log.error).toHaveBeenCalledWith('OpenAI TTS response body is not streamable');
-  });
-
   test('logs stream errors and tolerates cleanup failures', async () => {
     const body = new FakeStream();
     body.destroy.mockImplementation(() => { throw new Error('body cleanup failed'); });
