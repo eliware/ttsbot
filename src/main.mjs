@@ -1,5 +1,6 @@
 import { log, registerHandlers, registerSignals } from '@eliware/common';
 import { logNodeWarning } from './warnings.mjs';
+import { hasRequiredSettings } from './config/required-settings.mjs';
 
 // Suppress specific Node deprecation warnings (e.g. DEP0040 for the `punycode` module)
 // Adding a warning listener prevents Node's default printing for warnings; we filter out DEP0040
@@ -13,10 +14,7 @@ import { getVoiceConnection } from '@discordjs/voice';
 import { ensureGuildState, stopAndClear } from './ttsEngine.mjs';
 import { startDiscordApplication } from './application.mjs';
 
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-if (!DISCORD_CLIENT_ID || !DISCORD_TOKEN || !OPENAI_API_KEY) {
+if (!hasRequiredSettings(process.env)) {
   log.error('Missing DISCORD_CLIENT_ID, DISCORD_TOKEN, or OPENAI_API_KEY in environment. See .env.example');
   process.exit(1);
 }

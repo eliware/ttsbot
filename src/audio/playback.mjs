@@ -1,8 +1,8 @@
-import { Readable } from 'node:stream';
 import { createJitterBuffer } from '../jitterBuffer.mjs';
 import { createOpenAI } from '@eliware/openai';
 import { createAudioResource, AudioPlayerStatus, StreamType, entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import { Resampler } from '@eliware/resampler';
+import { createAudioPipeline, toNodeReadable } from './audio-pipeline.mjs';
 import { loadUserSettings } from '../settings.mjs';
 import { isRetryableOpenAIError, openAIRetryDelay } from '../ttsPolicies.mjs';
 import { requestSpeech } from './openai-request.mjs';
@@ -11,11 +11,6 @@ import { replaceText } from '../text/replacements.mjs';
 import { log } from '@eliware/common';
 
 const sleep = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
-
-export function toNodeReadable(body) {
-  if (body && typeof body.getReader === 'function') return Readable.fromWeb(body);
-  return body;
-}
 
 export function createPlayback({
   createClient = createOpenAI,
@@ -34,6 +29,7 @@ export function createPlayback({
   now = () => performance.now(),
   delay = sleep,
 } = {}) {
+  const buildPipeline = createAudioPipeline({ createBuffer, createResource, streamType, ResamplerClass, log: logger });
   let openaiClient;
   const getOpenAIClient = () => {
     if (!openaiClient) openaiClient = createClient({ apiKey: process.env.OPENAI_API_KEY });
@@ -93,12 +89,7 @@ export function createPlayback({
       return;
     }
 
-    const resampler = new ResamplerClass({ inRate: 24000, outRate: 48000, inChannels: 1, outChannels: 2, filterWindow: 8, volume: 1 });
-    source.on('error', (error) => logger.error('OpenAI TTS stream error', error));
-    resampler.on('error', (error) => logger.error('PCM resampler error', error));
-    const jitterBuffer = createBuffer();
-    const pcmStream = source.pipe(resampler).pipe(jitterBuffer);
-    const resource = createResource(pcmStream, { inputType: streamType.Raw });
+    const { resampler, jitterBuffer, resource } = buildPipeline(source);
     const player = state.player;
     Object.assign(current, { player, resource, source, resampler, jitterBuffer });
     return waitForPlayback({

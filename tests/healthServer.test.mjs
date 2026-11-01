@@ -33,14 +33,23 @@ describe('health server', () => {
     expect((await request(health.server, '/ready')).status).toBe(503);
   });
 
-  test('starts using HEALTH_PORT', async () => {
+  test.each([
+    ['configured port', '0', (port) => port > 0],
+    ['unset port', undefined, (port) => port === 3040],
+    ['invalid port', 'invalid', (port) => port === 3040],
+  ])('resolves HEALTH_PORT for a %s value', async (_label, value, matches) => {
     const previous = process.env.HEALTH_PORT;
-    process.env.HEALTH_PORT = '0';
-    const health = await startHealthServer();
-    healthServers.push(health);
-    expect((await request(health.server, '/health')).status).toBe(200);
-    if (previous === undefined) delete process.env.HEALTH_PORT;
-    else process.env.HEALTH_PORT = previous;
+    if (value === undefined) delete process.env.HEALTH_PORT;
+    else process.env.HEALTH_PORT = value;
+    try {
+      const health = await startHealthServer();
+      healthServers.push(health);
+      expect(matches(health.server.address().port)).toBe(true);
+      expect((await request(health.server, '/health')).status).toBe(200);
+    } finally {
+      if (previous === undefined) delete process.env.HEALTH_PORT;
+      else process.env.HEALTH_PORT = previous;
+    }
   });
 
   test('supports defaults and reports startup conflicts', async () => {
@@ -64,26 +73,6 @@ describe('health server', () => {
     await expect(health.stop()).rejects.toThrow('close failed');
     health.server.close = close;
     await health.stop();
-  });
-
-  test('uses port 3040 when HEALTH_PORT is unset', async () => {
-    const previous = process.env.HEALTH_PORT;
-    delete process.env.HEALTH_PORT;
-    const health = await startHealthServer();
-    healthServers.push(health);
-    expect(health.server.address().port).toBe(3040);
-    if (previous === undefined) delete process.env.HEALTH_PORT;
-    else process.env.HEALTH_PORT = previous;
-  });
-
-  test('uses the default port when HEALTH_PORT is invalid', async () => {
-    const previous = process.env.HEALTH_PORT;
-    process.env.HEALTH_PORT = 'invalid';
-    const health = await startHealthServer();
-    healthServers.push(health);
-    expect((await request(health.server, '/health')).status).toBe(200);
-    if (previous === undefined) delete process.env.HEALTH_PORT;
-    else process.env.HEALTH_PORT = previous;
   });
 
   test('stop is safe before start', async () => {

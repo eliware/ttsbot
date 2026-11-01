@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { describe, expect, jest, test } from '@jest/globals';
-import { createPlayback, toNodeReadable } from '../../src/audio/playback.mjs';
+import { createPlayback } from '../../src/audio/playback.mjs';
 
 class FakeStream extends EventEmitter {
   constructor() {
@@ -70,15 +70,6 @@ async function completePlayback(playText, harness, text = 'hello', receivedAt = 
 }
 
 describe('TTS playback', () => {
-  test('converts Web streams and preserves already streamable bodies', () => {
-    const webStream = new ReadableStream({ start(controller) { controller.close(); } });
-    const readable = toNodeReadable(webStream);
-    const body = {};
-
-    expect(typeof readable.pipe).toBe('function');
-    expect(toNodeReadable(body)).toBe(body);
-  });
-
   test('requests, streams, logs, and cleans up playback resources', async () => {
     const body = new FakeStream();
     const response = { body };
