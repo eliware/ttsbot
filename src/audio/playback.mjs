@@ -3,10 +3,9 @@ import { createAudioResource, AudioPlayerStatus, StreamType, entersState, VoiceC
 import { Resampler } from '@eliware/resampler';
 import { createPlaybackDependencies } from './playback-factory.mjs';
 import { preparePlaybackInput } from './input.mjs';
-import { validateSpeechResponse } from './response.mjs';
+import { executeSpeechRequest } from './request-lifecycle.mjs';
 import { sleep } from './delay.mjs';
 import { isRetryableOpenAIError, openAIRetryDelay } from '../ttsPolicies.mjs';
-import { requestSpeech } from './retry.mjs';
 import { waitForPlayback } from './playback-events.mjs';
 import { log } from '@eliware/common';
 
@@ -38,18 +37,12 @@ export function createPlayback({
     if (!input) return;
     const { inputText, voice } = input;
 
-    const controller = new AbortController();
-    const current = { controller };
-    state.current = current;
-    const metrics = { receivedAt, requestStartedAt: now() };
-    logger.debug('OpenAI TTS request', { guildId, userId, voice, inputLength: inputText.length, model: 'tts-1', responseFormat: 'pcm' });
-    const result = await requestSpeech({
-      client: getOpenAIClient(), input: inputText, voice, signal: controller.signal, guildId, userId,
-      log: logger, isRetryableOpenAIError: isRetryable, openAIRetryDelay: retryDelay, sleep: delay,
+    const request = await executeSpeechRequest({
+      state, client: getOpenAIClient(), inputText, voice, receivedAt, guildId, userId, log: logger, now,
+      isRetryable, retryDelay, sleep: delay,
     });
-    const audio = validateSpeechResponse({ result, signal: controller.signal, receivedAt, metrics, now, guildId, userId, log: logger });
-    if (!audio) return;
-    const { response, source } = audio;
+    if (!request) return;
+    const { audio: { response, source }, current, metrics } = request;
 
     const { resampler, jitterBuffer, resource } = buildPipeline(source);
     const player = state.player;
