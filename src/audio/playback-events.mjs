@@ -1,4 +1,5 @@
 import { shouldLogBufferUnderrun } from '../ttsPolicies.mjs';
+import { attachStreamMetrics } from './stream-metrics.mjs';
 
 export function waitForPlayback({
   source,
@@ -17,40 +18,7 @@ export function waitForPlayback({
   log,
   now,
 }) {
-  let audioBytes = 0;
-  source.on('data', (chunk) => {
-    if (metrics.openaiFirstByteAt == null) {
-      metrics.openaiFirstByteAt = now();
-      log.debug('OpenAI TTS first audio byte', {
-        guildId, userId, firstByteMs: Math.round(metrics.openaiFirstByteAt - metrics.requestStartedAt),
-        discordToFirstOpenAIMs: receivedAt == null ? undefined : Math.round(metrics.openaiFirstByteAt - receivedAt),
-      });
-    }
-    audioBytes += chunk.length;
-  });
-  source.on('end', () => {
-    metrics.openaiLastByteAt = now();
-    log.debug('OpenAI TTS stream ended', {
-      guildId, userId, audioBytes,
-      openaiStreamMs: Math.round(metrics.openaiLastByteAt - metrics.openaiFirstByteAt),
-      requestToLastOpenAIMs: Math.round(metrics.openaiLastByteAt - metrics.requestStartedAt),
-    });
-  });
-  resampler.on('data', () => {
-    if (metrics.resamplerFirstByteAt == null) {
-      metrics.resamplerFirstByteAt = now();
-      log.debug('Discord audio first PCM byte ready', {
-        guildId, userId, resamplerMs: Math.round(metrics.resamplerFirstByteAt - metrics.requestStartedAt),
-      });
-    }
-  });
-  resampler.on('end', () => {
-    metrics.resamplerLastByteAt = now();
-    log.debug('Discord audio last PCM byte ready', {
-      guildId, userId,
-      resampledAudioMs: Math.round(metrics.resamplerLastByteAt - metrics.resamplerFirstByteAt),
-    });
-  });
+  const getAudioBytes = attachStreamMetrics({ source, resampler, metrics, receivedAt, guildId, userId, log, now });
 
   return new Promise((resolve) => {
     const onIdle = () => {
@@ -59,7 +27,7 @@ export function waitForPlayback({
       player.removeListener(AudioStatus.Buffering, onBuffering);
       metrics.playbackIdleAt = now();
       log.debug('Discord TTS playback idle', {
-        guildId, userId, audioBytes,
+        guildId, userId, audioBytes: getAudioBytes(),
         playbackTotalMs: Math.round(metrics.playbackIdleAt - metrics.requestStartedAt),
         openaiToPlaybackIdleMs: metrics.openaiFirstByteAt == null ? undefined : Math.round(metrics.playbackIdleAt - metrics.openaiFirstByteAt),
       });

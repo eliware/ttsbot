@@ -1,4 +1,4 @@
-const runQueueAction = (name) => (...args) => import('../tts/queue.mjs').then((queue) => queue[name](...args));
+const runQueueAction = (name) => (...args) => import('../tts/queue-actions.mjs').then((actions) => actions[name](...args));
 
 export function createPlaybackActions({ log, skip = runQueueAction('skipCurrent'), stop = runQueueAction('stopAndClear') }) {
   return {
