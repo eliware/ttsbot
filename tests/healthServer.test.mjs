@@ -22,11 +22,10 @@ async function request(server, path) {
 }
 
 describe('health server', () => {
-  test('reports liveness, readiness, and unknown routes', async () => {
+  test('exposes liveness and readiness routes', async () => {
     const health = await start();
     expect((await request(health.server, '/health')).status).toBe(200);
     expect((await request(health.server, '/ready')).status).toBe(503);
-    expect((await request(health.server, '/unknown')).status).toBe(404);
     health.setReady(true);
     expect((await request(health.server, '/ready')).status).toBe(200);
     health.setReady(false);

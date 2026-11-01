@@ -1,5 +1,6 @@
 import { shouldLogBufferUnderrun } from '../ttsPolicies.mjs';
 import { attachStreamMetrics } from './stream-metrics.mjs';
+import { cleanupCurrent } from '../audioLifecycle.mjs';
 
 export function waitForPlayback({
   source,
@@ -31,9 +32,7 @@ export function waitForPlayback({
         playbackTotalMs: Math.round(metrics.playbackIdleAt - metrics.requestStartedAt),
         openaiToPlaybackIdleMs: metrics.openaiFirstByteAt == null ? undefined : Math.round(metrics.playbackIdleAt - metrics.openaiFirstByteAt),
       });
-      try { response.body.destroy(); } catch {}
-      try { resampler.destroy(); } catch {}
-      try { jitterBuffer.destroy(); } catch {}
+      cleanupCurrent(current, { responseBody: response.body, abort: false });
       if (state.current === current) state.current = null;
       resolve();
     };

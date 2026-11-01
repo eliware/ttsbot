@@ -1,4 +1,5 @@
 import { joinVoiceChannel, getVoiceConnection, entersState, VoiceConnectionStatus } from '@discordjs/voice';
+import { ensureAssignmentState } from '../tts/assignment-state.mjs';
 
 const loadGuildState = async (guildId) => (await import('../tts/state.mjs')).ensureGuildState(guildId);
 
@@ -25,8 +26,7 @@ export function createJoinAction({
     const state = await getGuildState(guildId);
     state.connection = connection;
     state.linkedTextChannelId = interaction.channelId;
-    state.assignedUserOrder ??= [];
-    state.assignedVoices ??= {};
+    ensureAssignmentState(state);
     connection.subscribe(state.player);
     try {
       await waitForState(connection, connectionStatus.Ready, 15_000);
