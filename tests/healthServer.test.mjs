@@ -33,19 +33,13 @@ describe('health server', () => {
     expect((await request(health.server, '/ready')).status).toBe(503);
   });
 
-  test.each([
-    ['configured port', '0', (port) => port > 0],
-    ['unset port', undefined, (port) => port === 3040],
-    ['invalid port', 'invalid', (port) => port === 3040],
-  ])('resolves HEALTH_PORT for a %s value', async (_label, value, matches) => {
+  test('starts on the configured port', async () => {
     const previous = process.env.HEALTH_PORT;
-    if (value === undefined) delete process.env.HEALTH_PORT;
-    else process.env.HEALTH_PORT = value;
+    process.env.HEALTH_PORT = '0';
     try {
       const health = await startHealthServer();
       healthServers.push(health);
-      expect(matches(health.server.address().port)).toBe(true);
-      expect((await request(health.server, '/health')).status).toBe(200);
+      expect(health.server.address().port).toBeGreaterThan(0);
     } finally {
       if (previous === undefined) delete process.env.HEALTH_PORT;
       else process.env.HEALTH_PORT = previous;

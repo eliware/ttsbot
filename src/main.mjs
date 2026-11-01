@@ -11,7 +11,8 @@ registerHandlers({ events: ['uncaughtException', 'unhandledRejection'], log });
 import { startDiscordClient } from './discordClient.mjs';
 import { startHealthServer } from './healthServer.mjs';
 import { getVoiceConnection } from '@discordjs/voice';
-import { ensureGuildState, stopAndClear } from './ttsEngine.mjs';
+import { ensureGuildState } from './tts/state.mjs';
+import { stopAndClear } from './tts/queue.mjs';
 import { startDiscordApplication } from './application.mjs';
 
 if (!hasRequiredSettings(process.env)) {

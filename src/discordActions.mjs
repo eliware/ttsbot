@@ -1,14 +1,17 @@
-import { ensureGuildState, skipCurrent, stopAndClear } from './ttsEngine.mjs';
+import { skipCurrent, stopAndClear } from './tts/queue.mjs';
 import { createVoiceSettingsAction } from './discord/voice-settings.mjs';
-import { createVoiceConnectionActions } from './discord/voice-connection.mjs';
+import { createJoinAction } from './discord/join.mjs';
+import { createLeaveAction } from './discord/leave.mjs';
 
 export const AVAILABLE_VOICES = ['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'];
 
 export function createDiscordActions({ log }) {
   const setVoice = createVoiceSettingsAction({ log });
-  const voiceConnectionActions = createVoiceConnectionActions({ log });
+  const join = createJoinAction({ log });
+  const leave = createLeaveAction({ log });
   return {
-    ...voiceConnectionActions,
+    join,
+    leave,
     voice: setVoice,
     async skip(interaction) {
       log.debug('Skip command started', { guildId: interaction.guildId, userId: interaction.user?.id });

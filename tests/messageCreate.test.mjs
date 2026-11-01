@@ -11,8 +11,10 @@ jest.unstable_mockModule('../src/settings.mjs', () => ({
   loadUserSettings: loadSettings,
   saveUserSettings: saveSettings,
 }));
-jest.unstable_mockModule('../src/ttsEngine.mjs', () => ({
+jest.unstable_mockModule('../src/tts/state.mjs', () => ({
   ensureGuildState,
+}));
+jest.unstable_mockModule('../src/tts/queue.mjs', () => ({
   enqueueSpeech,
   skipCurrent: jest.fn(),
   stopAndClear: jest.fn(),

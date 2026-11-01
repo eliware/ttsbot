@@ -1,5 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals';
-import { createVoiceConnectionActions } from '../../src/discord/voice-connection.mjs';
+import { createJoinAction } from '../../src/discord/join.mjs';
+import { createLeaveAction } from '../../src/discord/leave.mjs';
 
 const makeInteraction = () => ({
   guildId: 'guild', channelId: 'text', user: { id: 'user' },
@@ -11,7 +12,7 @@ function setup({ connected = null, ready = true } = {}) {
   const state = { player: {}, queue: ['queued'] };
   const connection = { subscribe: jest.fn(), destroy: jest.fn() };
   const log = { debug: jest.fn(), error: jest.fn() };
-  const actions = createVoiceConnectionActions({
+  const join = createJoinAction({
     log,
     getConnection: jest.fn(() => connected),
     joinConnection: jest.fn(() => connection),
@@ -19,14 +20,15 @@ function setup({ connected = null, ready = true } = {}) {
     connectionStatus: { Ready: 'ready' },
     getGuildState: jest.fn(() => state),
   });
-  return { actions, connection, log, state };
+  const leave = createLeaveAction({ log, getConnection: () => connected, getGuildState: () => state });
+  return { join, leave, connection, log, state };
 }
 
 describe('voice connection actions', () => {
   test('joins and links the voice and text channels', async () => {
-    const { actions, connection, state } = setup();
+    const { join, connection, state } = setup();
     const interaction = makeInteraction();
-    await actions.join(interaction);
+    await join(interaction);
     expect(connection.subscribe).toHaveBeenCalledWith(state.player);
     expect(state).toMatchObject({ connection, linkedTextChannelId: 'text', assignedUserOrder: [], assignedVoices: {} });
     expect(interaction.editReply).toHaveBeenCalledWith({ content: 'Joined Voice and linked to this text channel for TTS.' });
@@ -36,41 +38,37 @@ describe('voice connection actions', () => {
     const none = setup();
     const noVoice = makeInteraction();
     noVoice.member.voice.channel = null;
-    await none.actions.join(noVoice);
+    await none.join(noVoice);
     expect(noVoice.reply).toHaveBeenCalledWith({ content: 'You must be in a voice channel for me to join.', flags: 64 });
 
     const existing = setup({ connected: {} });
     const duplicate = makeInteraction();
-    await existing.actions.join(duplicate);
+    await existing.join(duplicate);
     expect(duplicate.editReply).toHaveBeenCalledWith({ content: 'I am already connected. Use /leave to disconnect first.' });
   });
 
   test('clears state when connection setup fails', async () => {
-    const { actions, connection, state } = setup({ ready: false });
+    const { join, connection, state } = setup({ ready: false });
     const interaction = makeInteraction();
-    await actions.join(interaction);
+    await join(interaction);
     expect(connection.destroy).toHaveBeenCalled();
     expect(state).toMatchObject({ connection: null, linkedTextChannelId: null });
     expect(interaction.editReply).toHaveBeenCalledWith({ content: 'Failed to connect to the voice channel. Please try /join again.' });
   });
 
   test('leaves a connection and clears guild state', async () => {
-    const { actions, connection, state } = setup({ connected: null });
-    const getConnection = jest.fn(() => connection);
-    const leaveActions = createVoiceConnectionActions({
-      log: { debug: jest.fn(), error: jest.fn() }, getConnection, getGuildState: () => state,
-    });
+    const { connection, state } = setup({ connected: null });
     state.connection = connection;
     state.linkedTextChannelId = 'text';
-    await leaveActions.leave(makeInteraction());
+    await createLeaveAction({ log: { debug: jest.fn(), error: jest.fn() }, getConnection: () => connection, getGuildState: () => state })(makeInteraction());
     expect(connection.destroy).toHaveBeenCalled();
     expect(state).toMatchObject({ connection: null, linkedTextChannelId: null, queue: [] });
   });
 
   test('reports when there is no connection to leave', async () => {
-    const { actions } = setup();
+    const { leave } = setup();
     const interaction = makeInteraction();
-    await actions.leave(interaction);
+    await leave(interaction);
     expect(interaction.reply).toHaveBeenCalledWith({ content: 'I am not in a voice channel.', flags: 64 });
   });
 });

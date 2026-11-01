@@ -1,6 +1,7 @@
 import { userHasSettings, loadUserSettings, saveUserSettings } from '../src/settings.mjs';
 import { AVAILABLE_VOICES } from '../src/discordActions.mjs';
-import { ensureGuildState, enqueueSpeech } from '../src/ttsEngine.mjs';
+import { ensureGuildState } from '../src/tts/state.mjs';
+import { enqueueSpeech } from '../src/tts/queue.mjs';
 
 export default async function ({ log }, message) {
   if (message.author.bot || !message.guildId) return;
