@@ -1,6 +1,7 @@
 import { ensureGuildState } from '../src/tts/state.mjs';
 import { enqueueSpeech } from '../src/tts/queue.mjs';
 import { createVoiceAssigner } from '../src/tts/voice-assignment.mjs';
+import { normalizeMessageContent } from '../src/discord/message-content.mjs';
 
 const assignVoice = createVoiceAssigner();
 
@@ -9,8 +10,8 @@ export default async function ({ log }, message) {
   log.debug('messageCreate received', { guildId: message.guildId, channelId: message.channelId, messageId: message.id });
   const state = ensureGuildState(message.guildId);
   if (!state.linkedTextChannelId || message.channelId !== state.linkedTextChannelId) return;
-  const content = message.content?.trim();
-  if (!content || content.length > 2000) return;
+  const content = normalizeMessageContent(message.content);
+  if (!content) return;
   const userId = message.author.id;
   try {
     await assignVoice(message.guildId, userId, state);

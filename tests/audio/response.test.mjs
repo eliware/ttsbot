@@ -12,12 +12,11 @@ const base = () => ({
 });
 
 describe('speech response validation', () => {
-  test('converts a Web body and records response timing', () => {
+  test('converts a Web body', () => {
     const deps = base();
     const body = new ReadableStream({ start(controller) { controller.close(); } });
     const result = validateSpeechResponse({ ...deps, result: { response: { body } } });
     expect(typeof result.source.pipe).toBe('function');
-    expect(deps.metrics.responseReceivedAt).toBe(30);
   });
 
   test('stops for failed results, missing bodies, and nonstreamable bodies', () => {

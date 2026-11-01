@@ -1,4 +1,5 @@
 import { toNodeReadable } from './audio-pipeline.mjs';
+import { recordSpeechResponseMetrics } from './response-metrics.mjs';
 import { log as defaultLog } from '@eliware/common';
 
 export function validateSpeechResponse({
@@ -6,11 +7,8 @@ export function validateSpeechResponse({
 }) {
   if (result.aborted || result.failed) return null;
   const response = result.response;
-  metrics.responseReceivedAt = now();
-  log.debug('OpenAI TTS response received', {
-    guildId, userId, hasBody: Boolean(response?.body),
-    requestMs: Math.round(metrics.responseReceivedAt - metrics.requestStartedAt),
-    discordToOpenAIResponseMs: receivedAt == null ? undefined : Math.round(metrics.responseReceivedAt - receivedAt),
+  recordSpeechResponseMetrics({
+    metrics, now, receivedAt, guildId, userId, hasBody: Boolean(response?.body), log,
   });
   if (signal.aborted) {
     log.debug('Discarding canceled OpenAI TTS response', { guildId, userId });

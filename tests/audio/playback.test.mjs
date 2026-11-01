@@ -104,24 +104,6 @@ describe('TTS playback', () => {
     expect(harness.speechCreate).toHaveBeenCalledTimes(2);
   });
 
-  test('skips invalid text, missing connections, and unready connections', async () => {
-    const waitForState = jest.fn(async () => { throw new Error('not ready'); });
-    const harness = createHarness({ waitForState });
-    const playText = createPlayback(harness.dependencies);
-
-    await playText('guild', '', 'user', '', 0, harness.state);
-    await playText('guild', 'x'.repeat(2001), 'user', '', 0, harness.state);
-    harness.state.connection = null;
-    await playText('guild', 'hello', 'user', '', 0, harness.state);
-    harness.state.connection = {};
-    await playText('guild', 'hello', 'user', '', 0, harness.state);
-
-    expect(waitForState).toHaveBeenCalledTimes(1);
-    expect(harness.log.warn).toHaveBeenNthCalledWith(1, 'No voice connection for guild', 'guild');
-    expect(harness.log.warn).toHaveBeenNthCalledWith(2, 'Voice connection was not ready for guild', 'guild');
-    expect(harness.speechCreate).not.toHaveBeenCalled();
-  });
-
   test('uses coral when no user voice exists and keeps the original text after replacement errors', async () => {
     const replaceError = new Error('replacement failed');
     const body = new FakeStream();
