@@ -16,11 +16,11 @@ const cleanup = () => {
 
 try {
   containerId = execFileSync('docker', [
-    'run', '--detach', '--rm', '--name', container, '-p', `127.0.0.1:${requestedPort}:8080`,
+    'run', '--detach', '--rm', '--name', container, '-p', `127.0.0.1:${requestedPort}:3040`,
     '--entrypoint', 'node', image, ...command,
   ], { encoding: 'utf8' }).trim();
 
-  hostPort = execFileSync('docker', ['port', containerId, '8080/tcp'], { encoding: 'utf8' }).trim().split(':').pop();
+  hostPort = execFileSync('docker', ['port', containerId, '3040/tcp'], { encoding: 'utf8' }).trim().split(':').pop();
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const request = async (path) => {

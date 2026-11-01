@@ -66,12 +66,12 @@ describe('health server', () => {
     await health.stop();
   });
 
-  test('uses port 8080 when HEALTH_PORT is unset', async () => {
+  test('uses port 3040 when HEALTH_PORT is unset', async () => {
     const previous = process.env.HEALTH_PORT;
     delete process.env.HEALTH_PORT;
     const health = await startHealthServer();
     healthServers.push(health);
-    expect(health.server.address().port).toBe(8080);
+    expect(health.server.address().port).toBe(3040);
     if (previous === undefined) delete process.env.HEALTH_PORT;
     else process.env.HEALTH_PORT = previous;
   });

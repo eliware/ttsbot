@@ -57,7 +57,7 @@ Keep `DISCORD_TOKEN` and `OPENAI_API_KEY` out of Git. The health server has no a
 
 ## Configuration
 
-`DISCORD_CLIENT_ID`, `DISCORD_TOKEN`, and `OPENAI_API_KEY` are required. `HEALTH_PORT` is optional and defaults to `8080`. `TTS_JITTER_BUFFER_MS` is optional and defaults to `200`, with values limited to 0 through 1000. Read [configuration details](docs/USER_GUIDE.md#configure-the-bot) for all settings.
+`DISCORD_CLIENT_ID`, `DISCORD_TOKEN`, and `OPENAI_API_KEY` are required. `HEALTH_PORT` is optional and defaults to `3040`. `TTS_JITTER_BUFFER_MS` is optional and defaults to `200`, with values limited to 0 through 1000. Read [configuration details](docs/USER_GUIDE.md#configure-the-bot) for all settings.
 
 ## Operations
 

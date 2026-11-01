@@ -29,7 +29,7 @@ Copy `.env.example` to `.env`. Set the required values and adjust optional value
 | `DISCORD_CLIENT_ID` | Yes | None | Discord application ID. |
 | `DISCORD_TOKEN` | Yes | None | Secret bot token. |
 | `OPENAI_API_KEY` | Yes | None | Secret OpenAI API key. |
-| `HEALTH_PORT` | No | `8080` | Port for the health and readiness endpoints. |
+| `HEALTH_PORT` | No | `3040` | Port for the health and readiness endpoints. |
 | `TTS_JITTER_BUFFER_MS` | No | `200` | Audio prebuffer in milliseconds, from 0 through 1000. |
 
 The bot exits before startup when a required value is missing. The application ID is not a secret. Keep the bot token and API key outside version control. The included `.gitignore` excludes `.env`.
@@ -99,10 +99,10 @@ docker build -t ttsbot:local .
 Create a local `.env` file with the required settings. Then start the container:
 
 ```sh
-docker run --rm --name ttsbot --env-file .env -p 8080:8080 ttsbot:local
+docker run --rm --name ttsbot --env-file .env -p 3040:3040 ttsbot:local
 ```
 
-If `HEALTH_PORT` differs from `8080`, map a host port to the container port set by `HEALTH_PORT`. For example, use `-p 8080:9090` when `HEALTH_PORT=9090`. The container exposes port `8080` and runs as the `node` user. The image includes production dependencies and the files needed at runtime.
+If `HEALTH_PORT` differs from `3040`, map a host port to the container port set by `HEALTH_PORT`. For example, use `-p 3040:9090` when `HEALTH_PORT=9090`. The container exposes port `3040` and runs as the `node` user. The image includes production dependencies and the files needed at runtime.
 
 The GHCR workflow publishes an image for a version tag that matches `package.json`. Publication runs only after validation. Check the package visibility and access settings before relying on a registry image. Use a version tag and verify its digest before deployment.
 
@@ -136,6 +136,6 @@ sudo systemctl restart ttsbot.service
 
 ## Stop and recover
 
-Use `/stop` to stop playback and clear the server queue. Use `/leave` to disconnect and clear the channel link. On process shutdown, the bot stops active audio and destroys its voice connections.
+Use `/stop` to stop playback and clear the server queue. Use `/leave` to disconnect and clear the channel link. During process shutdown, ttsbot marks readiness false, closes the health server, stops audio, disconnects voice sessions, and shuts down Discord.
 
 User voice settings are not persisted. Users can run `/voice` again after a restart. To roll back a deployment, restore the prior repository revision or image digest, reinstall the matching dependencies when using a source deployment, and restart the service.

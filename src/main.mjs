@@ -1,4 +1,4 @@
-import { log, registerHandlers } from '@eliware/common';
+import { log, registerHandlers, registerSignals } from '@eliware/common';
 
 // Suppress specific Node deprecation warnings (e.g. DEP0040 for the `punycode` module)
 // Adding a warning listener prevents Node's default printing for warnings; we filter out DEP0040
@@ -14,6 +14,9 @@ registerHandlers({ events: ['uncaughtException', 'unhandledRejection'], log });
 
 import { startDiscordClient } from './discordClient.mjs';
 import { startHealthServer } from './healthServer.mjs';
+import { getVoiceConnection } from '@discordjs/voice';
+import { ensureGuildState, stopAndClear } from './ttsEngine.mjs';
+import { startDiscordApplication } from './application.mjs';
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
@@ -23,14 +26,16 @@ if (!DISCORD_CLIENT_ID || !DISCORD_TOKEN || !OPENAI_API_KEY) {
   process.exit(1);
 }
 
-(async () => {
-  const health = await startHealthServer();
-  try {
-    log.info('TTS POC starting...');
-    await startDiscordClient();
-    health.setReady(true);
-  } catch (e) {
-    log.error('Failed to start Discord client', e);
-    process.exit(1);
-  }
-})();
+log.info('TTS POC starting...');
+await startDiscordApplication({
+  startDiscordClient,
+  startHealthServer,
+  registerSignals,
+  getVoiceConnection,
+  ensureGuildState,
+  stopAndClear,
+  log,
+}).catch((error) => {
+  log.error('Failed to start Discord client', error);
+  process.exitCode = 1;
+});
