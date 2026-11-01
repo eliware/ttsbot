@@ -5,7 +5,7 @@
   "main": "ttsbot.mjs",
   "scripts": {
     "start": "node --no-deprecation ttsbot.mjs",
-    "test": "node bin/eliware-test.mjs",
+    "test": "eliware-test",
     "lint": "npx oxlint .",
     "test:gaps": "npm test 2>&1 | grep '|' | grep -vF '|     100 |      100 |     100 |     100 |'",
     "smoke:docker": "node scripts/docker-health-smoke.mjs"
