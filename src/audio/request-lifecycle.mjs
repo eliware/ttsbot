@@ -16,5 +16,9 @@ export async function executeSpeechRequest({
     log, isRetryableOpenAIError: isRetryable, openAIRetryDelay: retryDelay, sleep,
   });
   const audio = validateSpeechResponse({ result, signal: controller.signal, receivedAt, metrics, now, guildId, userId, log });
-  return audio ? { audio, current, metrics } : null;
+  if (!audio) {
+    if (state.current === current) state.current = null;
+    return null;
+  }
+  return { audio, current, metrics };
 }

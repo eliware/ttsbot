@@ -11,6 +11,9 @@ export function cleanupCurrent(current, { responseBody, abort = true } = {}) {
 }
 
 export function cancelResponseBody(responseBody) {
-  try { responseBody?.cancel?.(); } catch {}
+  try {
+    if (typeof responseBody?.destroy === 'function') responseBody.destroy();
+    else responseBody?.cancel?.()?.catch?.(() => {});
+  } catch {}
 }
 

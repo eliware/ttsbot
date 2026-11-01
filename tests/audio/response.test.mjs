@@ -21,12 +21,19 @@ describe('speech response validation', () => {
     expect(deps.log.debug).toHaveBeenCalledWith('OpenAI TTS response received', expect.objectContaining({ hasBody: true }));
   });
 
-  test('stops for failed results, missing bodies, and nonstreamable bodies', () => {
+  test('stops for failed results and missing bodies', () => {
     const deps = base();
     expect(validateSpeechResponse({ ...deps, result: { failed: true } })).toBeNull();
     expect(validateSpeechResponse({ ...deps, result: { response: {} } })).toBeNull();
-    expect(validateSpeechResponse({ ...deps, result: { response: { body: {} } } })).toBeNull();
-    expect(deps.log.error).toHaveBeenCalledTimes(2);
+    expect(deps.log.error).toHaveBeenCalledTimes(1);
+  });
+
+  test('discards nonstreamable response bodies', () => {
+    const deps = base();
+    const cancel = jest.fn();
+    expect(validateSpeechResponse({ ...deps, result: { response: { body: { cancel } } } })).toBeNull();
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(deps.log.error).toHaveBeenCalledTimes(1);
   });
 
   test('cancels an aborted response body', () => {

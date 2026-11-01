@@ -23,6 +23,7 @@ export function validateSpeechResponse({
   const source = toNodeReadable(response.body);
   if (!source || typeof source.pipe !== 'function') {
     log.error('OpenAI TTS response body is not streamable');
+    cancelResponseBody(response.body);
     return null;
   }
   return { response, source };

@@ -109,6 +109,7 @@ describe('TTS playback', () => {
     const failedPlayText = createPlayback(failed.dependencies);
     await failedPlayText('guild', 'hello', 'user', '', 0, failed.state);
     expect(failed.log.error).toHaveBeenCalledWith('OpenAI TTS request error', requestError);
+    expect(failed.state.current).toBeNull();
 
     const aborted = createHarness({ responses: [] });
     aborted.speechCreate.mockImplementation(() => {
@@ -117,6 +118,7 @@ describe('TTS playback', () => {
     });
     await createPlayback(aborted.dependencies)('guild', 'hello', 'user', '', 0, aborted.state);
     expect(aborted.log.debug).toHaveBeenCalledWith('OpenAI TTS request aborted', { guildId: 'guild', userId: 'user' });
+    expect(aborted.state.current).toBeNull();
   });
 
 });
