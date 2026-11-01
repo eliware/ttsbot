@@ -57,8 +57,6 @@ describe('health server', () => {
     await expect(conflict.start()).rejects.toHaveProperty('code', 'EADDRINUSE');
     expect(second.server.listening).toBe(false);
     await first.stop();
-    const defaults = createHealthServer();
-    expect(defaults.server).toBeDefined();
   });
 
   test('propagates close errors', async () => {

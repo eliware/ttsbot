@@ -1,9 +1,11 @@
-import { compileReplacements } from './compiler.mjs';
-import { createReplacementFileReader } from './file-reader.mjs';
+import { createReplacementRuleLoader } from './rule-loader.mjs';
 
-export function createReplacementLoadPolicy({ readReplacements = createReplacementFileReader() } = {}) {
+export function createReplacementLoadPolicy({
+  readReplacements,
+  loadRules = createReplacementRuleLoader({ readReplacements }),
+} = {}) {
   return async function loadReplacementRules() {
-    try { return compileReplacements(await readReplacements()); }
+    try { return await loadRules(); }
     catch { return []; }
   };
 }
