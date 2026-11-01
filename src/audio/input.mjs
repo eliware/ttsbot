@@ -1,5 +1,5 @@
 import { loadUserSettings } from '../settings.mjs';
-import { replaceText as defaultReplaceText } from '../text/replacements.mjs';
+import { replaceText as defaultReplaceText } from '../text/default-replacer.mjs';
 import { log as defaultLog } from '@eliware/common';
 
 export async function preparePlaybackInput({
