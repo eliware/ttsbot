@@ -1,3 +1,6 @@
+import { stopGuildAudio } from './application/audio-cleanup.mjs';
+import { destroyGuildVoiceConnection } from './application/voice-cleanup.mjs';
+
 export async function startDiscordApplication({
   startDiscordClient,
   startHealthServer,
@@ -20,17 +23,8 @@ export async function startDiscordApplication({
 
   const cleanupAudio = async () => {
     for (const [guildId] of client.guilds.cache) {
-      try {
-        await stopAndClear(guildId);
-      } catch (error) {
-        log.error('Failed to stop guild audio', error);
-      }
-      try {
-        getVoiceConnection(guildId)?.destroy();
-      } catch (error) {
-        log.error('Failed to destroy voice connection', error);
-      }
-      ensureGuildState(guildId).connection = null;
+      await stopGuildAudio({ guildId, stopAndClear, log });
+      destroyGuildVoiceConnection({ guildId, getVoiceConnection, ensureGuildState, log });
     }
   };
 
