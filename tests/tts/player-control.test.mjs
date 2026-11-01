@@ -1,8 +1,8 @@
-import { describe, expect, jest, test } from '@jest/globals';
-import { stopGuildPlayer } from '../../src/tts/player-control.mjs';
+import { describe, expect, jest, test } from "@jest/globals";
+import { stopGuildPlayer } from "../../src/tts/player-control.mjs";
 
-describe('guild player control', () => {
-  test('stops the player and cancels current playback', () => {
+describe("guild player control", () => {
+  test("stops the player and cancels current playback", () => {
     const current = { controller: { abort: jest.fn() } };
     const state = { current, player: { stop: jest.fn() } };
     stopGuildPlayer(state);

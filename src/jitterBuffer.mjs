@@ -1,11 +1,11 @@
-import { Transform } from 'node:stream';
-import { parseJitterBufferMs } from './config/jitter-buffer.mjs';
+import { Transform } from "node:stream";
+import { parseJitterBufferMs } from "./config/jitter-buffer.mjs";
 
 const JITTER_BUFFER_MS = parseJitterBufferMs();
 const PCM_BYTES_PER_SECOND = 48_000 * 2 * 2;
 
 export function createJitterBuffer() {
-  const targetBytes = Math.round(PCM_BYTES_PER_SECOND * JITTER_BUFFER_MS / 1000);
+  const targetBytes = Math.round((PCM_BYTES_PER_SECOND * JITTER_BUFFER_MS) / 1000);
   let buffered = Buffer.alloc(0);
   let primed = targetBytes === 0;
   return new Transform({
@@ -30,4 +30,4 @@ export function createJitterBuffer() {
   });
 }
 
-export { parseJitterBufferMs } from './config/jitter-buffer.mjs';
+export { parseJitterBufferMs } from "./config/jitter-buffer.mjs";

@@ -1,4 +1,4 @@
-import { createGuildAudioPlayer } from './player.mjs';
+import { createGuildAudioPlayer } from "./player.mjs";
 
 export function createGuildState({ guildId, createPlayer = createGuildAudioPlayer }) {
   return {

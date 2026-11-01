@@ -1,4 +1,4 @@
-import { createInteractionLogger } from './interaction-log.mjs';
+import { createInteractionLogger } from "./interaction-log.mjs";
 
 export default async function ({ client, log, commandHandlers, actions }, interaction) {
   const interactionLog = createInteractionLogger(log);

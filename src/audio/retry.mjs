@@ -1,8 +1,14 @@
-import { isRetryableOpenAIError, openAIRetryDelay } from '../ttsPolicies.mjs';
-import { requestSpeechOnce } from './openai-request.mjs';
+import { isRetryableOpenAIError, openAIRetryDelay } from "../ttsPolicies.mjs";
+import { requestSpeechOnce } from "./openai-request.mjs";
 
 export async function requestSpeech({
-  client, input, voice, signal, guildId, userId, log,
+  client,
+  input,
+  voice,
+  signal,
+  guildId,
+  userId,
+  log,
   isRetryableOpenAIError: isRetryable = isRetryableOpenAIError,
   openAIRetryDelay: retryDelay = openAIRetryDelay,
   sleep,
@@ -13,18 +19,25 @@ export async function requestSpeech({
       return { response };
     } catch (error) {
       if (signal.aborted) {
-        log.debug('OpenAI TTS request aborted', { guildId, userId });
+        log.debug("OpenAI TTS request aborted", { guildId, userId });
         return { aborted: true };
       }
       if (!isRetryable(error) || attempt === 3) {
-        log.error('OpenAI TTS request error', error);
+        log.error("OpenAI TTS request error", error);
         return { failed: true };
       }
       const delayMs = retryDelay(attempt);
-      log.warn('Retrying OpenAI TTS request', { guildId, userId, attempt, delayMs, status: error.status });
-      try { await sleep(delayMs); }
-      catch (delayError) {
-        log.error('OpenAI TTS retry delay failed', delayError);
+      log.warn("Retrying OpenAI TTS request", {
+        guildId,
+        userId,
+        attempt,
+        delayMs,
+        status: error.status,
+      });
+      try {
+        await sleep(delayMs);
+      } catch (delayError) {
+        log.error("OpenAI TTS retry delay failed", delayError);
         return { failed: true };
       }
     }

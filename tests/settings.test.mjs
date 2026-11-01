@@ -1,17 +1,17 @@
-import { describe, expect, test } from '@jest/globals';
-import { loadUserSettings, saveUserSettings, userHasSettings } from '../src/settings.mjs';
+import { describe, expect, test } from "@jest/globals";
+import { loadUserSettings, saveUserSettings, userHasSettings } from "../src/settings.mjs";
 
 const guildId = `test-guild-${process.pid}`;
 const userId = `test-user-${process.pid}`;
 
-describe('settings', () => {
-  test('returns defaults for missing settings', async () => {
-    expect(await loadUserSettings(guildId, userId)).toEqual({ voice: 'coral' });
+describe("settings", () => {
+  test("returns defaults for missing settings", async () => {
+    expect(await loadUserSettings(guildId, userId)).toEqual({ voice: "coral" });
     expect(await userHasSettings(guildId, userId)).toBe(false);
   });
 
-  test('saves and loads in-memory settings', async () => {
-    const settings = { voice: 'alloy' };
+  test("saves and loads in-memory settings", async () => {
+    const settings = { voice: "alloy" };
     await saveUserSettings(guildId, userId, settings);
     expect(await userHasSettings(guildId, userId)).toBe(true);
     expect(await loadUserSettings(guildId, userId)).toEqual(settings);

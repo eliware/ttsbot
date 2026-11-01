@@ -1,63 +1,69 @@
 {
-    "name": "ttsbot",
-    "version": "15.1.0",
-    "description": "Discord text-to-speech bot using OpenAI TTS",
-    "main": "ttsbot.mjs",
-    "scripts": {
-        "start": "node --no-deprecation ttsbot.mjs",
-        "test": "npx --node-options=\"--experimental-vm-modules --no-warnings\" jest --detectOpenHandles --silent --coverage",
-        "lint": "npx oxlint .",
-        "test:gaps": "npm test 2>&1 | grep '|' | grep -vF '|     100 |      100 |     100 |     100 |'",
-        "smoke:docker": "node scripts/docker-health-smoke.mjs"
-    },
-    "keywords": [
-        "discord",
-        "text-to-speech",
-        "openai",
-        "tts"
-    ],
-    "author": "Eliware",
-    "license": "ISC",
-    "dependencies": {
-        "@discordjs/opus": "^0.11.0",
-        "@discordjs/voice": "^0.19.2",
-        "@eliware/common": "^15.0.1",
-        "@eliware/discord": "^15.0.2",
-        "@eliware/openai": "^15.0.1",
-        "@eliware/resampler": "^15.0.1",
-        "discord.js": "^14.28.0",
-        "dotenv": "^18.0.9",
-        "openai": "^7.47.0",
-        "prism-media": "^1.3.5"
-    },
-    "devDependencies": {
-        "jest": "^30.5.2",
-        "oxlint": "^1.90.0"
-    },
-    "allowScripts": {
-        "@discordjs/opus@0.11.0": true
-    },
-    "type": "module",
-    "engines": {
-        "node": ">=26.0.0"
-    },
-    "prettier": {
-      "printWidth": 100,
-      "tabWidth": 2,
-      "useTabs": false,
-      "semi": true,
-      "singleQuote": false,
-      "quoteProps": "as-needed",
-      "jsxSingleQuote": false,
-      "trailingComma": "all",
-      "bracketSpacing": true,
-      "bracketSameLine": false,
-      "arrowParens": "always",
-      "proseWrap": "preserve",
-      "endOfLine": "lf"
-    },
-    "eliware": {
-      "id": "E-3040",
-      "apply": ["general", "application", "discord", "ghcr-published"]
-    }
+  "name": "ttsbot",
+  "version": "15.1.0",
+  "description": "Discord text-to-speech bot using OpenAI TTS",
+  "main": "ttsbot.mjs",
+  "scripts": {
+    "start": "node --no-deprecation ttsbot.mjs",
+    "test": "node bin/eliware-test.mjs",
+    "lint": "npx oxlint .",
+    "test:gaps": "npm test 2>&1 | grep '|' | grep -vF '|     100 |      100 |     100 |     100 |'",
+    "smoke:docker": "node scripts/docker-health-smoke.mjs"
+  },
+  "keywords": [
+    "discord",
+    "text-to-speech",
+    "openai",
+    "tts"
+  ],
+  "author": "Eliware",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/opus": "^0.11.0",
+    "@discordjs/voice": "^0.19.2",
+    "@eliware/common": "^15.0.1",
+    "@eliware/discord": "^15.0.2",
+    "@eliware/openai": "^15.0.1",
+    "@eliware/resampler": "^15.0.1",
+    "discord.js": "^14.28.0",
+    "dotenv": "^18.0.9",
+    "openai": "^7.47.0",
+    "prism-media": "^1.3.5"
+  },
+  "devDependencies": {
+    "@eliware/test": "^15.1.0",
+    "jest": "^30.5.2",
+    "oxlint": "^1.90.0"
+  },
+  "allowScripts": {
+    "@discordjs/opus@0.11.0": true
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=26.0.0"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "quoteProps": "as-needed",
+    "jsxSingleQuote": false,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "arrowParens": "always",
+    "proseWrap": "preserve",
+    "endOfLine": "lf"
+  },
+  "eliware": {
+    "id": "E-3040",
+    "apply": [
+      "general",
+      "application",
+      "discord",
+      "ghcr-published"
+    ]
+  }
 }

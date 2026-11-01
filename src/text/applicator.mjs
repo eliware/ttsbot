@@ -3,5 +3,8 @@ export function normalizeReplacementInput(text) {
 }
 
 export function applyReplacements(text, replacements) {
-  return replacements.reduce((result, item) => result.replace(item.regex, item.replace), normalizeReplacementInput(text));
+  return replacements.reduce(
+    (result, item) => result.replace(item.regex, item.replace),
+    normalizeReplacementInput(text),
+  );
 }

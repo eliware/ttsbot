@@ -8,6 +8,7 @@
 - Align GitHub Actions, Knit, CI, and GHCR image publishing workflows.
 - Add a complete user guide for setup, commands, configuration, deployment, health checks, and recovery.
 - Set the package version to `15.1.0` and add the Eliware identifier `E-3040`.
+- Adopt the shared Eliware Test runner and apply its formatting rules across the repository.
 - Refactor the TTS pipeline, queue, voice assignment, text replacement, health server, and shutdown code into focused modules.
 - Stop active playback and clear queued speech when users run `/leave`.
 - Reject unsupported voice selections and prevent assignment when no voices are available.

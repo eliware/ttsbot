@@ -1,4 +1,4 @@
-import { createServer } from 'node:http';
+import { createServer } from "node:http";
 
 export function createHealthHttpServer(handler) {
   return createServer(handler);

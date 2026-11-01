@@ -1,5 +1,11 @@
 export function createApplicationShutdown({
-  health, startupComplete, isStartupPending, getClient, getDiscordShutdown, cleanupAudio, log,
+  health,
+  startupComplete,
+  isStartupPending,
+  getClient,
+  getDiscordShutdown,
+  cleanupAudio,
+  log,
 }) {
   let shuttingDown = false;
   let shutdownPromise;
@@ -12,7 +18,7 @@ export function createApplicationShutdown({
         try {
           await health.stop();
         } catch (error) {
-          log.warn('Health server shutdown failed', error);
+          log.warn("Health server shutdown failed", error);
         }
         if (waitForStartup) await startupComplete;
         if (!getClient()) return;
@@ -20,7 +26,7 @@ export function createApplicationShutdown({
         try {
           await getDiscordShutdown()();
         } catch (error) {
-          log.warn('Discord shutdown failed', error);
+          log.warn("Discord shutdown failed", error);
         }
       })();
     }

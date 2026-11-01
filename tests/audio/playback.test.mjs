@@ -1,6 +1,6 @@
-import { EventEmitter } from 'node:events';
-import { describe, expect, jest, test } from '@jest/globals';
-import { createPlayback } from '../../src/audio/playback.mjs';
+import { EventEmitter } from "node:events";
+import { describe, expect, jest, test } from "@jest/globals";
+import { createPlayback } from "../../src/audio/playback.mjs";
 
 class FakeStream extends EventEmitter {
   constructor() {
@@ -23,11 +23,16 @@ class FakeResampler extends FakeStream {
 class FakePlayer extends EventEmitter {
   play(resource) {
     this.resource = resource;
-    this.emit('play', resource);
+    this.emit("play", resource);
   }
 }
 
-function createHarness({ responses = [], settings = { voice: 'nova' }, replace, waitForState } = {}) {
+function createHarness({
+  responses = [],
+  settings = { voice: "nova" },
+  replace,
+  waitForState,
+} = {}) {
   const log = { debug: jest.fn(), error: jest.fn(), warn: jest.fn() };
   const player = new FakePlayer();
   const connection = { subscribe: jest.fn() };
@@ -38,10 +43,10 @@ function createHarness({ responses = [], settings = { voice: 'nova' }, replace, 
     createClient,
     createBuffer: jest.fn(() => new FakeStream()),
     createResource: jest.fn((stream, options) => ({ stream, options })),
-    AudioStatus: { Idle: 'idle', Playing: 'playing', Buffering: 'buffering' },
-    streamType: { Raw: 'raw' },
+    AudioStatus: { Idle: "idle", Playing: "playing", Buffering: "buffering" },
+    streamType: { Raw: "raw" },
     waitForState: waitForState ?? jest.fn(async () => {}),
-    connectionStatus: { Ready: 'ready' },
+    connectionStatus: { Ready: "ready" },
     ResamplerClass: FakeResampler,
     getUserSettings: jest.fn(async () => settings),
     replaceText: replace ?? jest.fn(async (text) => text),
@@ -52,25 +57,25 @@ function createHarness({ responses = [], settings = { voice: 'nova' }, replace, 
   return { dependencies, log, player, connection, state, speechCreate, createClient };
 }
 
-async function completePlayback(playText, harness, text = 'hello', receivedAt = 50) {
-  const started = new Promise((resolve) => harness.player.once('play', resolve));
-  const completion = playText('guild', text, 'user', 'user#1', receivedAt, harness.state);
+async function completePlayback(playText, harness, text = "hello", receivedAt = 50) {
+  const started = new Promise((resolve) => harness.player.once("play", resolve));
+  const completion = playText("guild", text, "user", "user#1", receivedAt, harness.state);
   await started;
   const current = harness.state.current;
-  current.source.emit('data', Buffer.from('pcm'));
-  current.source.emit('end');
-  current.resampler.emit('data', Buffer.from('resampled'));
-  current.resampler.emit('end');
-  harness.player.emit('buffering');
-  harness.player.emit('playing');
-  harness.player.emit('playing');
-  harness.player.emit('buffering');
-  harness.player.emit('idle');
+  current.source.emit("data", Buffer.from("pcm"));
+  current.source.emit("end");
+  current.resampler.emit("data", Buffer.from("resampled"));
+  current.resampler.emit("end");
+  harness.player.emit("buffering");
+  harness.player.emit("playing");
+  harness.player.emit("playing");
+  harness.player.emit("buffering");
+  harness.player.emit("idle");
   await completion;
 }
 
-describe('TTS playback', () => {
-  test('requests, streams, logs, and cleans up playback resources', async () => {
+describe("TTS playback", () => {
+  test("requests, streams, logs, and cleans up playback resources", async () => {
     const body = new FakeStream();
     const response = { body };
     const harness = createHarness({ responses: [response] });
@@ -79,46 +84,65 @@ describe('TTS playback', () => {
     await completePlayback(playText, harness);
 
     expect(harness.createClient).toHaveBeenCalledTimes(1);
-    expect(harness.speechCreate).toHaveBeenCalledWith(expect.objectContaining({
-      input: 'hello', voice: 'nova', model: 'tts-1', response_format: 'pcm', stream_format: 'audio',
-    }));
-    expect(harness.dependencies.createResource).toHaveBeenCalledWith(
-      expect.any(FakeStream), { inputType: 'raw' },
+    expect(harness.speechCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: "hello",
+        voice: "nova",
+        model: "tts-1",
+        response_format: "pcm",
+        stream_format: "audio",
+      }),
     );
+    expect(harness.dependencies.createResource).toHaveBeenCalledWith(expect.any(FakeStream), {
+      inputType: "raw",
+    });
     expect(harness.connection.subscribe).toHaveBeenCalledWith(harness.player);
-    expect(harness.log.warn).toHaveBeenCalledWith('Discord audio buffer underrun', { guildId: 'guild', userId: 'user' });
-    expect(harness.log.debug).toHaveBeenCalledWith('OpenAI TTS first audio byte', expect.any(Object));
-    expect(harness.log.debug).toHaveBeenCalledWith('Discord audio playback started', expect.any(Object));
+    expect(harness.log.warn).toHaveBeenCalledWith("Discord audio buffer underrun", {
+      guildId: "guild",
+      userId: "user",
+    });
+    expect(harness.log.debug).toHaveBeenCalledWith(
+      "OpenAI TTS first audio byte",
+      expect.any(Object),
+    );
+    expect(harness.log.debug).toHaveBeenCalledWith(
+      "Discord audio playback started",
+      expect.any(Object),
+    );
   });
 
-  test('caches one OpenAI client across queued playback', async () => {
-    const harness = createHarness({ responses: [{ body: new FakeStream() }, { body: new FakeStream() }] });
+  test("caches one OpenAI client across queued playback", async () => {
+    const harness = createHarness({
+      responses: [{ body: new FakeStream() }, { body: new FakeStream() }],
+    });
     const playText = createPlayback(harness.dependencies);
 
-    await completePlayback(playText, harness, 'first');
-    await completePlayback(playText, harness, 'second');
+    await completePlayback(playText, harness, "first");
+    await completePlayback(playText, harness, "second");
 
     expect(harness.createClient).toHaveBeenCalledTimes(1);
     expect(harness.speechCreate).toHaveBeenCalledTimes(2);
   });
 
-  test('stops when OpenAI fails or cancels the request', async () => {
+  test("stops when OpenAI fails or cancels the request", async () => {
     const requestError = { status: 401 };
     const failed = createHarness({ responses: [] });
     failed.speechCreate.mockRejectedValue(requestError);
     const failedPlayText = createPlayback(failed.dependencies);
-    await failedPlayText('guild', 'hello', 'user', '', 0, failed.state);
-    expect(failed.log.error).toHaveBeenCalledWith('OpenAI TTS request error', requestError);
+    await failedPlayText("guild", "hello", "user", "", 0, failed.state);
+    expect(failed.log.error).toHaveBeenCalledWith("OpenAI TTS request error", requestError);
     expect(failed.state.current).toBeNull();
 
     const aborted = createHarness({ responses: [] });
     aborted.speechCreate.mockImplementation(() => {
       aborted.state.current.controller.abort();
-      throw new Error('request aborted');
+      throw new Error("request aborted");
     });
-    await createPlayback(aborted.dependencies)('guild', 'hello', 'user', '', 0, aborted.state);
-    expect(aborted.log.debug).toHaveBeenCalledWith('OpenAI TTS request aborted', { guildId: 'guild', userId: 'user' });
+    await createPlayback(aborted.dependencies)("guild", "hello", "user", "", 0, aborted.state);
+    expect(aborted.log.debug).toHaveBeenCalledWith("OpenAI TTS request aborted", {
+      guildId: "guild",
+      userId: "user",
+    });
     expect(aborted.state.current).toBeNull();
   });
-
 });

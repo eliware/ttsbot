@@ -24,13 +24,13 @@ Enable the Message Content privileged intent in the Discord Developer Portal. Th
 
 Copy `.env.example` to `.env`. Set the required values and adjust optional values as needed.
 
-| Variable | Required | Default | Purpose |
-| --- | --- | --- | --- |
-| `DISCORD_CLIENT_ID` | Yes | None | Discord application ID. |
-| `DISCORD_TOKEN` | Yes | None | Secret bot token. |
-| `OPENAI_API_KEY` | Yes | None | Secret OpenAI API key. |
-| `HEALTH_PORT` | No | `3040` | Port for the health and readiness endpoints. |
-| `TTS_JITTER_BUFFER_MS` | No | `200` | Audio prebuffer in milliseconds, from 0 through 1000. |
+| Variable               | Required | Default | Purpose                                               |
+| ---------------------- | -------- | ------- | ----------------------------------------------------- |
+| `DISCORD_CLIENT_ID`    | Yes      | None    | Discord application ID.                               |
+| `DISCORD_TOKEN`        | Yes      | None    | Secret bot token.                                     |
+| `OPENAI_API_KEY`       | Yes      | None    | Secret OpenAI API key.                                |
+| `HEALTH_PORT`          | No       | `3040`  | Port for the health and readiness endpoints.          |
+| `TTS_JITTER_BUFFER_MS` | No       | `200`   | Audio prebuffer in milliseconds, from 0 through 1000. |
 
 The bot exits before startup when a required value is missing. The application ID is not a secret. Keep the bot token and API key outside version control. The included `.gitignore` excludes `.env`.
 
@@ -53,14 +53,14 @@ The `ttsbot.mjs` entry point loads `.env`, then starts the health server and Dis
 
 Run these commands in a server where the bot has been invited:
 
-| Command | Result |
-| --- | --- |
-| `/help` | Shows basic usage. |
-| `/join` | Joins your current voice channel and links the text channel where you ran the command. |
-| `/leave` | Stops playback, disconnects from voice, and clears the guild queue and linked channel. |
-| `/voice <voice>` | Sets your voice for the current server. |
-| `/skip` | Stops the current message and continues with the next queued message. |
-| `/stop` | Stops the current message and clears the queue. |
+| Command          | Result                                                                                 |
+| ---------------- | -------------------------------------------------------------------------------------- |
+| `/help`          | Shows basic usage.                                                                     |
+| `/join`          | Joins your current voice channel and links the text channel where you ran the command. |
+| `/leave`         | Stops playback, disconnects from voice, and clears the guild queue and linked channel. |
+| `/voice <voice>` | Sets your voice for the current server.                                                |
+| `/skip`          | Stops the current message and continues with the next queued message.                  |
+| `/stop`          | Stops the current message and clears the queue.                                        |
 
 Choose one of these voices with `/voice`: `alloy`, `ash`, `coral`, `echo`, `fable`, `nova`, `onyx`, `sage`, or `shimmer`.
 
@@ -80,10 +80,10 @@ The bot requests PCM audio from OpenAI. It processes the returned audio as 24 kH
 
 The HTTP server provides two unauthenticated endpoints:
 
-| Path | Success response | Meaning |
-| --- | --- | --- |
-| `/health` | HTTP 200 with `{"status":"ok"}` | The process answers HTTP requests. |
-| `/ready` | HTTP 200 with `{"status":"ready"}` | Discord startup completed. |
+| Path                            | Success response                      | Meaning                                           |
+| ------------------------------- | ------------------------------------- | ------------------------------------------------- |
+| `/health`                       | HTTP 200 with `{"status":"ok"}`       | The process answers HTTP requests.                |
+| `/ready`                        | HTTP 200 with `{"status":"ready"}`    | Discord startup completed.                        |
 | `/ready` before Discord startup | HTTP 503 with `{"status":"starting"}` | The process is not ready to serve Discord events. |
 
 The server returns HTTP 404 for other paths. It listens on `0.0.0.0:<HEALTH_PORT>`, so network controls must restrict access where needed.

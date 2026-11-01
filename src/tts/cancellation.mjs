@@ -1,4 +1,4 @@
-import { cleanupCurrent } from '../audioLifecycle.mjs';
+import { cleanupCurrent } from "../audioLifecycle.mjs";
 
 export function cancelCurrent(state) {
   if (!state.current) return;

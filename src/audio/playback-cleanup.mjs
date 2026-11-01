@@ -1,4 +1,4 @@
-import { cleanupCurrent } from '../audioLifecycle.mjs';
+import { cleanupCurrent } from "../audioLifecycle.mjs";
 
 export function cleanupPlayback({ state, current, responseBody }) {
   cleanupCurrent(current, { responseBody, abort: false });

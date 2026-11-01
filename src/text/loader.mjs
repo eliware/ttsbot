@@ -1,5 +1,5 @@
-import { createReplacementLoadFallback } from './load-fallback.mjs';
-import { createCachedLoader } from './cache.mjs';
+import { createReplacementLoadFallback } from "./load-fallback.mjs";
+import { createCachedLoader } from "./cache.mjs";
 
 export function createReplacementLoader({
   readReplacements,

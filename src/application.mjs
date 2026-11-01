@@ -1,5 +1,5 @@
-import { cleanupGuildAudio } from './application/audio-cleanup.mjs';
-import { createApplicationShutdown } from './application/shutdown.mjs';
+import { cleanupGuildAudio } from "./application/audio-cleanup.mjs";
+import { createApplicationShutdown } from "./application/shutdown.mjs";
 
 export async function startDiscordApplication({
   startDiscordClient,
@@ -20,9 +20,14 @@ export async function startDiscordApplication({
   });
 
   const { shutdown: shutdownApp, isShuttingDown } = createApplicationShutdown({
-    health, startupComplete, isStartupPending: () => startupPending,
-    getClient: () => client, getDiscordShutdown: () => discordShutdown,
-    cleanupAudio: () => cleanupGuildAudio({ client, stopAndClear, getVoiceConnection, ensureGuildState, log }), log,
+    health,
+    startupComplete,
+    isStartupPending: () => startupPending,
+    getClient: () => client,
+    getDiscordShutdown: () => discordShutdown,
+    cleanupAudio: () =>
+      cleanupGuildAudio({ client, stopAndClear, getVoiceConnection, ensureGuildState, log }),
+    log,
   });
 
   try {

@@ -1,12 +1,11 @@
-import { shouldLogBufferUnderrun } from '../ttsPolicies.mjs';
-import { attachPlaybackMetrics, logPlaybackIdle, logPlaybackStarted } from './playback-metrics.mjs';
-import { cleanupPlayback } from './playback-cleanup.mjs';
+import { shouldLogBufferUnderrun } from "../ttsPolicies.mjs";
+import { attachPlaybackMetrics, logPlaybackIdle, logPlaybackStarted } from "./playback-metrics.mjs";
+import { cleanupPlayback } from "./playback-cleanup.mjs";
 
 export function waitForPlayback({
   source,
   response,
   resampler,
-  jitterBuffer,
   resource,
   player,
   state,
@@ -19,7 +18,16 @@ export function waitForPlayback({
   log,
   now,
 }) {
-  const getAudioBytes = attachPlaybackMetrics({ source, resampler, metrics, receivedAt, guildId, userId, log, now });
+  const getAudioBytes = attachPlaybackMetrics({
+    source,
+    resampler,
+    metrics,
+    receivedAt,
+    guildId,
+    userId,
+    log,
+    now,
+  });
 
   return new Promise((resolve) => {
     const onIdle = () => {
@@ -31,7 +39,8 @@ export function waitForPlayback({
       resolve();
     };
     const onBuffering = () => {
-      if (shouldLogBufferUnderrun(metrics.playbackFirstByteAt != null)) log.warn('Discord audio buffer underrun', { guildId, userId });
+      if (shouldLogBufferUnderrun(metrics.playbackFirstByteAt != null))
+        log.warn("Discord audio buffer underrun", { guildId, userId });
     };
     const onPlaying = () => {
       logPlaybackStarted({ metrics, receivedAt, guildId, userId, log, now });
