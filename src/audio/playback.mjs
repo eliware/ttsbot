@@ -1,34 +1,11 @@
-import { createJitterBuffer } from '../jitterBuffer.mjs';
-import { createAudioResource, AudioPlayerStatus, StreamType, entersState, VoiceConnectionStatus } from '@discordjs/voice';
-import { Resampler } from '@eliware/resampler';
 import { createPlaybackDependencies } from './playback-factory.mjs';
 import { preparePlaybackInput } from './input.mjs';
 import { executeSpeechRequest } from './request-lifecycle.mjs';
-import { sleep } from './delay.mjs';
-import { isRetryableOpenAIError, openAIRetryDelay } from '../ttsPolicies.mjs';
 import { waitForPlayback } from './playback-events.mjs';
-import { log } from '@eliware/common';
 
-export function createPlayback({
-  createClient,
-  createBuffer = createJitterBuffer,
-  createResource = createAudioResource,
-  AudioStatus = AudioPlayerStatus,
-  streamType = StreamType,
-  waitForState = entersState,
-  connectionStatus = VoiceConnectionStatus,
-  ResamplerClass = Resampler,
-  getUserSettings,
-  replaceText,
-  isRetryable = isRetryableOpenAIError,
-  retryDelay = openAIRetryDelay,
-  log: logger = log,
-  now = () => performance.now(),
-  delay = sleep,
-} = {}) {
-  const { buildPipeline, getOpenAIClient } = createPlaybackDependencies({
-    createClient, createBuffer, createResource, streamType, ResamplerClass, log: logger,
-  });
+export function createPlayback(options = {}) {
+  const { buildPipeline, getOpenAIClient, AudioStatus, waitForState, connectionStatus,
+    getUserSettings, replaceText, isRetryable, retryDelay, log: logger, now, delay } = createPlaybackDependencies(options);
 
   return async function playText(guildId, text, userId, _userTag, receivedAt, state) {
     const input = await preparePlaybackInput({

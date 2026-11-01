@@ -1,5 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { preparePlaybackInput } from '../../src/audio/input.mjs';
+import { validatePlaybackInput } from '../../src/audio/input-validation.mjs';
 
 function harness({ settings = { voice: 'nova' }, replaceText = async (text) => text, waitForState = async () => {} } = {}) {
   return {
@@ -15,8 +16,9 @@ function harness({ settings = { voice: 'nova' }, replaceText = async (text) => t
 describe('playback input preparation', () => {
   test('rejects empty, long, and disconnected input', async () => {
     const deps = harness();
-    expect(await preparePlaybackInput({ ...deps, text: '', guildId: 'g', userId: 'u' })).toBeNull();
-    expect(await preparePlaybackInput({ ...deps, text: 'x'.repeat(2001), guildId: 'g', userId: 'u' })).toBeNull();
+    expect(validatePlaybackInput({ text: '', state: deps.state, guildId: 'g', log: deps.log })).toBe(false);
+    expect(validatePlaybackInput({ text: 'x'.repeat(2001), state: deps.state, guildId: 'g', log: deps.log })).toBe(false);
+    expect(validatePlaybackInput({ text: 'hello', state: { connection: null }, guildId: 'g', log: deps.log })).toBe(false);
     expect(await preparePlaybackInput({ ...deps, state: { connection: null }, text: 'hello', guildId: 'g', userId: 'u' })).toBeNull();
     expect(deps.getUserSettings).not.toHaveBeenCalled();
   });
