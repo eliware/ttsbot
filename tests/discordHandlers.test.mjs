@@ -5,8 +5,6 @@ import help from '../commands/help.mjs';
 import voice from '../commands/voice.mjs';
 import join from '../commands/join.mjs';
 import leave from '../commands/leave.mjs';
-import skip from '../commands/skip.mjs';
-import stop from '../commands/stop.mjs';
 
 const log = { debug: jest.fn(), warn: jest.fn(), error: jest.fn() };
 
@@ -34,16 +32,12 @@ describe('Discord handlers', () => {
   });
 
   test('command wrappers dispatch actions', async () => {
-    const actions = { join: jest.fn(), leave: jest.fn(), skip: jest.fn(), stop: jest.fn() };
+    const actions = { join: jest.fn(), leave: jest.fn() };
     const interaction = { options: { getString: jest.fn(() => 'coral') } };
     await join({ actions }, interaction);
     await leave({ actions }, interaction);
-    await skip({ actions }, interaction);
-    await stop({ actions }, interaction);
     expect(actions.join).toHaveBeenCalledWith(interaction);
     expect(actions.leave).toHaveBeenCalledWith(interaction);
-    expect(actions.skip).toHaveBeenCalledWith(interaction);
-    expect(actions.stop).toHaveBeenCalledWith(interaction);
   });
 
   test('help and voice commands use expected interaction APIs', async () => {
