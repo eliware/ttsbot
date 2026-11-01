@@ -1,8 +1,20 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { isRetryableOpenAIError, openAIRetryDelay } from '../../src/ttsPolicies.mjs';
-import { requestSpeech } from '../../src/audio/openai-request.mjs';
+import { requestSpeech } from '../../src/audio/retry.mjs';
+import { requestSpeechOnce } from '../../src/audio/openai-request.mjs';
 
 describe('OpenAI speech request', () => {
+  test('issues one speech request with the expected audio settings', async () => {
+    const response = {};
+    const create = jest.fn(async () => response);
+    const signal = new AbortController().signal;
+    await expect(requestSpeechOnce({ client: { audio: { speech: { create } } }, input: 'hello', voice: 'coral', signal }))
+      .resolves.toBe(response);
+    expect(create).toHaveBeenCalledWith({
+      model: 'tts-1', input: 'hello', voice: 'coral', response_format: 'pcm', stream_format: 'audio', signal,
+    });
+  });
+
   test('retries a rate limit and returns a later response', async () => {
     const response = { body: 'audio' };
     const create = jest.fn().mockRejectedValueOnce({ status: 429 }).mockResolvedValue(response);

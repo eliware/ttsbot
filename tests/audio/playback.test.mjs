@@ -136,25 +136,4 @@ describe('TTS playback', () => {
     expect(aborted.log.debug).toHaveBeenCalledWith('OpenAI TTS request aborted', { guildId: 'guild', userId: 'user' });
   });
 
-  test('tolerates cleanup failures', async () => {
-    const body = new FakeStream();
-    body.destroy.mockImplementation(() => { throw new Error('body cleanup failed'); });
-    const harness = createHarness({ responses: [{ body }] });
-    const playText = createPlayback({
-      ...harness.dependencies,
-      createBuffer: () => {
-        const buffer = new FakeStream();
-        buffer.destroy.mockImplementation(() => { throw new Error('buffer cleanup failed'); });
-        return buffer;
-      },
-      ResamplerClass: class extends FakeResampler {
-        destroy = jest.fn(() => { throw new Error('resampler cleanup failed'); });
-      },
-    });
-    const completion = playText('guild', 'hello', 'user', '', 0, harness.state);
-    await new Promise((resolve) => harness.player.once('play', resolve));
-    harness.player.emit('idle');
-    await completion;
-    expect(body.destroy).toHaveBeenCalled();
-  });
 });

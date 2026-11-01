@@ -7,7 +7,7 @@ import { validateSpeechResponse } from './response.mjs';
 import { createOpenAIClient } from './client.mjs';
 import { sleep } from './delay.mjs';
 import { isRetryableOpenAIError, openAIRetryDelay } from '../ttsPolicies.mjs';
-import { requestSpeech } from './openai-request.mjs';
+import { requestSpeech } from './retry.mjs';
 import { waitForPlayback } from './playback-events.mjs';
 import { log } from '@eliware/common';
 

@@ -1,21 +1,13 @@
+import { logIgnoredInteraction } from './interaction-log/ignored.mjs';
+import { logReceivedInteraction } from './interaction-log/received.mjs';
+import { logUnknownInteractionCommand } from './interaction-log/unknown.mjs';
+import { logCompletedInteraction } from './interaction-log/completed.mjs';
+
 export function createInteractionLogger(log) {
   return {
-    ignored(interaction) {
-      log.debug('Ignoring non-command interaction', { type: interaction.type, customId: interaction.customId });
-    },
-    received(interaction) {
-      log.debug('Discord command received', {
-        guildId: interaction.guildId, channelId: interaction.channelId, userId: interaction.user?.id,
-        command: interaction.commandName,
-      });
-    },
-    unknown(interaction) {
-      log.warn('Unknown Discord command', { command: interaction.commandName });
-    },
-    completed(interaction) {
-      log.debug('Discord command completed', {
-        guildId: interaction.guildId, userId: interaction.user?.id, command: interaction.commandName,
-      });
-    },
+    ignored: (interaction) => logIgnoredInteraction(log, interaction),
+    received: (interaction) => logReceivedInteraction(log, interaction),
+    unknown: (interaction) => logUnknownInteractionCommand(log, interaction),
+    completed: (interaction) => logCompletedInteraction(log, interaction),
   };
 }

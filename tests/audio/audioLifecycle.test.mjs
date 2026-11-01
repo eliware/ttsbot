@@ -17,4 +17,16 @@ describe('audio lifecycle cleanup', () => {
     expect(current.jitterBuffer.destroy).toHaveBeenCalled();
     expect(responseBody.destroy).toHaveBeenCalled();
   });
+
+  test('continues cleanup when a resource destroy call fails', () => {
+    const current = {
+      controller: { abort: jest.fn() },
+      source: { destroy: () => { throw new Error('source failed'); } },
+      resampler: { destroy: () => { throw new Error('resampler failed'); } },
+      jitterBuffer: { destroy: jest.fn() },
+    };
+    const responseBody = { destroy: () => { throw new Error('body failed'); } };
+    expect(() => cleanupCurrent(current, { responseBody, abort: false })).not.toThrow();
+    expect(current.jitterBuffer.destroy).toHaveBeenCalled();
+  });
 });
