@@ -1,13 +1,7 @@
-import { Readable } from 'node:stream';
 import { createJitterBuffer } from '../jitterBuffer.mjs';
 import { createAudioResource, StreamType } from '@discordjs/voice';
 import { Resampler } from '@eliware/resampler';
 import { log as defaultLog } from '@eliware/common';
-
-export function toNodeReadable(body) {
-  if (body && typeof body.getReader === 'function') return Readable.fromWeb(body);
-  return body;
-}
 
 export function createAudioPipeline({
   createBuffer = createJitterBuffer,

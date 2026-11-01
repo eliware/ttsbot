@@ -1,4 +1,4 @@
-import { toNodeReadable } from './audio-pipeline.mjs';
+import { toNodeReadable } from './stream-converter.mjs';
 import { recordSpeechResponseMetrics } from './response-metrics.mjs';
 import { log as defaultLog } from '@eliware/common';
 

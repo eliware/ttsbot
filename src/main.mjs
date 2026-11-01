@@ -12,7 +12,7 @@ import { startDiscordClient } from './discordClient.mjs';
 import { startHealthServer } from './config/health-startup.mjs';
 import { getVoiceConnection } from '@discordjs/voice';
 import { ensureGuildState } from './tts/state.mjs';
-import { stopAndClear } from './tts/queue-actions.mjs';
+import { stopAndClear } from './tts/queue-control.mjs';
 import { startDiscordApplication } from './application.mjs';
 
 if (!hasRequiredSettings(process.env)) {

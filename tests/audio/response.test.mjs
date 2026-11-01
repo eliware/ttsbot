@@ -12,11 +12,11 @@ const base = () => ({
 });
 
 describe('speech response validation', () => {
-  test('converts a Web body', () => {
+  test('accepts an already streamable body', () => {
     const deps = base();
-    const body = new ReadableStream({ start(controller) { controller.close(); } });
+    const body = { pipe: jest.fn() };
     const result = validateSpeechResponse({ ...deps, result: { response: { body } } });
-    expect(typeof result.source.pipe).toBe('function');
+    expect(result.source).toBe(body);
   });
 
   test('stops for failed results, missing bodies, and nonstreamable bodies', () => {

@@ -1,6 +1,7 @@
 import { EventEmitter } from 'node:events';
 import { describe, expect, jest, test } from '@jest/globals';
-import { createAudioPipeline, toNodeReadable } from '../../src/audio/audio-pipeline.mjs';
+import { createAudioPipeline } from '../../src/audio/audio-pipeline.mjs';
+import { toNodeReadable } from '../../src/audio/stream-converter.mjs';
 
 class FakeStream extends EventEmitter {
   pipe(destination) { return destination; }
