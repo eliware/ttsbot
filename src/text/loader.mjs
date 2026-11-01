@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import { path } from '@eliware/common';
-import { compileReplacements } from './rules.mjs';
+import { compileReplacements } from './compiler.mjs';
 
 const REPLACEMENTS_PATH = path(import.meta, '..', '..', '..', 'replacements.json');
 

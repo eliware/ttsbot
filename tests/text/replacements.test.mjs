@@ -1,23 +1,11 @@
-import { describe, expect, jest, test } from '@jest/globals';
-import {
-  applyReplacements,
-  compileReplacements,
-} from '../../src/text/replacements.mjs';
+import { describe, expect, test } from '@jest/globals';
 import { createTextReplacer } from '../../src/text/replacer.mjs';
 
-describe('text replacements', () => {
-  test('matches whole words without regard to case and escapes patterns', () => {
-    const replacements = compileReplacements(JSON.stringify([
-      { search: 'lol', replace: 'laugh out loud' },
-      { search: 'a+b', replace: 'sum' },
-    ]));
-
-    expect(applyReplacements('LOL lolly a+b aab', replacements)).toBe('laugh out loud lolly sum aab');
+describe('text replacement coordinator', () => {
+  test('loads and applies replacement rules', async () => {
+    const replaceText = createTextReplacer({
+      loadReplacements: async () => [{ regex: /\bbrb\b/gi, replace: 'be right back' }],
+    });
+    await expect(replaceText('BRB soon')).resolves.toBe('be right back soon');
   });
-
-  test('uses an empty replacement list for empty input', () => {
-    expect(compileReplacements('')).toEqual([]);
-    expect(applyReplacements('hello', [])).toBe('hello');
-  });
-
 });

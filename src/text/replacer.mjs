@@ -1,5 +1,5 @@
 import { log } from '@eliware/common';
-import { applyReplacements } from './rules.mjs';
+import { applyReplacements } from './applicator.mjs';
 
 export function createTextReplacer({ loadReplacements, logger = log }) {
   return async function replaceText(text) {

@@ -9,7 +9,7 @@ process.on('warning', (warning) => logNodeWarning(warning, log));
 registerHandlers({ events: ['uncaughtException', 'unhandledRejection'], log });
 
 import { startDiscordClient } from './discordClient.mjs';
-import { startHealthServer } from './healthServer.mjs';
+import { startHealthServer } from './config/health-startup.mjs';
 import { getVoiceConnection } from '@discordjs/voice';
 import { ensureGuildState } from './tts/state.mjs';
 import { stopAndClear } from './tts/queue.mjs';

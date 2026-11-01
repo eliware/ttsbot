@@ -5,8 +5,3 @@ export function compileReplacements(raw) {
     return { replace, regex: new RegExp(`\\b${escaped}\\b`, 'gi') };
   });
 }
-
-export function applyReplacements(text, replacements) {
-  return replacements.reduce((result, item) => result.replace(item.regex, item.replace), String(text));
-}
-
