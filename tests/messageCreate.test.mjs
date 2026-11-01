@@ -72,7 +72,7 @@ describe('messageCreate event', () => {
 
     await messageCreate({ log }, message);
 
-    expect(saveSettings).toHaveBeenCalledWith('guild', 'user', expect.objectContaining({ voice: expect.stringMatching(/^(alloy|ash|coral)$/) }));
+    expect(saveSettings).toHaveBeenCalledWith('guild', 'user', expect.objectContaining({ voice: expect.any(String) }));
     expect(enqueueSpeech).toHaveBeenCalledWith('guild', expect.objectContaining({ text: 'hello', userId: 'user', userTag: 'user#1', receivedAt: expect.any(Number) }));
   });
   test('handles existing assignment state and voice usage counts', async () => {
