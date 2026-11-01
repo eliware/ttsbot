@@ -1,14 +1,9 @@
 import { log, registerHandlers, registerSignals } from '@eliware/common';
+import { logNodeWarning } from './warnings.mjs';
 
 // Suppress specific Node deprecation warnings (e.g. DEP0040 for the `punycode` module)
 // Adding a warning listener prevents Node's default printing for warnings; we filter out DEP0040
-process.on('warning', (warning) => {
-  try {
-    if (warning && warning.code === 'DEP0040') return; // ignore punycode deprecation
-  } catch {}
-  // For other warnings, print a concise message
-  log.warn(`${warning.name}${warning.code ? ' (' + warning.code + ')' : ''}: ${warning.message}`);
-});
+process.on('warning', (warning) => logNodeWarning(warning, log));
 
 registerHandlers({ events: ['uncaughtException', 'unhandledRejection'], log });
 

@@ -1,10 +1,11 @@
 import { joinVoiceChannel, getVoiceConnection, entersState, VoiceConnectionStatus } from '@discordjs/voice';
-import { loadUserSettings, saveUserSettings } from './settings.mjs';
 import { ensureGuildState, skipCurrent, stopAndClear } from './ttsEngine.mjs';
+import { createVoiceSettingsAction } from './discord/voice-settings.mjs';
 
 export const AVAILABLE_VOICES = ['alloy', 'ash', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer'];
 
 export function createDiscordActions({ log }) {
+  const setVoice = createVoiceSettingsAction({ log });
   return {
     async join(interaction) {
       const guildId = interaction.guildId;
@@ -53,14 +54,7 @@ export function createDiscordActions({ log }) {
       await interaction.reply('Left the voice channel and cleared state.');
       log.debug('Leave command completed', { guildId: interaction.guildId });
     },
-    async voice(interaction, voice) {
-      log.debug('Voice command started', { guildId: interaction.guildId, userId: interaction.user?.id, voice });
-      const settings = await loadUserSettings(interaction.guildId, interaction.user.id);
-      settings.voice = voice;
-      await saveUserSettings(interaction.guildId, interaction.user.id, settings);
-      await interaction.reply({ content: `Saved voice: ${voice}`, flags: 64 });
-      log.debug('Voice command completed', { guildId: interaction.guildId, userId: interaction.user?.id, voice });
-    },
+    voice: setVoice,
     async skip(interaction) {
       log.debug('Skip command started', { guildId: interaction.guildId, userId: interaction.user?.id });
       await skipCurrent(interaction.guildId);
