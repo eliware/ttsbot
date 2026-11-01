@@ -1,9 +1,6 @@
 import { log } from '@eliware/common';
 import { processQueue } from './processor.mjs';
 import { ensureGuildState } from './state.mjs';
-export { skipCurrent } from './skip.mjs';
-export { stopAndClear } from './stop.mjs';
-
 export async function enqueueSpeech(guildId, item) {
   const state = ensureGuildState(guildId);
   state.queue.push(item);

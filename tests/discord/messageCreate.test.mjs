@@ -16,8 +16,6 @@ jest.unstable_mockModule('../../src/tts/state.mjs', () => ({
 }));
 jest.unstable_mockModule('../../src/tts/queue.mjs', () => ({
   enqueueSpeech,
-  skipCurrent: jest.fn(),
-  stopAndClear: jest.fn(),
 }));
 jest.unstable_mockModule('../../src/discordActions.mjs', () => ({
   AVAILABLE_VOICES: ['alloy', 'ash', 'coral'],
