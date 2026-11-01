@@ -1,5 +1,4 @@
-import { stopGuildAudio } from './application/audio-cleanup.mjs';
-import { destroyGuildVoiceConnection } from './application/voice-cleanup.mjs';
+import { cleanupGuildAudio } from './application/audio-cleanup.mjs';
 
 export async function startDiscordApplication({
   startDiscordClient,
@@ -21,13 +20,6 @@ export async function startDiscordApplication({
     finishStartup = resolve;
   });
 
-  const cleanupAudio = async () => {
-    for (const [guildId] of client.guilds.cache) {
-      await stopGuildAudio({ guildId, stopAndClear, log });
-      destroyGuildVoiceConnection({ guildId, getVoiceConnection, ensureGuildState, log });
-    }
-  };
-
   const shutdownApp = () => {
     shuttingDown = true;
     if (!shutdownPromise) {
@@ -41,7 +33,7 @@ export async function startDiscordApplication({
         }
         if (waitForStartup) await startupComplete;
         if (!client) return;
-        await cleanupAudio();
+        await cleanupGuildAudio({ client, stopAndClear, getVoiceConnection, ensureGuildState, log });
         try {
           await discordShutdown();
         } catch (error) {

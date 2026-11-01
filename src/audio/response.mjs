@@ -1,5 +1,6 @@
 import { toNodeReadable } from './stream-converter.mjs';
 import { recordSpeechResponseMetrics } from './response-metrics.mjs';
+import { cancelSpeechResponseBody } from './response-cancellation.mjs';
 import { log as defaultLog } from '@eliware/common';
 
 export function validateSpeechResponse({
@@ -12,7 +13,7 @@ export function validateSpeechResponse({
   });
   if (signal.aborted) {
     log.debug('Discarding canceled OpenAI TTS response', { guildId, userId });
-    try { response.body?.cancel?.(); } catch {}
+    cancelSpeechResponseBody(response.body);
     return null;
   }
   if (!response?.body) {
