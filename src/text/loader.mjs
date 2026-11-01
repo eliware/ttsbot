@@ -1,12 +1,13 @@
-import { compileReplacements } from './compiler.mjs';
-import { createReplacementFileReader } from './file-reader.mjs';
+import { createReplacementLoadPolicy } from './load-policy.mjs';
 
-export function createReplacementLoader({ readReplacements = createReplacementFileReader() } = {}) {
+export function createReplacementLoader({
+  readReplacements,
+  loadReplacementRules = createReplacementLoadPolicy({ readReplacements }),
+} = {}) {
   let cache = null;
   return async function loadReplacements() {
     if (cache) return cache;
-    try { cache = compileReplacements(await readReplacements()); }
-    catch { cache = []; }
+    cache = await loadReplacementRules();
     return cache;
   };
 }
