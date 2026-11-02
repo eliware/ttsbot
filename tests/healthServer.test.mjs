@@ -3,7 +3,7 @@ import { afterEach, describe, expect, jest, test } from "@jest/globals";
 const log = { info: jest.fn() };
 jest.unstable_mockModule("@eliware/common", () => ({ log }));
 const { createHealthServer } = await import("../src/healthServer.mjs");
-const { startHealthServer } = await import("../src/config/health-startup.mjs");
+const { startHealthServer } = await import("../src/config/health/startup.mjs");
 
 const healthServers = [];
 afterEach(async () => {
@@ -11,6 +11,12 @@ afterEach(async () => {
 });
 
 describe("health server", () => {
+  test("applies default listener options", async () => {
+    const health = createHealthServer();
+    expect(health.server).toBeDefined();
+    await expect(health.stop()).resolves.toBeUndefined();
+  });
+
   test("starts on the configured port", async () => {
     const previous = process.env.HEALTH_PORT;
     process.env.HEALTH_PORT = "0";
@@ -19,6 +25,19 @@ describe("health server", () => {
       healthServers.push(health);
       const port = health.server.address().port;
       expect(port).toBeGreaterThan(0);
+    } finally {
+      if (previous === undefined) delete process.env.HEALTH_PORT;
+      else process.env.HEALTH_PORT = previous;
+    }
+  });
+
+  test("starts with the default logger", async () => {
+    const previous = process.env.HEALTH_PORT;
+    process.env.HEALTH_PORT = "0";
+    try {
+      const health = await startHealthServer();
+      healthServers.push(health);
+      expect(health.server.address().port).toBeGreaterThan(0);
     } finally {
       if (previous === undefined) delete process.env.HEALTH_PORT;
       else process.env.HEALTH_PORT = previous;

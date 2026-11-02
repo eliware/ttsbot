@@ -1,23 +1,33 @@
 {
-  "name": "ttsbot",
+  "name": "@eliware/ttsbot",
   "version": "15.1.0",
+  "type": "module",
   "description": "Discord text-to-speech bot using OpenAI TTS",
-  "main": "ttsbot.mjs",
-  "scripts": {
-    "start": "node --no-deprecation ttsbot.mjs",
-    "test": "eliware-test",
-    "lint": "npx oxlint .",
-    "test:gaps": "npm test 2>&1 | grep '|' | grep -vF '|     100 |      100 |     100 |     100 |'",
-    "smoke:docker": "node scripts/docker-health-smoke.mjs"
-  },
   "keywords": [
     "discord",
     "text-to-speech",
     "openai",
     "tts"
   ],
-  "author": "Eliware",
-  "license": "ISC",
+  "private": true,
+  "main": "./bin/ttsbot.mjs",
+  "bin": {
+    "ttsbot": "bin/ttsbot.mjs",
+    "docker-health-smoke": "bin/docker-health-smoke.mjs"
+  },
+  "scripts": {
+    "start": "node --no-deprecation bin/ttsbot.mjs",
+    "test": "eliware-test",
+    "lint": "eliware-test --lint",
+    "audit": "eliware-test --audit",
+    "format": "eliware-test --format",
+    "format:check": "eliware-test --format-check",
+    "test:gaps": "npm test 2>&1 | grep '|' | grep -vF '|     100 |      100 |     100 |     100 |'",
+    "smoke:docker": "node bin/docker-health-smoke.mjs"
+  },
+  "engines": {
+    "node": ">=26"
+  },
   "dependencies": {
     "@discordjs/opus": "^0.11.0",
     "@discordjs/voice": "^0.19.2",
@@ -32,15 +42,28 @@
   },
   "devDependencies": {
     "@eliware/test": "^15.1.0",
-    "jest": "^30.5.2",
     "oxlint": "^1.90.0"
   },
-  "allowScripts": {
-    "@discordjs/opus@0.11.0": true
-  },
-  "type": "module",
-  "engines": {
-    "node": ">=26.0.0"
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.mjs"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.mjs"
+    ],
+    "coverageReporters": [
+      "text",
+      "json-summary"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "statements": 100,
+        "lines": 100,
+        "functions": 100
+      }
+    }
   },
   "prettier": {
     "printWidth": 100,
@@ -57,6 +80,16 @@
     "proseWrap": "preserve",
     "endOfLine": "lf"
   },
+  "author": "Eliware <eliware@eliware.org>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eliware/ttsbot.git"
+  },
+  "homepage": "https://github.com/eliware/ttsbot#readme",
+  "bugs": {
+    "url": "https://github.com/eliware/ttsbot/issues"
+  },
   "eliware": {
     "id": "E-3040",
     "apply": [
@@ -65,5 +98,12 @@
       "discord",
       "ghcr-published"
     ]
+  },
+  "allowScripts": {
+    "@discordjs/opus@0.11.0": true
+  },
+  "overrides": {
+    "minimatch": "^11.0.3",
+    "tar": "^7.5.22"
   }
 }

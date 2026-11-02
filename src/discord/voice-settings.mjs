@@ -1,5 +1,5 @@
 import { loadUserSettings, saveUserSettings } from "../settings.mjs";
-import { AVAILABLE_VOICES } from "../tts/voice-assignment.mjs";
+import { AVAILABLE_VOICES } from "../tts/voice/assignment.mjs";
 
 export function createVoiceSettingsAction({
   log,

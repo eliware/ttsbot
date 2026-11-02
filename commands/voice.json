@@ -9,16 +9,111 @@
       "description": "Select a voice",
       "required": true,
       "choices": [
-        { "name": "alloy", "value": "alloy" },
-        { "name": "ash", "value": "ash" },
-        { "name": "coral", "value": "coral" },
-        { "name": "echo", "value": "echo" },
-        { "name": "fable", "value": "fable" },
-        { "name": "nova", "value": "nova" },
-        { "name": "onyx", "value": "onyx" },
-        { "name": "sage", "value": "sage" },
-        { "name": "shimmer", "value": "shimmer" }
+        {
+          "name": "alloy",
+          "value": "alloy"
+        },
+        {
+          "name": "ash",
+          "value": "ash"
+        },
+        {
+          "name": "coral",
+          "value": "coral"
+        },
+        {
+          "name": "echo",
+          "value": "echo"
+        },
+        {
+          "name": "fable",
+          "value": "fable"
+        },
+        {
+          "name": "nova",
+          "value": "nova"
+        },
+        {
+          "name": "onyx",
+          "value": "onyx"
+        },
+        {
+          "name": "sage",
+          "value": "sage"
+        },
+        {
+          "name": "shimmer",
+          "value": "shimmer"
+        }
       ]
     }
-  ]
+  ],
+  "name_localizations": {
+    "bg": "voice",
+    "cs": "voice",
+    "da": "voice",
+    "de": "voice",
+    "el": "voice",
+    "en-GB": "voice",
+    "en-US": "voice",
+    "es-419": "voice",
+    "es-ES": "voice",
+    "fi": "voice",
+    "fr": "voice",
+    "hi": "voice",
+    "hr": "voice",
+    "hu": "voice",
+    "id": "voice",
+    "it": "voice",
+    "ja": "voice",
+    "ko": "voice",
+    "lt": "voice",
+    "nl": "voice",
+    "no": "voice",
+    "pl": "voice",
+    "pt-BR": "voice",
+    "ro": "voice",
+    "ru": "voice",
+    "sv-SE": "voice",
+    "th": "voice",
+    "tr": "voice",
+    "uk": "voice",
+    "vi": "voice",
+    "zh-CN": "voice",
+    "zh-TW": "voice"
+  },
+  "description_localizations": {
+    "bg": "Set the voice to use",
+    "cs": "Set the voice to use",
+    "da": "Set the voice to use",
+    "de": "Set the voice to use",
+    "el": "Set the voice to use",
+    "en-GB": "Set the voice to use",
+    "en-US": "Set the voice to use",
+    "es-419": "Set the voice to use",
+    "es-ES": "Set the voice to use",
+    "fi": "Set the voice to use",
+    "fr": "Set the voice to use",
+    "hi": "Set the voice to use",
+    "hr": "Set the voice to use",
+    "hu": "Set the voice to use",
+    "id": "Set the voice to use",
+    "it": "Set the voice to use",
+    "ja": "Set the voice to use",
+    "ko": "Set the voice to use",
+    "lt": "Set the voice to use",
+    "nl": "Set the voice to use",
+    "no": "Set the voice to use",
+    "pl": "Set the voice to use",
+    "pt-BR": "Set the voice to use",
+    "ro": "Set the voice to use",
+    "ru": "Set the voice to use",
+    "sv-SE": "Set the voice to use",
+    "th": "Set the voice to use",
+    "tr": "Set the voice to use",
+    "uk": "Set the voice to use",
+    "vi": "Set the voice to use",
+    "zh-CN": "Set the voice to use",
+    "zh-TW": "Set the voice to use"
+  }
 }

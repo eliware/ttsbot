@@ -1,0 +1,15 @@
+version: "15.1"
+description: Maintained behavior and operational requirements for ttsbot.
+directives:
+  - id: E-3040.0
+    dos:
+      - Speak messages from the linked text channel in the joined Discord voice channel.
+      - Use OpenAI text-to-speech for audio output.
+      - Keep user voice preferences in memory and remove them when the bot restarts.
+      - Expose health and readiness checks on the configured HTTP port.
+      - Keep credentials and runtime state out of Git.
+      - Maintain focused tests and user documentation when behavior changes.
+    donts:
+      - Do not speak messages from an unlinked text channel.
+      - Do not expose credentials in logs or health responses.
+      - Do not allow deployment publication to alter a running application.

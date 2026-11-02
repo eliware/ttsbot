@@ -6,6 +6,6 @@ on:
         cwd: /eliware/ttsbot
         timeoutMs: 300000
         commands:
-          - git pull --ff-only origin main
+          - git pull
           - npm ci
           - npm test

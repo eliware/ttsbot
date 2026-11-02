@@ -7,4 +7,13 @@ describe("Node warning filter", () => {
     expect(isIgnoredNodeWarning({ code: "OTHER" })).toBe(false);
     expect(isIgnoredNodeWarning(null)).toBe(false);
   });
+
+  test("ignores warning objects that throw when reading their code", () => {
+    const warning = Object.defineProperty({}, "code", {
+      get() {
+        throw new Error("unavailable");
+      },
+    });
+    expect(isIgnoredNodeWarning(warning)).toBe(false);
+  });
 });

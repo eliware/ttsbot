@@ -1,3 +1,1 @@
-export default async function ({ actions }, interaction) {
-  await actions.leave(interaction);
-}
+export { default } from "../src/commands/leave.mjs";

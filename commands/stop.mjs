@@ -1,3 +1,1 @@
-export default async function ({ actions }, interaction) {
-  await actions.stop(interaction);
-}
+export { default } from "../src/commands/stop.mjs";

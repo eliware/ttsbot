@@ -22,8 +22,9 @@ RUN npm ci --omit=dev \
 COPY --chown=node:node commands ./commands
 COPY --chown=node:node events ./events
 COPY --chown=node:node src ./src
-COPY --chown=node:node replacements.json ttsbot.mjs ./
+COPY --chown=node:node bin ./bin
+COPY --chown=node:node replacements.json ./
 
 USER node
 EXPOSE 3040
-CMD ["node", "ttsbot.mjs"]
+CMD ["node", "bin/ttsbot.mjs"]

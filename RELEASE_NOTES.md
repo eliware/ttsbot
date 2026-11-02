@@ -1,43 +1,42 @@
-# Release notes
+# Release Notes
 
-## 15.1.0 - 2026-11-01
+## 15.1.0 — 2026-11-01
 
-- Update runtime and development dependencies and align the lockfile with the package manifest.
-- Set the default health and readiness port to `3040` and update the container configuration.
-- Use the patched Node.js 26 Bookworm Slim base image for Docker builds.
-- Align GitHub Actions, Knit, CI, and GHCR image publishing workflows.
-- Add a complete user guide for setup, commands, configuration, deployment, health checks, and recovery.
-- Set the package version to `15.1.0` and add the Eliware identifier `E-3040`.
-- Adopt the shared Eliware Test runner and apply its formatting rules across the repository.
-- Refactor the TTS pipeline, queue, voice assignment, text replacement, health server, and shutdown code into focused modules.
-- Stop active playback and clear queued speech when users run `/leave`.
-- Reject unsupported voice selections and prevent assignment when no voices are available.
-- Handle retry-delay failures, failed requests, malformed response bodies, empty streams, and shutdown cleanup errors.
-- Add coverage for playback cleanup, retry handling, health startup, voice actions, and message queueing.
-- Update repository metadata, README content, and development guidance.
+### Fixed
 
-## 1.0.3
+- Override `tar` and `minimatch` with patched releases to resolve production dependency advisories.
 
-- Bind health and readiness endpoints to all interfaces for Kubernetes HTTP probes.
-- Document Kubernetes health probe access.
+### Changed
+
+- Move the executable launcher into `bin/` and update the container startup command.
+- Align package metadata, application documentation, and repository validation with Eliware conventions.
+- Preserve Discord voice playback with the updated transitive dependency versions.
+
+## 1.0.3 — 2026-08-08
+
+### Changed
+
+- Expose health and readiness endpoints to all interfaces for Kubernetes health checks.
+- Document access to Kubernetes health endpoints.
 - Update Eliware runtime dependencies.
 
-## 1.0.2
+## 1.0.2 — 2026-08-07
 
-- Added production Docker image and GHCR publishing workflow.
-- Added Docker health smoke validation.
-- Added Kubernetes deployment support and health/readiness probes.
+### Added
 
-## 1.0.1
+- Add a production Docker image and a GHCR publishing workflow.
+- Add Docker health smoke validation.
+- Add Kubernetes deployment support and health and readiness probes.
 
-Initial tracked release of ttsbot, including:
+## 1.0.1 — 2026-08-07
 
-- Discord voice-channel text-to-speech playback with OpenAI TTS.
-- FIFO per-guild queues, cancellation, skip/stop/leave cleanup, and PCM jitter buffering.
-- Mono-to-stereo 48 kHz audio resampling for Discord playback.
-- Slash commands for help, join, leave, voice selection, skip, and stop.
-- In-memory user voice settings and balanced initial voice assignment.
-- Health and readiness endpoints.
-- Retry handling, cancellation safety, operational timing/debug logging, and privacy protections.
-- Hardened systemd service configuration and documented setup/configuration.
-- Focused tests with complete statement, branch, function, and line coverage.
+### Added
+
+- Add Discord voice-channel text-to-speech playback with OpenAI TTS.
+- Add FIFO per-guild queues, cancellation, skip and stop commands, and PCM jitter buffering.
+- Resample mono audio to stereo 48 kHz for Discord playback.
+- Add slash commands for help, join, exit, voice selection, skip, and stop.
+- Store user voice choices in memory and give initial voices equally.
+- Add health and readiness endpoints.
+- Add retry handling, safe cancellation, timing logs, and privacy protections.
+- Update the systemd unit and document setup and options.

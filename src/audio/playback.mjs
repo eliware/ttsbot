@@ -1,7 +1,7 @@
-import { createPlaybackDependencies } from "./playback-factory.mjs";
+import { createPlaybackDependencies } from "./playback/factory.mjs";
 import { preparePlaybackInput } from "./input.mjs";
 import { executeSpeechRequest } from "./request-lifecycle.mjs";
-import { waitForPlayback } from "./playback-events.mjs";
+import { waitForPlayback } from "./playback/events.mjs";
 
 export function createPlayback(options = {}) {
   const {

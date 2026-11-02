@@ -1,5 +1,5 @@
-import { toNodeReadable } from "./stream-converter.mjs";
-import { observeSpeechResponse } from "./response-observation.mjs";
+import { toNodeReadable } from "./stream/converter.mjs";
+import { observeSpeechResponse } from "./response/observation.mjs";
 import { cancelResponseBody } from "../audioLifecycle.mjs";
 import { log as defaultLog } from "@eliware/common";
 

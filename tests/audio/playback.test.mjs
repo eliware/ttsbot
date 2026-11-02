@@ -75,6 +75,13 @@ async function completePlayback(playText, harness, text = "hello", receivedAt = 
 }
 
 describe("TTS playback", () => {
+  test("stops before requesting speech when the input is empty", async () => {
+    const harness = createHarness();
+    const playText = createPlayback(harness.dependencies);
+    await expect(playText("guild", "", "user", "", 0, harness.state)).resolves.toBeUndefined();
+    expect(harness.speechCreate).not.toHaveBeenCalled();
+  });
+
   test("requests, streams, logs, and cleans up playback resources", async () => {
     const body = new FakeStream();
     const response = { body };

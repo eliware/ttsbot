@@ -34,9 +34,9 @@ Copy `.env.example` to `.env`. Set the required values and adjust optional value
 
 The bot exits before startup when a required value is missing. The application ID is not a secret. Keep the bot token and API key outside version control. The included `.gitignore` excludes `.env`.
 
-The logger writes at the `info` level by default. The application does not expose a log-level setting. The code includes debug records for channel, user, queue, request, and timing identifiers. The default level does not show these records.
+The application uses the `info` log level. Configuration cannot change it. Debug records include channel, user, queue, request, and timing identifiers. The default level hides these records.
 
-The health server listens on `0.0.0.0`. Restrict access to its port with your host or container network rules.
+The health server listens on `0.0.0.0`. Limit access to its port with host or container network rules.
 
 ## Install and run
 
@@ -59,34 +59,34 @@ Run these commands in a server where the bot has been invited:
 | `/join`          | Joins your current voice channel and links the text channel where you ran the command. |
 | `/leave`         | Stops playback, disconnects from voice, and clears the guild queue and linked channel. |
 | `/voice <voice>` | Sets your voice for the current server.                                                |
-| `/skip`          | Stops the current message and continues with the next queued message.                  |
+| `/skip`          | Stops the current message, then resumes the queue.                                     |
 | `/stop`          | Stops the current message and clears the queue.                                        |
 
-Choose one of these voices with `/voice`: `alloy`, `ash`, `coral`, `echo`, `fable`, `nova`, `onyx`, `sage`, or `shimmer`.
+Select a voice with `/voice`: `alloy`, `ash`, `coral`, `echo`, `fable`, `nova`, `onyx`, `sage`, or `shimmer`.
 
-Join a voice channel before you run `/join`. The bot rejects `/join` when the caller is not in a voice channel or when the bot already has a voice connection in that server. Run `/leave` before linking a different channel.
+Join a voice channel before you run `/join`. The bot rejects `/join` when the caller is not in a voice channel or when the bot has a voice connection in that server. Run `/leave` before linking a different channel.
 
 ## Message and voice behavior
 
 The bot speaks nonempty messages from the linked text channel. It ignores bot-authored messages and messages longer than 2,000 characters. It queues messages in first-in, first-out order for each server.
 
-Each user has a voice setting per server. Settings exist only in memory and reset when the bot restarts. When a user has no setting, the bot assigns a voice with the lowest current assignment count. It chooses randomly when multiple voices share the lowest count. The default voice fallback is `coral`.
+Each server stores a voice selection for each user. The bot keeps selections in memory and removes them at startup. If no selection exists, the bot gives the user a voice with the fewest current users. The bot picks at random when some voices share that count. The default voice fallback is `coral`.
 
-Before each OpenAI request, ttsbot applies the word replacements in `replacements.json`. Each record has `search` and `replace` strings. The bot matches whole words without regard to letter case. Keep valid JSON in that file. The bot loads the replacement list the first time it needs one and then caches it until restart.
+Before each OpenAI request, ttsbot applies the word replacements in `replacements.json`. Each record has `search` and `replace` strings. The bot matches complete words without regard to letter case. Keep valid JSON in that file. The bot loads the list when first needed and caches it until startup.
 
-The bot requests PCM audio from OpenAI. It processes the returned audio as 24 kHz mono input and resamples it to 48 kHz stereo PCM for Discord playback. It retries HTTP 429 and server errors up to three times, with 250 ms and 500 ms delays. The jitter buffer holds audio until it has buffered the configured number of milliseconds. Set `TTS_JITTER_BUFFER_MS=0` to disable that prebuffer.
+The bot requests PCM audio from OpenAI. It processes the returned audio as 24 kHz mono input and resamples it to 48 kHz stereo PCM for Discord playback. It retries HTTP 429 and server errors no more than three times, with 250 ms and 500 ms delays. The jitter buffer holds audio until it has buffered the configured number of milliseconds. Set `TTS_JITTER_BUFFER_MS=0` to disable that prebuffer.
 
 ## Health and readiness
 
 The HTTP server provides two unauthenticated endpoints:
 
-| Path                            | Success response                      | Meaning                                           |
-| ------------------------------- | ------------------------------------- | ------------------------------------------------- |
-| `/health`                       | HTTP 200 with `{"status":"ok"}`       | The process answers HTTP requests.                |
-| `/ready`                        | HTTP 200 with `{"status":"ready"}`    | Discord startup completed.                        |
-| `/ready` before Discord startup | HTTP 503 with `{"status":"starting"}` | The process is not ready to serve Discord events. |
+| Path                            | Success response                      | Meaning                            |
+| ------------------------------- | ------------------------------------- | ---------------------------------- |
+| `/health`                       | HTTP 200 with `{"status":"ok"}`       | The process answers HTTP requests. |
+| `/ready`                        | HTTP 200 with `{"status":"ready"}`    | Discord startup completed.         |
+| `/ready` before Discord startup | HTTP 503 with `{"status":"starting"}` | Discord startup is incomplete.     |
 
-The server returns HTTP 404 for other paths. It listens on `0.0.0.0:<HEALTH_PORT>`, so network controls must restrict access where needed.
+The server returns HTTP 404 for other paths. It listens on `0.0.0.0:<HEALTH_PORT>`, so network rules must limit access.
 
 ## Run with Docker
 
@@ -108,7 +108,7 @@ The GHCR workflow publishes an image for a version tag that matches `package.jso
 
 ## Run with systemd
 
-The included `ttsbot.service` expects the repository at `/opt/ttsbot` and settings in `/opt/ttsbot/.env`. Review the unit before enabling it. The unit runs as `root`, sets a restrictive filesystem policy, and restarts the service after a failure.
+The included `ttsbot.service` expects the repository at `/opt/ttsbot` and settings in `/opt/ttsbot/.env`. Examine the unit before enabling it. The unit runs as `root`, sets a restrictive filesystem policy, and starts the bot after a failure.
 
 After installing the repository and creating the environment file, use:
 
@@ -118,7 +118,7 @@ sudo systemctl status ttsbot.service
 journalctl -u ttsbot.service -f
 ```
 
-Restart after updating code or dependencies:
+Start ttsbot after updating code or dependencies:
 
 ```sh
 sudo systemctl restart ttsbot.service
@@ -126,16 +126,16 @@ sudo systemctl restart ttsbot.service
 
 ## Troubleshoot
 
-- If startup reports missing configuration, set all three required variables and restart the process.
+- If startup reports missing configuration, set all three required variables and start ttsbot.
 - If `/ready` returns HTTP 503, check that the Discord token and application ID are valid and that Discord startup succeeds.
-- If `/join` rejects the request, join a voice channel first or run `/leave` to clear an existing connection.
-- If messages are not spoken, check that the message is in the linked channel, is not from a bot, and is no longer than 2,000 characters.
+- If `/join` rejects the request, join a voice channel first or run `/leave` to end an existing connection.
+- If messages do not play, check that they came from the linked channel, are not from a bot, and have 2,000 characters or fewer.
 - If Discord cannot read user messages, enable the Message Content privileged intent and grant channel read access.
-- If speech requests fail, check the OpenAI API key, account access, and service logs.
-- If the health server cannot start, check whether another process uses `HEALTH_PORT`.
+- If voice requests fail, check the OpenAI API key, account access, and application logs.
+- If the health server cannot start, check if a different process uses `HEALTH_PORT`.
 
-## Stop and recover
+## Stop and restore
 
-Use `/stop` to stop playback and clear the server queue. Use `/leave` to stop playback, disconnect, and clear the channel link. During process shutdown, ttsbot marks readiness false, closes the health server, stops audio, disconnects voice sessions, and shuts down Discord.
+Use `/stop` to stop playback and empty the server queue. Use `/leave` to stop playback, disconnect, and remove the channel link. At shutdown, ttsbot marks readiness false, closes the health server, stops audio, disconnects voice sessions, and closes Discord.
 
-User voice settings are not persisted. Users can run `/voice` again after a restart. To roll back a deployment, restore the prior repository revision or image digest, reinstall the matching dependencies when using a source deployment, and restart the service.
+User voice settings are not persisted. Users can run `/voice` again after startup. To restore a prior deployment, use its repository revision or image digest. For source deployments, install matching dependencies, then start the application.

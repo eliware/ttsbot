@@ -1,7 +1,19 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, jest, test } from "@jest/globals";
 import { createReplacementLoadFallback } from "../../src/text/load-fallback.mjs";
 
 describe("replacement load fallback", () => {
+  test("accepts omitted loader options", () => {
+    expect(typeof createReplacementLoadFallback()).toBe("function");
+  });
+
+  test("uses an explicitly supplied rule loader", async () => {
+    const loadRules = jest.fn(async () => [{ search: "a", replace: "b" }]);
+    await expect(createReplacementLoadFallback({ loadRules })()).resolves.toEqual([
+      { search: "a", replace: "b" },
+    ]);
+    expect(loadRules).toHaveBeenCalledTimes(1);
+  });
+
   test.each([
     [
       "read failure",

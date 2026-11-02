@@ -12,6 +12,10 @@ const base = () => ({
 });
 
 describe("speech response validation", () => {
+  test("returns early for an aborted result with the default logger", () => {
+    expect(validateSpeechResponse({ result: { aborted: true } })).toBeNull();
+  });
+
   test("accepts an already streamable body", () => {
     const deps = base();
     const body = { pipe: jest.fn() };

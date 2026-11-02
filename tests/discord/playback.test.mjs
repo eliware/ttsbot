@@ -2,6 +2,14 @@ import { describe, expect, jest, test } from "@jest/globals";
 import { createPlaybackActions } from "../../src/discord/playback.mjs";
 
 describe("Discord playback actions", () => {
+  test("runs default queue actions", async () => {
+    const actions = createPlaybackActions({ log: { debug: jest.fn() } });
+    const interaction = { guildId: "coverage-guild", user: { id: "user" }, reply: jest.fn() };
+    await actions.skip(interaction);
+    await actions.stop(interaction);
+    expect(interaction.reply).toHaveBeenCalledTimes(2);
+  });
+
   test("skips the current audio and acknowledges the command", async () => {
     const skip = jest.fn(async () => {});
     const log = { debug: jest.fn() };

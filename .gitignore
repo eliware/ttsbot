@@ -1,7 +1,13 @@
 node_modules
 .env
-
-
 coverage
-
 .agentx*
+
+**/dist/
+**/build/
+**/generated/
+**/artifacts/
+**/test-results/
+**/.git/
+**/.DS_Store
+**/Thumbs.db

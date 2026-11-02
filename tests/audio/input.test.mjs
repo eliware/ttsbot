@@ -18,6 +18,19 @@ function harness({
 }
 
 describe("playback input preparation", () => {
+  test("uses defaults when invalid input exits before dependencies run", async () => {
+    await expect(
+      preparePlaybackInput({
+        text: "",
+        state: {},
+        guildId: "g",
+        userId: "u",
+        waitForState: jest.fn(),
+        connectionStatus: { Ready: "ready" },
+      }),
+    ).resolves.toBeNull();
+  });
+
   test("rejects empty, long, and disconnected input", async () => {
     const deps = harness();
     expect(
