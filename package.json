@@ -12,8 +12,7 @@
   "private": true,
   "main": "./bin/ttsbot.mjs",
   "bin": {
-    "ttsbot": "bin/ttsbot.mjs",
-    "docker-health-smoke": "bin/docker-health-smoke.mjs"
+    "ttsbot": "bin/ttsbot.mjs"
   },
   "scripts": {
     "start": "node --no-deprecation bin/ttsbot.mjs",
@@ -22,8 +21,7 @@
     "audit": "eliware-test --audit",
     "format": "eliware-test --format",
     "format:check": "eliware-test --format-check",
-    "test:gaps": "npm test 2>&1 | grep '|' | grep -vF '|     100 |      100 |     100 |     100 |'",
-    "smoke:docker": "node bin/docker-health-smoke.mjs"
+    "test:gaps": "npm test 2>&1 | grep '|' | grep -vF '|     100 |      100 |     100 |     100 |'"
   },
   "engines": {
     "node": ">=26"
