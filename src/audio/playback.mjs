@@ -60,6 +60,7 @@ export function createPlayback(options = {}) {
     Object.assign(current, { player, resource, source, resampler, jitterBuffer });
     return waitForPlayback({
       source,
+      jitterBuffer,
       response,
       resampler,
       resource,

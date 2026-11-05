@@ -4,6 +4,7 @@ import { cleanupPlayback } from "./cleanup.mjs";
 
 export function waitForPlayback({
   source,
+  jitterBuffer,
   response,
   resampler,
   resource,
@@ -34,7 +35,18 @@ export function waitForPlayback({
       player.removeListener(AudioStatus.Idle, onIdle);
       player.removeListener(AudioStatus.Playing, onPlaying);
       player.removeListener(AudioStatus.Buffering, onBuffering);
-      logPlaybackIdle({ metrics, getAudioBytes, guildId, userId, log, now });
+      logPlaybackIdle({
+        metrics,
+        getAudioBytes,
+        source,
+        resampler,
+        jitterBuffer,
+        resource,
+        guildId,
+        userId,
+        log,
+        now,
+      });
       cleanupPlayback({ state, current, responseBody: response.body });
       resolve();
     };

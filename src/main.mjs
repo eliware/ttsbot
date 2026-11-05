@@ -2,6 +2,7 @@ import { log, registerHandlers, registerSignals } from "@eliware/common";
 import { getVoiceConnection } from "@discordjs/voice";
 import { registerNodeWarningListener } from "./warnings/listener.mjs";
 import { hasRequiredSettings } from "./config/required-settings.mjs";
+import { configureLogLevel } from "./config/log-level.mjs";
 import { startDiscordClient } from "./discordClient.mjs";
 import { startHealthServer } from "./config/health/startup.mjs";
 import { ensureGuildState } from "./tts/state.mjs";
@@ -26,6 +27,7 @@ export async function startMain({
     process.exitCode = code;
   },
 } = {}) {
+  configureLogLevel(logger, env.LOG_LEVEL);
   registerWarning({ log: logger });
   registerErrorHandlers({ events: ["uncaughtException", "unhandledRejection"], log: logger });
 

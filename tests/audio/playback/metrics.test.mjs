@@ -35,6 +35,10 @@ describe("playback metrics", () => {
     logPlaybackIdle({
       metrics,
       getAudioBytes: () => 4,
+      source: { readableEnded: true, destroyed: false },
+      resampler: { readableEnded: false, destroyed: false },
+      jitterBuffer: { readableEnded: false, destroyed: false },
+      resource: { ended: false, readable: true },
       guildId: "g",
       userId: "u",
       log,
@@ -43,7 +47,34 @@ describe("playback metrics", () => {
     expect(metrics.playbackIdleAt).toBe(30);
     expect(log.debug).toHaveBeenCalledWith(
       "Discord TTS playback idle",
-      expect.objectContaining({ audioBytes: 4, playbackTotalMs: 20, openaiToPlaybackIdleMs: 15 }),
+      expect.objectContaining({
+        audioBytes: 4,
+        playbackTotalMs: 20,
+        openaiToPlaybackIdleMs: 15,
+        streamState: {
+          openai: {
+            ended: true,
+            destroyed: false,
+            bufferedBytes: undefined,
+            flowing: undefined,
+          },
+          resampler: {
+            ended: false,
+            destroyed: false,
+            readableBytes: undefined,
+            writableBytes: undefined,
+            waitingForDrain: undefined,
+          },
+          jitterBuffer: {
+            ended: false,
+            destroyed: false,
+            readableBytes: undefined,
+            writableBytes: undefined,
+            waitingForDrain: undefined,
+          },
+          discordResource: { ended: false, readable: true },
+        },
+      }),
     );
   });
 });

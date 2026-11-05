@@ -1,3 +1,3 @@
 {
-  "help": "Commands: join, channel, voice, skip, stop. Posts in the linked channel use voice."
+  "help": "Команды: join, channel, voice, skip, stop. Сообщения в связанном канале озвучиваются."
 }

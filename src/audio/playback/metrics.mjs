@@ -17,7 +17,18 @@ export function logPlaybackStarted({ metrics, receivedAt, guildId, userId, log, 
   return true;
 }
 
-export function logPlaybackIdle({ metrics, getAudioBytes, guildId, userId, log, now }) {
+export function logPlaybackIdle({
+  metrics,
+  getAudioBytes,
+  source,
+  resampler,
+  jitterBuffer,
+  resource,
+  guildId,
+  userId,
+  log,
+  now,
+}) {
   metrics.playbackIdleAt = now();
   log.debug("Discord TTS playback idle", {
     guildId,
@@ -28,5 +39,28 @@ export function logPlaybackIdle({ metrics, getAudioBytes, guildId, userId, log, 
       metrics.openaiFirstByteAt == null
         ? undefined
         : Math.round(metrics.playbackIdleAt - metrics.openaiFirstByteAt),
+    streamState: {
+      openai: {
+        ended: Boolean(source.readableEnded),
+        destroyed: Boolean(source.destroyed),
+        bufferedBytes: source.readableLength,
+        flowing: source.readableFlowing,
+      },
+      resampler: {
+        ended: Boolean(resampler.readableEnded),
+        destroyed: Boolean(resampler.destroyed),
+        readableBytes: resampler.readableLength,
+        writableBytes: resampler.writableLength,
+        waitingForDrain: resampler.writableNeedDrain,
+      },
+      jitterBuffer: {
+        ended: Boolean(jitterBuffer.readableEnded),
+        destroyed: Boolean(jitterBuffer.destroyed),
+        readableBytes: jitterBuffer.readableLength,
+        writableBytes: jitterBuffer.writableLength,
+        waitingForDrain: jitterBuffer.writableNeedDrain,
+      },
+      discordResource: { ended: resource.ended, readable: resource.readable },
+    },
   });
 }

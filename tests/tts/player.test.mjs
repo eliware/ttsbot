@@ -16,7 +16,7 @@ describe("guild audio player", () => {
       }),
     ).toBe(player);
     expect(createPlayer).toHaveBeenCalledWith({
-      behaviors: { noSubscriber: "pause", maxMissedFrames: 100 },
+      behaviors: { noSubscriber: "pause", maxMissedFrames: 500 },
     });
     const error = new Error("player failed");
     player.emit("error", error);

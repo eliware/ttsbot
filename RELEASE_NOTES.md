@@ -1,5 +1,16 @@
 # Release Notes
 
+## 15.1.1 — 2026-11-05
+
+### Changed
+
+- Update Discord.js to 14.28.1 and refresh the dependency lockfile.
+- Remove direct OpenAI and oxlint dependencies and the obsolete `test:gaps` script.
+
+### Fixed
+
+- Keep playback active for ten seconds during temporary TTS stream gaps.
+
 ## 15.1.0 — 2026-11-01
 
 ### Added
