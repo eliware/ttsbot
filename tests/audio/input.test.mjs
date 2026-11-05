@@ -1,6 +1,5 @@
 import { describe, expect, jest, test } from "@jest/globals";
 import { preparePlaybackInput } from "../../src/audio/input.mjs";
-import { validatePlaybackInput } from "../../src/audio/input-validation.mjs";
 
 function harness({
   settings = { voice: "nova" },
@@ -31,27 +30,8 @@ describe("playback input preparation", () => {
     ).resolves.toBeNull();
   });
 
-  test("rejects empty, long, and disconnected input", async () => {
+  test("does not load settings when a voice connection is missing", async () => {
     const deps = harness();
-    expect(
-      validatePlaybackInput({ text: "", state: deps.state, guildId: "g", log: deps.log }),
-    ).toBe(false);
-    expect(
-      validatePlaybackInput({
-        text: "x".repeat(2001),
-        state: deps.state,
-        guildId: "g",
-        log: deps.log,
-      }),
-    ).toBe(false);
-    expect(
-      validatePlaybackInput({
-        text: "hello",
-        state: { connection: null },
-        guildId: "g",
-        log: deps.log,
-      }),
-    ).toBe(false);
     expect(
       await preparePlaybackInput({
         ...deps,

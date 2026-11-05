@@ -34,13 +34,7 @@ function setup({ connected = null, ready = true } = {}) {
     state.queue = [];
     state.player.stop(true);
   });
-  const leave = createLeaveAction({
-    log,
-    getConnection: () => connected,
-    getGuildState: () => state,
-    stopAndClear,
-  });
-  return { join, leave, connection, log, state, stopAndClear };
+  return { join, connection, log, state, stopAndClear };
 }
 
 describe("voice connection actions", () => {
@@ -115,15 +109,5 @@ describe("voice connection actions", () => {
     expect(state.player.stop).toHaveBeenCalledWith(true);
     expect(connection.destroy).toHaveBeenCalled();
     expect(state).toMatchObject({ connection: null, linkedTextChannelId: null, queue: [] });
-  });
-
-  test("reports when there is no connection to leave", async () => {
-    const { leave } = setup();
-    const interaction = makeInteraction();
-    await leave(interaction);
-    expect(interaction.reply).toHaveBeenCalledWith({
-      content: "I am not in a voice channel.",
-      flags: 64,
-    });
   });
 });

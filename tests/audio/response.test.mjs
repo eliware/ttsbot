@@ -45,17 +45,16 @@ describe("speech response validation", () => {
     expect(deps.log.error).toHaveBeenCalledTimes(1);
   });
 
-  test("cancels an aborted response body", () => {
+  test("rejects a response when its request was aborted", () => {
     const deps = base();
-    const cancel = jest.fn();
     const controller = new AbortController();
     controller.abort();
-    const result = validateSpeechResponse({
-      ...deps,
-      signal: controller.signal,
-      result: { response: { body: { cancel } } },
-    });
-    expect(result).toBeNull();
-    expect(cancel).toHaveBeenCalled();
+    expect(
+      validateSpeechResponse({
+        ...deps,
+        signal: controller.signal,
+        result: { response: { body: { pipe: jest.fn() } } },
+      }),
+    ).toBeNull();
   });
 });

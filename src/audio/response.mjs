@@ -1,6 +1,7 @@
 import { toNodeReadable } from "./stream/converter.mjs";
 import { observeSpeechResponse } from "./response/observation.mjs";
 import { cancelResponseBody } from "../audioLifecycle.mjs";
+import { cancelAbortedSpeechResponse } from "./response/cancellation.mjs";
 import { log as defaultLog } from "@eliware/common";
 
 export function validateSpeechResponse({
@@ -24,11 +25,7 @@ export function validateSpeechResponse({
     hasBody: Boolean(response?.body),
     log,
   });
-  if (signal.aborted) {
-    log.debug("Discarding canceled OpenAI TTS response", { guildId, userId });
-    cancelResponseBody(response.body);
-    return null;
-  }
+  if (cancelAbortedSpeechResponse({ response, signal, guildId, userId, log })) return null;
   if (!response?.body) {
     log.error("OpenAI TTS response did not include an audio body");
     return null;
