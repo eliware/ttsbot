@@ -11,8 +11,16 @@ export function createStopAction({ getGuildState = ensureGuildState, log = defau
       hasCurrent: Boolean(state.current),
       playerStatus: state.player.state.status,
     });
+    state.stopping = true;
+    state.queueGeneration = (state.queueGeneration ?? 0) + 1;
     state.queue = [];
-    stopGuildPlayer(state);
+    try {
+      stopGuildPlayer(state);
+      await state.processing;
+    } finally {
+      state.queue = [];
+      state.stopping = false;
+    }
   };
 }
 

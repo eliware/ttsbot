@@ -1,5 +1,10 @@
 export function createHealthRequestHandler(getReady) {
   return function handleHealthRequest(request, response) {
+    if (request.method !== "GET") {
+      response.writeHead(405, { allow: "GET" });
+      response.end();
+      return;
+    }
     if (request.url === "/health") {
       response.writeHead(200, { "content-type": "application/json" });
       response.end(JSON.stringify({ status: "ok" }));

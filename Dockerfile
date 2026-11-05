@@ -2,7 +2,8 @@
 FROM node:26-bookworm-slim
 
 ENV NODE_ENV=production \
-    HEALTH_PORT=3040
+    HEALTH_PORT=3040 \
+    HEALTH_HOST=0.0.0.0
 
 WORKDIR /opt/ttsbot
 

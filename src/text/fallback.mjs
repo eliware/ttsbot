@@ -18,7 +18,7 @@ export function createReplacementLoadFallback({
     try {
       return await loadRules();
     } catch {
-      return [];
+      return undefined;
     }
   };
 }

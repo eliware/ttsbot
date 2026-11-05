@@ -8,3 +8,7 @@ export function ensureGuildState(guildId) {
   }
   return guildStates.get(guildId);
 }
+
+export function getGuildStateIds() {
+  return [...guildStates.keys()];
+}

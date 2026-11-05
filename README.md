@@ -55,8 +55,8 @@ Check the [user guide troubleshooting section](docs/USER_GUIDE.md#troubleshoot) 
 
 ## Security
 
-Keep `DISCORD_TOKEN` and `OPENAI_API_KEY` out of Git. The health server has no authentication and listens on all interfaces.
-Use network rules to control access to the health server.
+Keep `DISCORD_TOKEN` and `OPENAI_API_KEY` out of Git. The health server has no authentication.
+Direct Node startup listens on loopback. Docker listens inside its container. Map published host ports to loopback. Use network rules to control wider access.
 
 ## Configuration
 
@@ -66,7 +66,7 @@ Set `DISCORD_CLIENT_ID`, `DISCORD_TOKEN`, and `OPENAI_API_KEY` before startup. T
 
 Build the container with `docker build -t ttsbot:local .`.
 Read the [Docker instructions](docs/USER_GUIDE.md#run-with-docker) and [systemd instructions](docs/USER_GUIDE.md#run-with-systemd).
-The GHCR workflow builds the image for its runner's default architecture and publishes a version tag after validation. Publication does not deploy. Check package access and the image digest before deployment.
+The GHCR package is public, so anyone can pull its version tags. The workflow builds for its runner's default architecture and publishes after validation. Publication does not deploy. Record the image digest before deployment.
 
 ## Commands
 

@@ -10,6 +10,6 @@ export async function enqueueSpeech(guildId, item) {
     userId: item.userId,
     textLength: item.text?.length,
   });
-  if (!state.playing)
+  if (!state.playing && !state.stopping)
     processQueue(guildId).catch((error) => log.error("Queue processing error", error));
 }

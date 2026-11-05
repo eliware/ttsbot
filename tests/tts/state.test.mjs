@@ -1,5 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
-import { ensureGuildState } from "../../src/tts/state.mjs";
+import { ensureGuildState, getGuildStateIds } from "../../src/tts/state.mjs";
 
 describe("guild state", () => {
   test("creates and reuses the state for a guild", () => {
@@ -15,5 +15,11 @@ describe("guild state", () => {
       current: null,
     });
     expect(first.player).toBeDefined();
+  });
+
+  test("lists guilds with active state", () => {
+    const guildId = `state-list-test-${process.pid}`;
+    ensureGuildState(guildId);
+    expect(getGuildStateIds()).toContain(guildId);
   });
 });

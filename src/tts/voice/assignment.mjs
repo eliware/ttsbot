@@ -24,15 +24,16 @@ export function createVoiceAssigner({
   return async function assignVoice(guildId, userId, state) {
     if (await hasSettings(guildId, userId)) return;
     if (voices.length === 0) throw new RangeError("At least one voice is required");
-    ensureAssignmentState(state);
-    if (!state.assignedUserOrder.includes(userId)) state.assignedUserOrder.push(userId);
-    state.assignedVoices[userId] = selectLeastUsedVoice({
+    const voice = selectLeastUsedVoice({
       voices,
-      assignments: state.assignedVoices,
+      assignments: state.assignedVoices ?? {},
       random,
     });
     const settings = await loadSettings(guildId, userId);
-    settings.voice = state.assignedVoices[userId];
+    settings.voice = voice;
     await saveSettings(guildId, userId, settings);
+    ensureAssignmentState(state);
+    if (!state.assignedUserOrder.includes(userId)) state.assignedUserOrder.push(userId);
+    state.assignedVoices[userId] = voice;
   };
 }

@@ -24,20 +24,25 @@ Enable the Message Content privileged intent in the Discord Developer Portal. Th
 
 Copy `.env.example` to `.env`. Set the required values and adjust optional values as needed.
 
-| Variable               | Required | Default | Purpose                                                                             |
-| ---------------------- | -------- | ------- | ----------------------------------------------------------------------------------- |
-| `DISCORD_CLIENT_ID`    | Yes      | None    | Discord application ID.                                                             |
-| `DISCORD_TOKEN`        | Yes      | None    | Secret bot token.                                                                   |
-| `OPENAI_API_KEY`       | Yes      | None    | Secret OpenAI API key.                                                              |
-| `HEALTH_PORT`          | No       | `3040`  | Port for the health and readiness endpoints.                                        |
-| `TTS_JITTER_BUFFER_MS` | No       | `200`   | Audio prebuffer in milliseconds, from 0 through 1000.                               |
-| `LOG_LEVEL`            | No       | `info`  | Logging level. Use `error`, `warn`, `info`, `http`, `verbose`, `debug`, or `silly`. |
+| Variable               | Required | Default     | Purpose                                                                             |
+| ---------------------- | -------- | ----------- | ----------------------------------------------------------------------------------- |
+| `DISCORD_CLIENT_ID`    | Yes      | None        | Discord application ID.                                                             |
+| `DISCORD_TOKEN`        | Yes      | None        | Secret bot token.                                                                   |
+| `OPENAI_API_KEY`       | Yes      | None        | Secret OpenAI API key.                                                              |
+| `HEALTH_PORT`          | No       | `3040`      | Port for the health and readiness endpoints.                                        |
+| `HEALTH_HOST`          | No       | `127.0.0.1` | Address for the health server. Docker uses `0.0.0.0` inside its container.          |
+| `TTS_JITTER_BUFFER_MS` | No       | `200`       | Audio prebuffer in milliseconds, from 0 through 1000.                               |
+| `LOG_LEVEL`            | No       | `info`      | Logging level. Use `error`, `warn`, `info`, `http`, `verbose`, `debug`, or `silly`. |
 
 The bot exits before startup when a required value is missing. The application ID is not a secret. Keep the bot token and API key outside version control. The included `.gitignore` excludes `.env`.
 
 Set `LOG_LEVEL` to change logging output. An unsupported value keeps the default level. Debug records include channel, user, queue, request, and timing identifiers. The default level hides these records.
 
-The health server listens on `0.0.0.0`. Limit access to its port with host or container network rules.
+The port parser reads the leading integer. It uses `3040` when the value has no integer prefix. Node assigns an available port when `HEALTH_PORT=0`.
+
+The jitter parser reads the leading integer. It limits negative values to 0 and values above 1000 to 1000. Values without an integer prefix become 0. An empty value uses 200.
+
+Direct Node startup listens on loopback. Docker listens on all container interfaces. Use `127.0.0.1` as the published host address. Add network rules for wider access.
 
 ## Install and run
 
@@ -56,7 +61,7 @@ Run these commands in a server where the bot has been invited:
 
 | Command          | Result                                                                                 |
 | ---------------- | -------------------------------------------------------------------------------------- |
-| `/help`          | Shows basic usage.                                                                     |
+| `/help`          | Shows localized usage.                                                                 |
 | `/join`          | Joins your current voice channel and links the text channel where you ran the command. |
 | `/leave`         | Stops playback, disconnects from voice, and clears the guild queue and linked channel. |
 | `/voice <voice>` | Sets your voice for the current server.                                                |
@@ -66,6 +71,8 @@ Run these commands in a server where the bot has been invited:
 Select a voice with `/voice`: `alloy`, `ash`, `coral`, `echo`, `fable`, `nova`, `onyx`, `sage`, or `shimmer`.
 
 Join a voice channel before you run `/join`. The bot rejects `/join` when the caller is not in a voice channel or when the bot has a voice connection in that server. Run `/leave` before linking a different channel.
+
+Discord localizes the `/help` command name and description. The response uses the locale files. If a translation is missing, the response uses English.
 
 ## Message and voice behavior
 
@@ -79,7 +86,7 @@ The bot requests PCM audio from OpenAI. It processes the returned audio as 24 kH
 
 ## Health and readiness
 
-The HTTP server provides two unauthenticated endpoints:
+The HTTP server provides two unauthenticated GET endpoints:
 
 | Path                            | Success response                      | Meaning                            |
 | ------------------------------- | ------------------------------------- | ---------------------------------- |
@@ -87,7 +94,7 @@ The HTTP server provides two unauthenticated endpoints:
 | `/ready`                        | HTTP 200 with `{"status":"ready"}`    | Discord startup completed.         |
 | `/ready` before Discord startup | HTTP 503 with `{"status":"starting"}` | Discord startup is incomplete.     |
 
-The server returns HTTP 404 for other paths. It listens on `0.0.0.0:<HEALTH_PORT>`, so network rules must limit access.
+The server returns HTTP 404 for other GET paths and HTTP 405 for other methods. Direct Node startup listens on `127.0.0.1`. Docker listens on `0.0.0.0` inside the container. Use `127.0.0.1` as the published host address. Add network rules for wider access.
 
 ## Run with Docker
 
@@ -105,7 +112,7 @@ docker run --rm --name ttsbot --env-file .env -p 127.0.0.1:3040:3040 ttsbot:loca
 
 If `HEALTH_PORT` differs from `3040`, map a host port to the configured container port. For example, run `docker run --rm --name ttsbot --env-file .env -e HEALTH_PORT=9090 -p 127.0.0.1:3040:9090 ttsbot:local`. The container exposes port `3040` by default and runs as the `node` user. The image includes production dependencies and runtime files.
 
-The GHCR workflow builds the image on an Ubuntu GitHub runner without a platform matrix. Check the image manifest for its supported architecture. The workflow publishes a version tag that matches `package.json` after validation. Publication does not deploy the image. Check GHCR package visibility and permissions before relying on registry access. Record the SHA-256 image digest before deployment.
+The GHCR package is public, so anyone can pull its published images. The workflow builds on an Ubuntu GitHub runner without a platform matrix. Check the image manifest for its supported architecture. The workflow publishes a version tag that matches `package.json` after validation. Publication does not deploy the image. Record the SHA-256 image digest before deployment.
 
 ## Run with systemd
 

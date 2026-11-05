@@ -6,11 +6,19 @@
 
 - Update Discord.js to 14.28.1 and refresh the dependency lockfile.
 - Remove direct OpenAI and oxlint dependencies and the obsolete `test:gaps` script.
+- Localize the `/help` response using the user's Discord language.
 
 ### Fixed
 
 - Keep playback active for ten seconds during temporary TTS stream gaps.
 - Prevent longer messages from cutting off during audio playback.
+- Retry replacement loading after an initial file error.
+- Continue queue processing after audio stream errors.
+- Remove jobs enqueued while `/stop` waits for current playback.
+- Reject concurrent `/join` requests for one server.
+- Count a user's voice assignment only after it saves.
+- Limit health routes to GET and use the loopback address for Node by default.
+- Use one copy operation to prebuffer audio.
 
 ## 15.1.0 — 2026-11-01
 

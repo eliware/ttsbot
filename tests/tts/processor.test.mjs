@@ -1,5 +1,6 @@
 import { describe, expect, jest, test } from "@jest/globals";
 import { createQueueProcessor } from "../../src/tts/processor.mjs";
+import { createStopAction } from "../../src/tts/stop.mjs";
 
 describe("TTS queue processor", () => {
   test("plays queued jobs in order and clears the playing flag", async () => {
@@ -48,6 +49,79 @@ describe("TTS queue processor", () => {
     expect(state.playing).toBe(false);
   });
 
+  test("shares the active processor for concurrent calls", async () => {
+    let finishPlayback;
+    const state = {
+      queue: [{ text: "first" }],
+      playing: false,
+      processing: null,
+    };
+    const playText = jest.fn(() => new Promise((resolve) => (finishPlayback = resolve)));
+    const processQueue = createQueueProcessor({
+      getGuildState: () => state,
+      playText,
+      log: { debug: jest.fn(), error: jest.fn() },
+    });
+    const first = processQueue("guild");
+    const second = processQueue("guild");
+    expect(second).toBe(first);
+    finishPlayback();
+    await first;
+    expect(playText).toHaveBeenCalledTimes(1);
+  });
+
+  test("restarts processing for jobs queued as the active loop ends", async () => {
+    const state = {
+      queue: [],
+      playing: false,
+      stopping: false,
+      queueGeneration: 0,
+      processing: null,
+    };
+    const playText = jest.fn(async () => {});
+    const processQueue = createQueueProcessor({
+      getGuildState: () => state,
+      playText,
+      log: { debug: jest.fn(), error: jest.fn() },
+    });
+    const first = processQueue("guild");
+    state.queue.push({ text: "late", userId: "user" });
+    await first;
+    await state.processing;
+    expect(playText).toHaveBeenCalledTimes(1);
+    expect(state.queue).toEqual([]);
+  });
+
+  test("logs failures from a restarted processor", async () => {
+    const state = {
+      queue: [],
+      playing: false,
+      stopping: false,
+      queueGeneration: 0,
+      processing: null,
+    };
+    const failure = new Error("restart failed");
+    let rejectPlayback;
+    const log = {
+      debug: jest.fn(),
+      error: jest.fn((message) => {
+        if (message === "Error playing TTS:") throw failure;
+      }),
+    };
+    const processQueue = createQueueProcessor({
+      getGuildState: () => state,
+      playText: () => new Promise((resolve, reject) => (rejectPlayback = reject)),
+      log,
+    });
+    const first = processQueue("guild");
+    state.queue.push({ text: "late", userId: "user" });
+    await first;
+    const restarted = state.processing;
+    rejectPlayback(failure);
+    await expect(restarted).rejects.toBe(failure);
+    expect(log.error).toHaveBeenCalledWith("Queue processing error", failure);
+  });
+
   test("resets playing when error logging throws during recovery", async () => {
     const state = { queue: [{ text: "bad" }], playing: false };
     const processQueue = createQueueProcessor({
@@ -64,5 +138,35 @@ describe("TTS queue processor", () => {
     });
     await expect(processQueue("guild")).rejects.toThrow("logger failed");
     expect(state.playing).toBe(false);
+  });
+
+  test("clears jobs added while stop waits for current playback", async () => {
+    let finishPlayback;
+    const current = { controller: { abort: jest.fn() } };
+    const state = {
+      queue: [{ text: "current", userId: "user" }],
+      playing: false,
+      stopping: false,
+      queueGeneration: 0,
+      processing: null,
+      current,
+      player: { state: { status: "playing" }, stop: jest.fn() },
+    };
+    const playText = jest.fn(() => new Promise((resolve) => (finishPlayback = resolve)));
+    const log = { debug: jest.fn(), error: jest.fn() };
+    const processQueue = createQueueProcessor({ getGuildState: () => state, playText, log });
+    const processing = processQueue("guild");
+    const stop = createStopAction({ getGuildState: () => state, log });
+
+    const stopping = stop("guild");
+    state.queue.push({ text: "during stop", userId: "user" });
+    finishPlayback();
+    await Promise.all([processing, stopping]);
+
+    expect(playText).toHaveBeenCalledTimes(1);
+    expect(state.queue).toEqual([]);
+    expect(state.playing).toBe(false);
+    expect(state.stopping).toBe(false);
+    expect(current.controller.abort).toHaveBeenCalled();
   });
 });

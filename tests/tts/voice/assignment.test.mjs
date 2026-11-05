@@ -44,4 +44,19 @@ describe("voice assignment", () => {
     expect(state).toEqual({});
     expect(saveSettings).not.toHaveBeenCalled();
   });
+
+  test("does not record a voice when saving the preference fails", async () => {
+    const state = {};
+    const error = new Error("settings unavailable");
+    const assignVoice = createVoiceAssigner({
+      hasSettings: async () => false,
+      loadSettings: async () => ({}),
+      saveSettings: async () => {
+        throw error;
+      },
+      voices: ["a"],
+    });
+    await expect(assignVoice("guild", "user", state)).rejects.toBe(error);
+    expect(state).toEqual({});
+  });
 });

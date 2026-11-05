@@ -12,6 +12,9 @@ describe("guild state factory", () => {
       player,
       queue: [],
       playing: false,
+      stopping: false,
+      queueGeneration: 0,
+      processing: null,
       linkedTextChannelId: null,
       current: null,
     });

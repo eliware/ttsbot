@@ -48,6 +48,6 @@ describe("replacement fallback", () => {
     ["invalid JSON", async () => "{"],
     ["invalid entries", async () => "[null]"],
   ])("returns no rules after %s", async (_label, readReplacements) => {
-    await expect(createReplacementLoadFallback({ readReplacements })()).resolves.toEqual([]);
+    await expect(createReplacementLoadFallback({ readReplacements })()).resolves.toBeUndefined();
   });
 });

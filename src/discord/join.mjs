@@ -44,6 +44,13 @@ export function createJoinAction({
         content: "I am already connected. Use /leave to disconnect first.",
       });
     }
+    const state = await getGuildState(guildId);
+    if (getConnection(guildId)) {
+      log.debug("Join rejected: already connected", { guildId });
+      return interaction.editReply({
+        content: "I am already connected. Use /leave to disconnect first.",
+      });
+    }
     log.debug("Joining Discord voice channel", {
       guildId,
       channelId: voiceChannel.id,
@@ -54,7 +61,6 @@ export function createJoinAction({
       guildId,
       adapterCreator: voiceChannel.guild.voiceAdapterCreator,
     });
-    const state = await getGuildState(guildId);
     setGuildVoiceConnection(state, connection, interaction.channelId);
     ensureAssignmentState(state);
     connection.subscribe(state.player);

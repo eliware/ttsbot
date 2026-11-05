@@ -5,5 +5,8 @@ export function createReplacementLoader({
   readReplacements,
   loadReplacementRules = createReplacementLoadFallback({ readReplacements }),
 } = {}) {
-  return createCachedLoader(loadReplacementRules);
+  const loadCachedRules = createCachedLoader(loadReplacementRules);
+  return async function loadReplacementRulesWithFallback() {
+    return (await loadCachedRules()) ?? [];
+  };
 }

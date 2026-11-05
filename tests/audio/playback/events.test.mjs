@@ -82,3 +82,61 @@ test("cleans playback when no voice connection or audio data exists", async () =
   expect(log.warn).not.toHaveBeenCalled();
   expect(state.current).toBeNull();
 });
+
+test.each([
+  ["source", "OpenAI TTS stream error", false],
+  ["resampler", "PCM resampler error", false],
+  ["source", "OpenAI TTS stream error", true],
+])("stops playback and cleans up after a %s error", async (streamName, logMessage, stopFails) => {
+  const player = new EventEmitter();
+  player.play = jest.fn();
+  const stopError = new Error("player stop failed");
+  player.stop = jest.fn(() => {
+    if (stopFails) throw stopError;
+    player.emit("idle");
+  });
+  const source = new EventEmitter();
+  const resampler = new EventEmitter();
+  const current = {
+    source: { destroy: jest.fn() },
+    resampler: { destroy: jest.fn() },
+    jitterBuffer: { destroy: jest.fn() },
+  };
+  const state = { current, connection: null };
+  const error = new Error(`${streamName} failed`);
+  const log = { debug: jest.fn(), warn: jest.fn(), error: jest.fn() };
+  const done = waitForPlayback({
+    source,
+    response: { body: null },
+    resampler,
+    jitterBuffer: current.jitterBuffer,
+    resource: { ended: false, readable: true },
+    player,
+    state,
+    current,
+    metrics: { requestStartedAt: 1 },
+    receivedAt: null,
+    guildId: "g",
+    userId: "u",
+    AudioStatus: { Idle: "idle", Playing: "playing", Buffering: "buffering" },
+    log,
+    now: () => 2,
+  });
+
+  (streamName === "source" ? source : resampler).emit("error", error);
+  await done;
+
+  expect(player.stop).toHaveBeenCalledWith(true);
+  expect(log.error).toHaveBeenCalledWith(logMessage, error);
+  if (stopFails)
+    expect(log.error).toHaveBeenCalledWith(
+      "Discord audio player stop failed after a stream error",
+      stopError,
+    );
+  expect(current.source.destroy).toHaveBeenCalled();
+  expect(current.resampler.destroy).toHaveBeenCalled();
+  expect(current.jitterBuffer.destroy).toHaveBeenCalled();
+  expect(state.current).toBeNull();
+  expect(source.listenerCount("error")).toBe(0);
+  expect(resampler.listenerCount("error")).toBe(0);
+});

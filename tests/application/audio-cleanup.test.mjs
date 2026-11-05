@@ -10,9 +10,27 @@ test("stops guild audio and destroys its voice connection", async () => {
     stopAndClear,
     getVoiceConnection: () => connection,
     ensureGuildState: () => state,
+    getGuildStateIds: () => [],
     log: { error: jest.fn() },
   });
   expect(stopAndClear).toHaveBeenCalledWith("g");
+  expect(connection.destroy).toHaveBeenCalled();
+  expect(state.connection).toBeNull();
+});
+
+test("cleans voice state absent from the Discord guild cache", async () => {
+  const connection = { destroy: jest.fn() };
+  const state = { connection };
+  const stopAndClear = jest.fn();
+  await cleanupGuildAudio({
+    client: { guilds: { cache: new Map() } },
+    stopAndClear,
+    getVoiceConnection: () => connection,
+    ensureGuildState: () => state,
+    getGuildStateIds: () => ["uncached"],
+    log: { error: jest.fn() },
+  });
+  expect(stopAndClear).toHaveBeenCalledWith("uncached");
   expect(connection.destroy).toHaveBeenCalled();
   expect(state.connection).toBeNull();
 });

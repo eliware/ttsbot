@@ -1,13 +1,16 @@
 import { destroyGuildVoiceConnection } from "./voice-cleanup.mjs";
+import { getGuildStateIds as getActiveGuildStateIds } from "../tts/state.mjs";
 
 export async function cleanupGuildAudio({
   client,
   stopAndClear,
   getVoiceConnection,
   ensureGuildState,
+  getGuildStateIds = getActiveGuildStateIds,
   log,
 }) {
-  for (const [guildId] of client.guilds.cache) {
+  const guildIds = new Set([...client.guilds.cache.keys(), ...getGuildStateIds()]);
+  for (const guildId of guildIds) {
     await stopGuildAudio({ guildId, stopAndClear, log });
     destroyGuildVoiceConnection({ guildId, getVoiceConnection, ensureGuildState, log });
   }
