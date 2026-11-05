@@ -2,6 +2,7 @@ import { createPlaybackDependencies } from "./playback/factory.mjs";
 import { preparePlaybackInput } from "./input.mjs";
 import { executeSpeechRequest } from "./request-lifecycle.mjs";
 import { waitForPlayback } from "./playback/events.mjs";
+import { cleanupCurrent } from "../audioLifecycle.mjs";
 
 export function createPlayback(options = {}) {
   const {
@@ -55,25 +56,31 @@ export function createPlayback(options = {}) {
       metrics,
     } = request;
 
-    const { resampler, jitterBuffer, resource } = buildPipeline(source);
-    const player = state.player;
-    Object.assign(current, { player, resource, source, resampler, jitterBuffer });
-    return waitForPlayback({
-      source,
-      jitterBuffer,
-      response,
-      resampler,
-      resource,
-      player,
-      state,
-      current,
-      metrics,
-      receivedAt,
-      guildId,
-      userId,
-      AudioStatus,
-      log: logger,
-      now,
-    });
+    try {
+      const { resampler, jitterBuffer, resource } = buildPipeline(source);
+      const player = state.player;
+      Object.assign(current, { player, resource, source, resampler, jitterBuffer });
+      return await waitForPlayback({
+        source,
+        jitterBuffer,
+        response,
+        resampler,
+        resource,
+        player,
+        state,
+        current,
+        metrics,
+        receivedAt,
+        guildId,
+        userId,
+        AudioStatus,
+        log: logger,
+        now,
+      });
+    } catch (error) {
+      cleanupCurrent(current, { responseBody: response.body });
+      if (state.current === current) state.current = null;
+      throw error;
+    }
   };
 }

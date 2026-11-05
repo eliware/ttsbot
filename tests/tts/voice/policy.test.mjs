@@ -27,4 +27,14 @@ describe("voice allocation policy", () => {
       "At least one voice is required",
     );
   });
+
+  test("ignores stale assignments and bounds a random value of one", () => {
+    expect(
+      selectLeastUsedVoice({
+        voices: ["a", "b"],
+        assignments: { stale: "removed", first: "a" },
+        random: () => 1,
+      }),
+    ).toBe("b");
+  });
 });

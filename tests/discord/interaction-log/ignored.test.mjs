@@ -3,9 +3,10 @@ import { logIgnoredInteraction } from "../../../src/discord/interaction-log/igno
 
 test("logs ignored interactions", () => {
   const log = { debug: jest.fn() };
-  logIgnoredInteraction(log, { type: 3, customId: "x" });
+  logIgnoredInteraction(log, { type: 3, customId: "x", channelId: "channel" });
   expect(log.debug).toHaveBeenCalledWith("Ignoring non-command interaction", {
     type: 3,
     customId: "x",
+    channelId: "channel",
   });
 });

@@ -152,4 +152,58 @@ describe("TTS playback", () => {
     });
     expect(aborted.state.current).toBeNull();
   });
+
+  test("cleans playback resources when player setup throws", async () => {
+    const body = new FakeStream();
+    const harness = createHarness({ responses: [{ body }] });
+    const setupError = new Error("player setup failed");
+    harness.player.play = jest.fn(() => {
+      throw setupError;
+    });
+
+    await expect(
+      createPlayback(harness.dependencies)("guild", "hello", "user", "", 0, harness.state),
+    ).rejects.toBe(setupError);
+
+    expect(body.destroy).toHaveBeenCalled();
+    expect(harness.state.current).toBeNull();
+    expect(harness.player.listenerCount("idle")).toBe(0);
+    expect(harness.player.listenerCount("playing")).toBe(0);
+    expect(harness.player.listenerCount("buffering")).toBe(0);
+  });
+
+  test("cleans the response when pipeline construction throws", async () => {
+    const body = new FakeStream();
+    const harness = createHarness({ responses: [{ body }] });
+    class FailedResampler {
+      constructor() {
+        throw new Error("pipeline setup failed");
+      }
+    }
+    const dependencies = { ...harness.dependencies, ResamplerClass: FailedResampler };
+
+    await expect(
+      createPlayback(dependencies)("guild", "hello", "user", "", 0, harness.state),
+    ).rejects.toThrow("pipeline setup failed");
+
+    expect(body.destroy).toHaveBeenCalled();
+    expect(harness.state.current).toBeNull();
+  });
+
+  test("preserves a newer playback request when setup fails", async () => {
+    const body = new FakeStream();
+    const harness = createHarness({ responses: [{ body }] });
+    const newerRequest = { controller: new AbortController() };
+    harness.connection.subscribe = jest.fn(() => {
+      harness.state.current = newerRequest;
+      throw new Error("subscription failed");
+    });
+
+    await expect(
+      createPlayback(harness.dependencies)("guild", "hello", "user", "", 0, harness.state),
+    ).rejects.toThrow("subscription failed");
+
+    expect(harness.state.current).toBe(newerRequest);
+    expect(body.destroy).toHaveBeenCalled();
+  });
 });

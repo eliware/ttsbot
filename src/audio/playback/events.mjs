@@ -32,7 +32,7 @@ export function waitForPlayback({
     now,
   });
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     let settled = false;
     let removeStreamErrorHandlers;
     const onIdle = () => {
@@ -73,16 +73,24 @@ export function waitForPlayback({
     const onPlaying = () => {
       logPlaybackStarted({ metrics, receivedAt, guildId, userId, log, now });
     };
-    removeStreamErrorHandlers = attachAudioStreamErrorHandlers({
-      source,
-      resampler,
-      log,
-      onError: onStreamError,
-    });
-    player.on(AudioStatus.Idle, onIdle);
-    player.on(AudioStatus.Playing, onPlaying);
-    player.on(AudioStatus.Buffering, onBuffering);
-    if (state.connection) state.connection.subscribe(player);
-    player.play(resource);
+    try {
+      removeStreamErrorHandlers = attachAudioStreamErrorHandlers({
+        source,
+        resampler,
+        log,
+        onError: onStreamError,
+      });
+      player.on(AudioStatus.Idle, onIdle);
+      player.on(AudioStatus.Playing, onPlaying);
+      player.on(AudioStatus.Buffering, onBuffering);
+      if (state.connection) state.connection.subscribe(player);
+      player.play(resource);
+    } catch (error) {
+      removeStreamErrorHandlers();
+      player.removeListener(AudioStatus.Idle, onIdle);
+      player.removeListener(AudioStatus.Playing, onPlaying);
+      player.removeListener(AudioStatus.Buffering, onBuffering);
+      reject(error);
+    }
   });
 }
