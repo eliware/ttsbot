@@ -4,21 +4,28 @@
 
 ### Changed
 
-- Update Discord.js to 14.28.1 and refresh the dependency lockfile.
+- Update Discord.js to 14.28.1 and the resampler to 15.1.0. Refresh the dependency lockfile.
 - Remove direct OpenAI and oxlint dependencies and the obsolete `test:gaps` script.
-- Localize the `/help` response using the user's Discord language.
+- Localize `/help` command names, descriptions, and replies for supported Discord languages.
+- Apply supported `LOG_LEVEL` values at startup.
+- Add playback stream diagnostics and document setup, configuration, health checks, Docker, and systemd use.
+- Use loopback as the default health address in Node. Configure the container network address explicitly.
+- Limit health and readiness routes to GET requests.
+- Update the systemd launch command.
 
 ### Fixed
 
 - Keep playback active for ten seconds during temporary TTS stream gaps.
-- Prevent longer messages from cutting off during audio playback.
-- Retry replacement loading after an initial file error.
-- Continue queue processing after audio stream errors.
-- Remove jobs enqueued while `/stop` waits for current playback.
-- Reject concurrent `/join` requests for one server.
-- Count a user's voice assignment only after it saves.
-- Limit health routes to GET and use the loopback address for Node by default.
-- Use one copy operation to prebuffer audio.
+- Prevent long messages from cutting off during audio playback.
+- Continue playback after TTS stream errors and release audio resources when setup fails.
+- Keep queued messages moving after playback or stream errors. Drop messages added while `/stop` waits.
+- Prevent duplicate voice connections for `/join` requests at once.
+- Clean audio state for guilds with no Discord cache entry.
+- Save a user's voice selection before updating memory.
+- Ignore stale voice assignments and bound voice selection at random values of one.
+- Retry replacement reads after a file error. Do not cache failed reads.
+- Make fewer copies while the audio buffer fills.
+- Log the chosen health address and channel IDs for ignored interactions.
 
 ## 15.1.0 — 2026-11-01
 
