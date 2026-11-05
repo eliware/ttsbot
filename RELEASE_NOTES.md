@@ -10,6 +10,7 @@
 ### Fixed
 
 - Keep playback active for ten seconds during temporary TTS stream gaps.
+- Prevent longer messages from cutting off during audio playback.
 
 ## 15.1.0 — 2026-11-01
 

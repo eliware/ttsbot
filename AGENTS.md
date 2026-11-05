@@ -10,7 +10,7 @@ Keep application behavior in this repository. Keep end-user procedures in `docs/
 
 ## Layout
 
-Keep runtime code in `src/`. Keep launchers in `bin/`. Keep Discord command definitions in `commands/`.
+Keep runtime code in `src/`. Keep launchers in `bin/`. Keep Discord command definitions and adapters in `commands/`.
 Keep event adapters in `events/`. Keep tests in `tests/`. Keep user documentation in `docs/`.
 
 ## Development
@@ -38,12 +38,12 @@ Run one test file with `npm test -- tests/path/to/example.test.mjs`.
 Run multiple test files with `npm test -- tests/path/to/first.test.mjs tests/path/to/second.test.mjs`.
 Prevent repeated full-suite runs during development.
 Run the full `npm test` suite for final validation before a commit, milestone, or release.
-Keep startup configuration and user procedures accurate in `README.md` and `docs/USER_GUIDE.md`.
 
 ## Discord
 
-Document each slash command and each required intent and permission. Keep command logic in `src/commands/`.
-Keep command adapters in `commands/`. Keep event logic in `src/events/` and adapters in `events/`.
+Document each slash command, event, intent, and permission in the user guide.
+Keep command logic in `src/commands/` and adapters in `commands/`.
+Keep event logic in `src/events/` and adapters in `events/`.
 
 ## GHCR publication
 

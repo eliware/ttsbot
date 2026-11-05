@@ -10,7 +10,7 @@ User=root
 Group=root
 UMask=0077
 WorkingDirectory=/opt/ttsbot
-ExecStart=/opt/ttsbot/ttsbot.mjs
+ExecStart=/usr/bin/node /opt/ttsbot/bin/ttsbot.mjs
 EnvironmentFile=/opt/ttsbot/.env
 Environment=NODE_ENV=production
 Restart=on-failure

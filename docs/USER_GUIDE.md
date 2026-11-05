@@ -24,17 +24,18 @@ Enable the Message Content privileged intent in the Discord Developer Portal. Th
 
 Copy `.env.example` to `.env`. Set the required values and adjust optional values as needed.
 
-| Variable               | Required | Default | Purpose                                               |
-| ---------------------- | -------- | ------- | ----------------------------------------------------- |
-| `DISCORD_CLIENT_ID`    | Yes      | None    | Discord application ID.                               |
-| `DISCORD_TOKEN`        | Yes      | None    | Secret bot token.                                     |
-| `OPENAI_API_KEY`       | Yes      | None    | Secret OpenAI API key.                                |
-| `HEALTH_PORT`          | No       | `3040`  | Port for the health and readiness endpoints.          |
-| `TTS_JITTER_BUFFER_MS` | No       | `200`   | Audio prebuffer in milliseconds, from 0 through 1000. |
+| Variable               | Required | Default | Purpose                                                                             |
+| ---------------------- | -------- | ------- | ----------------------------------------------------------------------------------- |
+| `DISCORD_CLIENT_ID`    | Yes      | None    | Discord application ID.                                                             |
+| `DISCORD_TOKEN`        | Yes      | None    | Secret bot token.                                                                   |
+| `OPENAI_API_KEY`       | Yes      | None    | Secret OpenAI API key.                                                              |
+| `HEALTH_PORT`          | No       | `3040`  | Port for the health and readiness endpoints.                                        |
+| `TTS_JITTER_BUFFER_MS` | No       | `200`   | Audio prebuffer in milliseconds, from 0 through 1000.                               |
+| `LOG_LEVEL`            | No       | `info`  | Logging level. Use `error`, `warn`, `info`, `http`, `verbose`, `debug`, or `silly`. |
 
 The bot exits before startup when a required value is missing. The application ID is not a secret. Keep the bot token and API key outside version control. The included `.gitignore` excludes `.env`.
 
-The application uses the `info` log level. Configuration cannot change it. Debug records include channel, user, queue, request, and timing identifiers. The default level hides these records.
+Set `LOG_LEVEL` to change logging output. An unsupported value keeps the default level. Debug records include channel, user, queue, request, and timing identifiers. The default level hides these records.
 
 The health server listens on `0.0.0.0`. Limit access to its port with host or container network rules.
 
@@ -99,16 +100,16 @@ docker build -t ttsbot:local .
 Create a local `.env` file with the required settings. Then start the container:
 
 ```sh
-docker run --rm --name ttsbot --env-file .env -p 3040:3040 ttsbot:local
+docker run --rm --name ttsbot --env-file .env -p 127.0.0.1:3040:3040 ttsbot:local
 ```
 
-If `HEALTH_PORT` differs from `3040`, map a host port to the container port set by `HEALTH_PORT`. For example, use `-p 3040:9090` when `HEALTH_PORT=9090`. The container exposes port `3040` and runs as the `node` user. The image includes production dependencies and the files needed at runtime.
+If `HEALTH_PORT` differs from `3040`, map a host port to the configured container port. For example, run `docker run --rm --name ttsbot --env-file .env -e HEALTH_PORT=9090 -p 127.0.0.1:3040:9090 ttsbot:local`. The container exposes port `3040` by default and runs as the `node` user. The image includes production dependencies and runtime files.
 
-The GHCR workflow publishes an image for a version tag that matches `package.json`. Publication runs only after validation. Check the package visibility and access settings before relying on a registry image. Use a version tag and verify its digest before deployment.
+The GHCR workflow builds the image on an Ubuntu GitHub runner without a platform matrix. Check the image manifest for its supported architecture. The workflow publishes a version tag that matches `package.json` after validation. Publication does not deploy the image. Check GHCR package visibility and permissions before relying on registry access. Record the SHA-256 image digest before deployment.
 
 ## Run with systemd
 
-The included `ttsbot.service` expects the repository at `/opt/ttsbot` and settings in `/opt/ttsbot/.env`. Examine the unit before enabling it. The unit runs as `root`, sets a restrictive filesystem policy, and starts the bot after a failure.
+The included `ttsbot.service` expects the repository at `/opt/ttsbot` and settings in `/opt/ttsbot/.env`. Examine the unit before enabling it. The unit runs Node.js with `/opt/ttsbot/bin/ttsbot.mjs` as `root`, applies filesystem restrictions, and restarts the bot after a failure.
 
 After installing the repository and creating the environment file, use:
 
