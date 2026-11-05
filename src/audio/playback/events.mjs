@@ -1,5 +1,6 @@
 import { shouldLogBufferUnderrun } from "../../ttsPolicies.mjs";
-import { attachPlaybackMetrics, logPlaybackIdle, logPlaybackStarted } from "./metrics.mjs";
+import { attachStreamMetrics } from "../stream/metrics.mjs";
+import { logPlaybackIdle, logPlaybackStarted } from "./metrics.mjs";
 import { cleanupPlayback } from "./cleanup.mjs";
 
 export function waitForPlayback({
@@ -19,7 +20,7 @@ export function waitForPlayback({
   log,
   now,
 }) {
-  const getAudioBytes = attachPlaybackMetrics({
+  const getAudioBytes = attachStreamMetrics({
     source,
     resampler,
     metrics,

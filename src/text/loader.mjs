@@ -1,4 +1,4 @@
-import { createReplacementLoadFallback } from "./load-fallback.mjs";
+import { createReplacementLoadFallback } from "./fallback.mjs";
 import { createCachedLoader } from "./cache.mjs";
 
 export function createReplacementLoader({

@@ -1,5 +1,8 @@
 import { describe, expect, jest, test } from "@jest/globals";
-import { preserveTextOnReplacementFailure } from "../../src/text/fallback.mjs";
+import {
+  createReplacementLoadFallback,
+  preserveTextOnReplacementFailure,
+} from "../../src/text/fallback.mjs";
 
 describe("replacement fallback", () => {
   test("returns successful replacements with the default logger", async () => {
@@ -21,5 +24,30 @@ describe("replacement fallback", () => {
       ),
     ).resolves.toBe("text");
     expect(logger.error).toHaveBeenCalledWith("Replacements error", error);
+  });
+
+  test("accepts omitted load options", () => {
+    expect(typeof createReplacementLoadFallback()).toBe("function");
+  });
+
+  test("uses an explicitly supplied rule loader", async () => {
+    const loadRules = jest.fn(async () => [{ search: "a", replace: "b" }]);
+    await expect(createReplacementLoadFallback({ loadRules })()).resolves.toEqual([
+      { search: "a", replace: "b" },
+    ]);
+    expect(loadRules).toHaveBeenCalledTimes(1);
+  });
+
+  test.each([
+    [
+      "read failure",
+      async () => {
+        throw new Error("read failed");
+      },
+    ],
+    ["invalid JSON", async () => "{"],
+    ["invalid entries", async () => "[null]"],
+  ])("returns no rules after %s", async (_label, readReplacements) => {
+    await expect(createReplacementLoadFallback({ readReplacements })()).resolves.toEqual([]);
   });
 });

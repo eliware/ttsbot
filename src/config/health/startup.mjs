@@ -1,5 +1,6 @@
 import { log as defaultLog } from "@eliware/common";
-import { getHealthPort, getListeningHealthPort } from "./port.mjs";
+import { getHealthPort } from "./port.mjs";
+import { getListeningHealthPort } from "./listening-port.mjs";
 import { logHealthServerListening } from "./startup-log.mjs";
 import { startConfiguredHealthServer } from "../server-startup.mjs";
 

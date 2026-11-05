@@ -1,9 +1,3 @@
-import { attachStreamMetrics } from "../stream/metrics.mjs";
-
-export function attachPlaybackMetrics(options) {
-  return attachStreamMetrics(options);
-}
-
 export function logPlaybackStarted({ metrics, receivedAt, guildId, userId, log, now }) {
   if (metrics.playbackFirstByteAt != null) return false;
   metrics.playbackFirstByteAt = now();
