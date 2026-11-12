@@ -49,7 +49,7 @@ Keep event logic in `src/events/` and adapters in `events/`.
 
 Image: ghcr.io/eliware/ttsbot
 
-Pull command: docker pull ghcr.io/eliware/ttsbot:v15.1.1
+Pull command: docker pull ghcr.io/eliware/ttsbot:v15.1.2
 
 Supported tags: vMAJOR.MINOR.PATCH
 

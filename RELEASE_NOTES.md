@@ -1,5 +1,11 @@
 # Release Notes
 
+## 15.1.2 — 2026-11-12
+
+### Changed
+
+- Update outdated dependencies and refresh the lockfile.
+
 ## 15.1.1 — 2026-11-05
 
 ### Changed
